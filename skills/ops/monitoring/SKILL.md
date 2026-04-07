@@ -1,0 +1,280 @@
+---
+name: ops-monitor
+description: >
+  Create or refine a monitoring plan defining the monitoring, alerting, and
+  observability strategy — what to monitor, alert thresholds, dashboards, log
+  aggregation, and distributed tracing. ONLY activated by commands: `/ops-monitor`
+  (create) or `/ops-monitor-refine` (refine). NEVER auto-trigger based on keywords.
+argument-hint: "[path to env-spec-final.md or architecture-final.md]"
+version: "1.0"
+category: sdlc
+phase: ops
+prev_phase: deploy-env
+next_phase: ops-incident
+---
+
+# Monitoring Plan Skill
+
+## Purpose
+
+Create or refine a monitoring plan document (`monitoring-plan-draft.md`) that defines the complete monitoring, alerting, and observability strategy for the system. This covers what to monitor across infrastructure and application layers, alert thresholds and escalation, dashboard specifications, log aggregation, distributed tracing, and on-call setup.
+
+The monitoring plan bridges "where we run" (environment specification) and "how we respond" (incident response) by defining the signals, thresholds, and dashboards that detect problems before users do — and route those problems to the right people.
+
+---
+
+## Two Modes
+
+### Mode 1: Create (`/ops-monitor`)
+
+Generate a monitoring plan from environment specification and architecture artifacts.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Environment spec (final) | Yes | `deploy/final/env-spec-final.md` or user-specified path |
+| Architecture (final) | Yes | `design/final/architecture-final.md` or user-specified path |
+| Tech stack (final) | No | `design/final/tech-stack-final.md` — monitoring tools (Datadog, Prometheus, etc.) |
+| Scope (final) | No | `init/final/scope-final.md` — quality attributes for SLO-based alert thresholds |
+| Risk register (final) | No | `init/final/risk-register-final.md` — failure scenarios to monitor |
+
+### Mode 2: Refine (`/ops-monitor-refine`)
+
+Improve existing monitoring plan based on user feedback.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing monitoring plan draft | Yes | `draft/monitoring-plan-draft.md` or `draft/monitoring-plan-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Additional details | No | New information the user wants to add |
+
+---
+
+## Output
+
+| Mode | Output File | Location |
+|------|------------|----------|
+| Create | `monitoring-plan-draft.md` | `draft/` |
+| Refine | `monitoring-plan-v{N}.md` | `draft/` (N = next version number) |
+
+When user is satisfied -> they copy from `draft/` to `ops/final/monitoring-plan-final.md`.
+
+---
+
+## Workflow
+
+### Step 1: Determine Mode
+
+- User runs `/ops-monitor-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/ops-monitor` -> **Mode 1 (Create)**
+- User runs `/ops-monitor` but draft already exists -> Ask: "A monitoring plan draft already exists. Create new (overwrite) or refine existing?"
+
+### Step 2: Read Knowledge and Rules
+
+Read these files in order:
+
+1. `skills/shared/rules/doc-standards.md` -- document formatting standards
+2. `skills/shared/rules/quality-rules.md` -- confidence marking, readiness assessment
+3. `skills/shared/rules/output-rules.md` -- versioning, input resolution, diff summary
+4. `ops/shared/rules/ops-rules.md` -- operations phase rules
+5. `ops/monitoring/knowledge/monitoring-guide.md` -- monitoring and observability techniques
+6. `ops/monitoring/rules/output-rules.md` -- monitoring-specific output rules
+7. `ops/monitoring/templates/output-template.md` -- expected output structure
+
+### Step 3: Resolve Input
+
+**Mode 1 (Create):**
+
+```
+For environment spec input (required):
+1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
+2. Exists in input/env-spec-final.md?             -> YES -> read it -> DONE
+3. Exists in deploy/final/env-spec-final.md?      -> YES -> read it, copy to input/ -> DONE
+4. Not found? -> Ask: "No environment specification found. Please provide a path or run /deploy-env first."
+
+For architecture input (required):
+1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
+2. Exists in input/architecture-final.md?         -> YES -> read it -> DONE
+3. Exists in design/final/architecture-final.md?  -> YES -> read it, copy to input/ -> DONE
+4. Not found? -> Ask: "No architecture document found. Please provide a path or run /design-arch first."
+
+For tech stack input (optional):
+1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
+2. Exists in input/tech-stack-final.md?           -> YES -> read it -> DONE
+3. Exists in design/final/tech-stack-final.md?    -> YES -> read it, copy to input/ -> DONE
+4. Not found? -> Proceed without tech stack document.
+
+For scope input (optional):
+1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
+2. Exists in input/scope-final.md?                -> YES -> read it -> DONE
+3. Exists in init/final/scope-final.md?           -> YES -> read it, copy to input/ -> DONE
+4. Not found? -> Proceed without scope document.
+
+For risk register input (optional):
+1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
+2. Exists in input/risk-register-final.md?        -> YES -> read it -> DONE
+3. Exists in init/final/risk-register-final.md?   -> YES -> read it, copy to input/ -> DONE
+4. Not found? -> Proceed without risk register document.
+```
+
+**Mode 2 (Refine):**
+
+```
+For monitoring plan draft:
+1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
+2. Exists in input/?                              -> YES -> read it -> DONE
+3. Exists in draft/ (latest version)?             -> YES -> read it, copy to input/ -> DONE
+4. Not found? -> FAIL: "No existing monitoring plan draft found. Run /ops-monitor first."
+
+For review report:
+1. User provided feedback directly in message?    -> Save to input/review-report.md
+2. User specified path?                           -> read it, copy to input/
+3. Exists in input/review-report.md?              -> read it
+4. Not found? -> Ask: "What feedback do you have on the current monitoring plan?"
+```
+
+### Step 4: Generate (Mode-specific)
+
+**Mode 1 -- Create:**
+
+Work through the monitoring plan **section by section, incrementally**:
+
+1. **Monitoring Strategy** -- Three pillars and tooling
+   - Define approach across three pillars: metrics, logs, traces
+   - Identify monitoring tools from tech-stack-final.md (or recommend defaults)
+   - Generate Mermaid diagram showing monitoring architecture (data flow from sources to dashboards)
+   - Present strategy to user before detailing
+
+2. **Infrastructure Monitoring** -- Per-component monitoring
+   - For each component from env-spec-final.md: CPU, memory, disk, network
+   - Health check endpoints and intervals
+   - USE method metrics (Utilization, Saturation, Errors) per resource
+   - Map infrastructure components to specific metrics and thresholds
+
+3. **Application Monitoring** -- Service-level metrics
+   - For each service from architecture-final.md: RED metrics (Rate, Errors, Duration)
+   - Request rate, error rate, latency distribution (p50/p95/p99)
+   - Business metrics (domain-specific KPIs)
+   - Dependency health (downstream service and database call metrics)
+
+4. **Alert Definitions** -- Per-alert specifications
+   - For each alert: metric, condition, severity (Critical/Warning/Info), notification channel, runbook link, recommended action
+   - Derive thresholds from SLO targets in scope-final.md (or quality attributes QA-xxx)
+   - Apply alert design principles: symptoms over causes, every alert actionable
+   - Map risk scenarios from risk-register-final.md to specific alerts
+
+5. **Dashboard Specifications** -- Per-dashboard panel lists
+   - System Overview dashboard (traffic light health, key metrics at a glance)
+   - Service Deep Dive dashboard (per-service RED, dependency map)
+   - Infrastructure dashboard (resource utilization, scaling events)
+   - Define panels, data sources, and refresh intervals for each
+
+6. **Log Management** -- Logging strategy
+   - Structured log format (JSON) with standard fields
+   - Log levels and when to use each (ERROR, WARN, INFO, DEBUG)
+   - Aggregation pipeline (source -> collector -> storage -> search)
+   - Retention policy (hot, cold, archive)
+   - Sensitive data handling (redaction, PII avoidance)
+
+7. **Distributed Tracing** -- Trace configuration
+   - Trace propagation mechanism and instrumentation
+   - Sampling strategy (production vs staging)
+   - Correlation IDs across services
+   - Key trace paths to instrument (user-facing request flows)
+
+8. **On-Call Setup** -- Rotation and escalation
+   - On-call rotation schedule (cadence, team size)
+   - Primary and secondary responder roles
+   - Alert routing by severity to notification channels
+   - Escalation paths with time thresholds per severity level
+   - Handoff procedures
+
+For each section:
+- Apply confidence markers (CONFIRMED / ASSUMED / UNCLEAR)
+- Inherit confidence from source documents where applicable
+- Create Q&A entries for ASSUMED and UNCLEAR items
+- Present section to user before moving to next
+
+**Mode 2 -- Refine:**
+
+1. Read existing monitoring plan draft (baseline)
+2. Read review report / user feedback
+3. Run Quality Scorecard analysis
+4. Present scorecard to user
+5. Apply improvements:
+   - Address user feedback point by point
+   - Resolve Q&A entries from previous version
+   - Upgrade confidence levels where possible
+   - Refine alert thresholds based on new information
+   - Update dashboards and on-call setup as needed
+6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
+7. Preserve CONFIRMED items unless user explicitly contradicts them
+8. Write improved version to `draft/monitoring-plan-v{N}.md`
+
+### Step 5: Validate Output
+
+Check against rules:
+- Every item has a confidence marker (CR-01)
+- Every infrastructure component from env-spec has monitoring defined (MON-01)
+- Every service has RED metrics (Rate, Errors, Duration) (MON-02)
+- Every alert specifies metric, condition, severity, channel, and runbook reference (MON-03)
+- Alert thresholds derive from SLO targets or quality attributes (MON-04)
+- At least 3 dashboards defined: overview, service, infrastructure (MON-05)
+- Log format is structured (JSON) with standard fields (MON-06)
+- Log retention policy is specified (MON-07)
+- Section order matches template (MON-08)
+- Confidence markers on every alert threshold (MON-09)
+- Refine mode shows quality scorecard first (MON-10)
+- On-call rotation defined with escalation paths (MON-11)
+- Alert severity consistent with incident severity levels (MON-12)
+- Business metrics included alongside technical metrics (MON-13)
+- Mermaid diagram showing monitoring architecture included (MON-14)
+
+### Step 6: Readiness Assessment
+
+Generate assessment per `skills/shared/templates/readiness-assessment.md`:
+- Count items by confidence level (each alert is 1 item, each dashboard is 1 item, each metric is 1 item)
+- Calculate readiness verdict
+- In refine mode: compare with previous version
+
+### Step 7: Output
+
+- **Create mode**: Write to `draft/monitoring-plan-draft.md`
+- **Refine mode**: Write to `draft/monitoring-plan-v{N}.md`, include Change Log and Diff Summary
+
+Tell the user:
+> **Monitoring Plan {created/refined}!**
+> - Output: `draft/monitoring-plan-{version}.md`
+> - Readiness: {verdict}
+> - Alerts: {count} (Critical: {C}, Warning: {W}, Info: {I})
+> - Dashboards: {count}
+> - Services monitored: {count}
+> - Infrastructure components: {count}
+> - Q&A pending: {N} (HIGH: {H})
+>
+> **Next steps:**
+> - Review the output and provide feedback via `/ops-monitor-refine`
+> - When satisfied, copy to `ops/final/monitoring-plan-final.md`
+> - Then run `/ops-incident` to define incident response procedures
+
+---
+
+## Scope Rules
+
+### This skill DOES:
+- Define monitoring strategy across three pillars (metrics, logs, traces)
+- Specify infrastructure monitoring per component (CPU, memory, disk, network, health checks)
+- Define application monitoring with RED metrics per service
+- Create alert definitions with thresholds, severities, channels, and runbook references
+- Specify dashboard layouts for engineering, operations, and management audiences
+- Define structured logging format, levels, aggregation, and retention
+- Configure distributed tracing strategy (propagation, sampling, correlation)
+- Set up on-call rotation, escalation paths, and alert routing
+
+### This skill does NOT:
+- Implement monitoring infrastructure (that's DevOps work -- Terraform modules, Datadog agent install, etc.)
+- Define incident response procedures (belongs to `ops/incident` skill)
+- Define SLA/SLO contracts (belongs to `ops/sla` skill)
+- Create operational runbooks (belongs to `ops/runbook` skill)
+- Define change management processes (belongs to `ops/change` skill)
+- Define environment infrastructure (belongs to `deploy/env` skill)
+- Modify source documents -- it reads them as input
