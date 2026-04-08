@@ -4,9 +4,9 @@ description: >
   Create or refine a system architecture document using C4 model diagrams.
   Defines system context, containers, components, and key workflows using
   Mermaid notation. Maps quality attributes to architectural decisions.
-  ONLY activated by command: `/design-arch`. Use `--create` or `--refine` to set mode.
+  ONLY activated by command: `/design-arch`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: design
@@ -24,7 +24,7 @@ from scope to concrete architectural patterns and decisions.
 
 ---
 
-## Two Modes
+## Three Modes
 
 ### Mode 1: Create (`--create`)
 
@@ -50,6 +50,14 @@ Improve an existing architecture document based on user feedback.
 | Review report / feedback | ✅ | User provides directly or as `sdlc/design/input/review-report.md` |
 | Additional context | No | New information the user wants to incorporate |
 
+### Mode 3: Score (`--score`)
+
+Evaluate artifact quality with a detailed scoreboard.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/design/draft/architecture-draft.md` or latest `architecture-v{N}.md` or `sdlc/design/final/architecture-final.md`, or user-specified path |
+
 ---
 
 ## Output
@@ -58,6 +66,7 @@ Improve an existing architecture document based on user feedback.
 |------|------------|----------|
 | Create | `architecture-draft.md` | `sdlc/design/draft/` |
 | Refine | `architecture-v{N}.md` | `sdlc/design/draft/` (N = next version number) |
+| Score | `architecture-scoreboard.md` | `sdlc/design/draft/` |
 
 When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/final/architecture-final.md`.
 
@@ -67,6 +76,7 @@ When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/f
 
 ### Step 1: Determine Mode
 
+- User passes `--score` argument → **Mode 3 (Score)**
 - User passes `--refine` argument → **Mode 2 (Refine)**
 - User passes `--create` argument → **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/design/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
@@ -84,6 +94,9 @@ Read these files in order:
 6. `design/architecture/knowledge/c4-modeling-guide.md` — C4 modeling techniques
 7. `design/architecture/rules/output-rules.md` — architecture-specific output rules
 8. `design/architecture/templates/output-template.md` — expected output structure
+9. `skills/shared/knowledge/scoring-guide.md` — scoring methodology (Mode 3 only)
+10. `skills/shared/rules/scoring-rules.md` — scoring output rules (Mode 3 only)
+11. `skills/shared/templates/scoreboard-output-template.md` — scoreboard format (Mode 3 only)
 
 ### Step 3: Resolve Input
 
@@ -139,6 +152,17 @@ For review report:
 4. Not found? → Ask: "What feedback do you have on the current architecture?"
 ```
 
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/design/final/architecture-final.md?         → Read it → DONE
+3. Exists as sdlc/design/draft/architecture-v{N}.md (latest N)? → Read it → DONE
+4. Exists as sdlc/design/draft/architecture-draft.md?         → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
+```
+
 ### Step 4: Generate (Mode-specific)
 
 **Mode 1 — Create:**
@@ -186,6 +210,30 @@ For each section:
 7. Preserve CONFIRMED items unless user explicitly contradicts them
 8. Write improved version to `sdlc/design/draft/architecture-v{N}.md`
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5: Validate Output
 
 Check against rules:
@@ -208,6 +256,14 @@ Check against rules:
 - Consistency across artifacts (DES-06)
 - Mermaid diagrams required (DES-08)
 
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
+
 ### Step 6: Readiness Assessment
 
 Generate assessment per `skills/shared/templates/readiness-assessment.md`:
@@ -219,6 +275,21 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 - **Create mode**: Write to `sdlc/design/draft/architecture-draft.md`
 - **Refine mode**: Write to `sdlc/design/draft/architecture-v{N}.md`, include Change Log and Diff Summary
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/design/draft/architecture-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/design/draft/architecture-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/design-arch --refine` to address issues
+> - Or run `/skill-evolution --analyze design/architecture` to improve the skill definition itself
 
 Tell the user:
 > **Architecture {created/refined}!**

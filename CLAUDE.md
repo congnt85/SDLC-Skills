@@ -8,7 +8,7 @@ This repo builds Claude Code skills covering the full Software Development Lifec
 
 ## Build Status
 
-All 7 phases are complete (26 skills + 5 utilities). Each skill accepts `--create` or `--refine` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills.
+All 7 phases are complete (26 skills + 5 utilities). Each skill accepts `--create`, `--refine`, or `--score` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills.
 
 | Phase | Skill | Command | Status |
 |-------|-------|---------|--------|
@@ -53,7 +53,7 @@ skills/                          # Skill definitions (installed to ~/.claude/ski
   <phase>/
     shared/                      # Phase-wide: rules/, knowledge/, templates/
     <skill>/
-      SKILL.md                   # Skill definition (two modes: create + refine)
+      SKILL.md                   # Skill definition (three modes: create + refine + score)
       knowledge/                 # Skill-specific knowledge
       rules/                     # Skill-specific output rules
       templates/                 # Output template + sample output
@@ -72,7 +72,7 @@ sdlc/                            # All skill I/O lives here (in user's project d
 ## Architecture Patterns
 
 - **3-layer resource scoping**: `skills/shared/` (project-wide) -> `<phase>/shared/` (phase-wide) -> `<skill>/` (skill-specific). Skills only read their own layer + ancestors, never sibling skills.
-- **Two modes per skill**: Mode 1 (Create) generates from input; Mode 2 (Refine) improves existing draft from user feedback. Both modes in one SKILL.md.
+- **Three modes per skill**: Mode 1 (Create) generates from input; Mode 2 (Refine) improves existing draft from user feedback; Mode 3 (Score) evaluates artifact quality with a detailed scoreboard. All modes in one SKILL.md.
 - **Project directory I/O**: All skill input/output goes to `sdlc/<phase>/` in the user's project directory (cwd), NOT in the skills installation directory.
 - **Multi-format input**: Skills accept any file type (md/pdf/docx/xlsx/pptx). Non-md files are auto-converted via `/read-pdf`, `/read-word`, `/read-excel`, `/read-ppt` utility skills. Converted files are cached in `sdlc/<phase>/input/`.
 - **Input resolution priority**: User-specified path > `sdlc/<phase>/input/` > previous phase's `sdlc/<phase>/final/`. Converted files saved to `sdlc/<phase>/input/`.
@@ -83,14 +83,16 @@ sdlc/                            # All skill I/O lives here (in user's project d
 ## Install & Test
 
 ```bash
-./install.sh              # Copy skills to ~/.claude/skills/
-./install.sh --symlink    # Symlink for development
+./install.sh /path/to/project          # Install into project/.claude/skills/
+./install.sh --symlink /path/to/project # Symlink into project (for development)
+./install.sh -g                         # Install globally to ~/.claude/skills/
+./install.sh --symlink -g              # Symlink globally (for development)
 ```
 
 ## Building New Skills
 
 Follow the init phase pattern. Each skill needs 5 files:
-1. `SKILL.md` — workflow definition with create + refine modes
+1. `SKILL.md` — workflow definition with create + refine + score modes
 2. `knowledge/<guide>.md` — domain techniques and knowledge
 3. `rules/output-rules.md` — skill-specific output constraints
 4. `templates/output-template.md` — expected output structure

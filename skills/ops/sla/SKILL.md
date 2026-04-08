@@ -3,9 +3,8 @@ name: ops-sla
 description: >
   Create or refine an SLA specification defining SLAs, SLOs, SLIs, and error
   budgets — translating quality attributes into measurable, trackable service
-  level targets. ONLY activated by command: `/ops-sla`. Use `--create` or
-  `--refine` to set mode. NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+  level targets. ONLY activated by command: `/ops-sla`. Use `--create`, `--refine`, or `--score` to set mode. NEVER auto-trigger based on keywords.
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -23,7 +22,7 @@ The SLA specification bridges "what we monitor" (monitoring plan) and "how we re
 
 ---
 
-## Two Modes
+## Three Modes
 
 ### Mode 1: Create (`--create`)
 
@@ -47,6 +46,14 @@ Improve existing SLA specification based on user feedback.
 | Review report / feedback | Yes | User provides directly or as `sdlc/ops/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
+### Mode 3: Score (`--score`)
+
+Evaluate artifact quality with a detailed scoreboard.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/ops/draft/sla-spec-draft.md` or latest `sla-spec-v{N}.md` or `sdlc/ops/final/sla-spec-final.md`, or user-specified path |
+
 ---
 
 ## Output
@@ -55,6 +62,7 @@ Improve existing SLA specification based on user feedback.
 |------|------------|----------|
 | Create | `sla-spec-draft.md` | `sdlc/ops/draft/` |
 | Refine | `sla-spec-v{N}.md` | `sdlc/ops/draft/` (N = next version number) |
+| Score | `sla-spec-scoreboard.md` | `sdlc/ops/draft/` |
 
 When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/sla-spec-final.md`.
 
@@ -65,6 +73,7 @@ When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/sl
 ### Step 1: Determine Mode
 
 - User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--score` argument → **Mode 3 (Score)**
 - User passes `--create` argument → **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/ops/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
 - No argument specified AND no draft exists → **Mode 1 (Create)**
@@ -80,6 +89,9 @@ Read these files in order:
 5. `ops/sla/knowledge/sla-slo-guide.md` -- SLA/SLO/SLI domain knowledge
 6. `ops/sla/rules/output-rules.md` -- SLA-specific output rules
 7. `ops/sla/templates/output-template.md` -- expected output structure
+8. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
+9. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
+10. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
 
 ### Step 3: Resolve Input
 
@@ -144,6 +156,17 @@ For review report:
 2. User specified path?                              -> read it, copy to sdlc/ops/input/
 3. Exists in sdlc/ops/input/review-report.md?        -> read it
 4. Not found? -> Ask: "What feedback do you have on the current SLA specification?"
+```
+
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/ops/final/sla-spec-final.md?             → Read it → DONE
+3. Exists as sdlc/ops/draft/sla-spec-v{N}.md (latest N)?   → Read it → DONE
+4. Exists as sdlc/ops/draft/sla-spec-draft.md?             → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
 ```
 
 ### Step 4: Generate (Mode-specific)
@@ -214,6 +237,30 @@ For each section:
 7. Preserve CONFIRMED items unless user explicitly contradicts them
 8. Write improved version to `sdlc/ops/draft/sla-spec-v{N}.md`
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5: Validate Output
 
 Check against rules:
@@ -231,6 +278,14 @@ Check against rules:
 - Per-service SLOs for multi-service architectures (SLA-12)
 - Metrics must be measurable with exact source and method (OPS-09)
 - Approval section present (OPS-10)
+
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
 
 ### Step 6: Readiness Assessment
 
@@ -257,6 +312,21 @@ Tell the user:
 > - Review the output and provide feedback via `/ops-sla --refine`
 > - When satisfied, copy to `sdlc/ops/final/sla-spec-final.md`
 > - Then run `/ops-runbook` to define operational runbooks
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/ops/draft/sla-spec-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/ops/draft/sla-spec-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/ops-sla --refine` to address issues
+> - Or run `/skill-evolution --analyze ops/sla` to improve the skill definition itself
 
 ---
 

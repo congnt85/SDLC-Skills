@@ -4,9 +4,9 @@ description: >
   Create or refine a detailed project scope document from an approved charter.
   Expands charter's high-level scope into feature inventory, personas,
   system context, quality attributes, and scope change control.
-  ONLY activated by command: `/init-scope`. Use `--create` or `--refine` to set mode.
+  ONLY activated by command: `/init-scope`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: init
@@ -24,7 +24,7 @@ The scope document bridges the gap between "what we want to achieve" (charter) a
 
 ---
 
-## Two Modes
+## Three Modes
 
 ### Mode 1: Create (`--create`)
 
@@ -45,6 +45,14 @@ Improve an existing scope document based on user feedback.
 | Review report / feedback | Yes | User provides directly or as `sdlc/init/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
+### Mode 3: Score (`--score`)
+
+Evaluate artifact quality with a detailed scoreboard.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/init/draft/scope-draft.md` or latest `scope-v{N}.md` or `sdlc/init/final/scope-final.md`, or user-specified path |
+
 ---
 
 ## Output
@@ -53,6 +61,7 @@ Improve an existing scope document based on user feedback.
 |------|------------|----------|
 | Create | `scope-draft.md` | `sdlc/init/draft/` |
 | Refine | `scope-v{N}.md` | `sdlc/init/draft/` (N = next version number) |
+| Score | `scope-scoreboard.md` | `sdlc/init/draft/` |
 
 When user is satisfied -> they copy from `sdlc/init/draft/` to `sdlc/init/final/scope-final.md`.
 
@@ -62,6 +71,7 @@ When user is satisfied -> they copy from `sdlc/init/draft/` to `sdlc/init/final/
 
 ### Step 1: Determine Mode
 
+- User passes `--score` argument -> **Mode 3 (Score)**
 - User passes `--refine` argument -> **Mode 2 (Refine)**
 - User passes `--create` argument -> **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/init/draft/` -> Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
@@ -80,6 +90,9 @@ Read these files in order:
 7. `init/scope/knowledge/scope-definition-guide.md` -- scope definition techniques
 8. `init/scope/rules/output-rules.md` -- scope-specific output rules
 9. `init/scope/templates/output-template.md` -- expected output structure
+10. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
+11. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
+12. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
 
 ### Step 3: Resolve Input
 
@@ -124,6 +137,17 @@ For review report:
 2. User specified path?                        -> read it, copy to sdlc/init/input/
 3. Exists in sdlc/init/input/review-report.md? -> read it
 4. Not found? -> Ask: "What feedback do you have on the current scope?"
+```
+
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/init/final/scope-final.md?                  → Read it → DONE
+3. Exists as sdlc/init/draft/scope-v{N}.md (latest N)?        → Read it → DONE
+4. Exists as sdlc/init/draft/scope-draft.md?                  → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
 ```
 
 ### Step 4: Generate (Mode-specific)
@@ -186,6 +210,30 @@ For each section:
 7. Preserve CONFIRMED items unless user explicitly contradicts them
 8. Write improved version to `sdlc/init/draft/scope-v{N}.md`
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5: Validate Output
 
 Check against rules:
@@ -201,6 +249,14 @@ Check against rules:
 - Approval section present (INIT-07)
 - Cross-references consistent (INIT-08)
 
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
+
 ### Step 6: Readiness Assessment
 
 Generate assessment per `skills/shared/templates/readiness-assessment.md`:
@@ -212,6 +268,21 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 - **Create mode**: Write to `sdlc/init/draft/scope-draft.md`
 - **Refine mode**: Write to `sdlc/init/draft/scope-v{N}.md`, include Change Log and Diff Summary
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/init/draft/scope-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/init/draft/scope-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/init-scope --refine` to address issues
+> - Or run `/skill-evolution --analyze init/scope` to improve the skill definition itself
 
 Tell the user:
 > **Scope {created/refined}!**

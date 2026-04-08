@@ -4,9 +4,9 @@ description: >
   Create or refine a CI/CD pipeline definition from dev-workflow, test-strategy,
   and tech-stack artifacts. Defines pipeline stages, triggers, quality gates,
   deployment strategies, security scanning, and build configuration.
-  ONLY activated by command: `/deploy-cicd`. Use `--create` or `--refine` to set mode.
+  ONLY activated by command: `/deploy-cicd`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -24,7 +24,7 @@ The CI/CD pipeline bridges "how we develop" (dev-workflow) and "how we ship" (de
 
 ---
 
-## Two Modes
+## Three Modes
 
 ### Mode 1: Create (`--create`)
 
@@ -49,6 +49,14 @@ Improve existing CI/CD pipeline definition based on user feedback.
 | Review report / feedback | Yes | User provides directly or as `sdlc/deploy/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
+### Mode 3: Score (`--score`)
+
+Evaluate artifact quality with a detailed scoreboard.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/deploy/draft/cicd-pipeline-draft.md` or latest `cicd-pipeline-v{N}.md` or `sdlc/deploy/final/cicd-pipeline-final.md`, or user-specified path |
+
 ---
 
 ## Output
@@ -57,6 +65,7 @@ Improve existing CI/CD pipeline definition based on user feedback.
 |------|------------|----------|
 | Create | `cicd-pipeline-draft.md` | `sdlc/deploy/draft/` |
 | Refine | `cicd-pipeline-v{N}.md` | `sdlc/deploy/draft/` (N = next version number) |
+| Score | `cicd-pipeline-scoreboard.md` | `sdlc/deploy/draft/` |
 
 When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/final/cicd-pipeline-final.md`.
 
@@ -67,6 +76,7 @@ When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/fi
 ### Step 1: Determine Mode
 
 - User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--score` argument → **Mode 3 (Score)**
 - User passes `--create` argument → **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/deploy/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
 - No argument specified AND no draft exists → **Mode 1 (Create)**
@@ -82,6 +92,9 @@ Read these files in order:
 5. `deploy/cicd/knowledge/cicd-pipeline-guide.md` -- pipeline design techniques
 6. `deploy/cicd/rules/output-rules.md` -- CI/CD-specific output rules
 7. `deploy/cicd/templates/output-template.md` -- expected output structure
+8. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
+9. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
+10. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
 
 ### Step 3: Resolve Input
 
@@ -154,6 +167,17 @@ For review report:
 4. Not found? -> Ask: "What feedback do you have on the current pipeline definition?"
 ```
 
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/deploy/final/cicd-pipeline-final.md?             → Read it → DONE
+3. Exists as sdlc/deploy/draft/cicd-pipeline-v{N}.md (latest N)?   → Read it → DONE
+4. Exists as sdlc/deploy/draft/cicd-pipeline-draft.md?             → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
+```
+
 ### Step 4: Generate (Mode-specific)
 
 **Mode 1 -- Create:**
@@ -224,6 +248,30 @@ For each section:
 7. Preserve CONFIRMED items unless user explicitly contradicts them
 8. Write improved version to `sdlc/deploy/draft/cicd-pipeline-v{N}.md`
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5: Validate Output
 
 Check against rules:
@@ -241,6 +289,14 @@ Check against rules:
 - Caching strategy documented (CIC-13)
 - Cost estimation included (CIC-14)
 - Approval section present (INIT-07)
+
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
 
 ### Step 6: Readiness Assessment
 
@@ -266,6 +322,21 @@ Tell the user:
 > - Review the output and provide feedback via `/deploy-cicd --refine`
 > - When satisfied, copy to `sdlc/deploy/final/cicd-pipeline-final.md`
 > - Then run `/deploy-release` to define the release process
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/deploy/draft/cicd-pipeline-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/deploy/draft/cicd-pipeline-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/deploy-cicd --refine` to address issues
+> - Or run `/skill-evolution --analyze deploy/cicd` to improve the skill definition itself
 
 ---
 

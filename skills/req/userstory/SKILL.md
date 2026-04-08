@@ -4,9 +4,9 @@ description: >
   Create or refine user stories with INVEST criteria and Gherkin acceptance
   criteria from epics and scope features. Decomposes each epic into
   implementable stories for each persona, including NFR and spike stories.
-  ONLY activated by command: `/req-userstory`. Use `--create` or `--refine` to set mode.
+  ONLY activated by command: `/req-userstory`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: req
@@ -22,7 +22,7 @@ Create or refine a user stories document (`sdlc/req/draft/userstories-draft.md`)
 
 ---
 
-## Two Modes
+## Three Modes
 
 ### Mode 1: Create (`--create`)
 
@@ -44,6 +44,14 @@ Improve existing stories based on user feedback.
 | Review report / feedback | Yes | User provides directly or as `sdlc/req/input/review-report.md` |
 | Additional details | No | New stories, AC refinements |
 
+### Mode 3: Score (`--score`)
+
+Evaluate artifact quality with a detailed scoreboard.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/req/draft/userstories-draft.md` or latest `userstories-v{N}.md` or `sdlc/req/final/userstories-final.md`, or user-specified path |
+
 ---
 
 ## Output
@@ -52,6 +60,7 @@ Improve existing stories based on user feedback.
 |------|------------|----------|
 | Create | `userstories-draft.md` | `sdlc/req/draft/` |
 | Refine | `userstories-v{N}.md` | `sdlc/req/draft/` (N = next version number) |
+| Score | `userstories-scoreboard.md` | `sdlc/req/draft/` |
 
 When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/userstories-final.md`.
 
@@ -61,6 +70,7 @@ When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/us
 
 ### Step 1: Determine Mode
 
+- User passes `--score` argument → **Mode 3 (Score)**
 - User passes `--refine` argument → **Mode 2 (Refine)**
 - User passes `--create` argument → **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/req/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
@@ -82,6 +92,9 @@ Read these files in order:
 10. `req/userstory/knowledge/gherkin-guide.md` -- Gherkin writing guide
 11. `req/userstory/rules/output-rules.md` -- story-specific output rules
 12. `req/userstory/templates/output-template.md` -- expected output structure
+13. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
+14. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
+15. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
 
 ### Step 3: Resolve Input
 
@@ -123,6 +136,17 @@ For risk register (optional):
 **Mode 2 (Refine):**
 
 Standard refine input resolution (draft + review report).
+
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/req/final/userstories-final.md?             → Read it → DONE
+3. Exists as sdlc/req/draft/userstories-v{N}.md (latest N)?   → Read it → DONE
+4. Exists as sdlc/req/draft/userstories-draft.md?             → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
+```
 
 ### Step 4: Generate (Mode-specific)
 
@@ -182,6 +206,30 @@ For each section:
 6. Tag changes: `[UPDATED]`, `[NEW]`
 7. Write to `sdlc/req/draft/userstories-v{N}.md`
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5: Validate Output
 
 Check against rules:
@@ -199,6 +247,14 @@ Check against rules:
 - Cross-references consistent (REQ-10)
 - Approval section present
 
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
+
 ### Step 6: Readiness Assessment
 
 Count items by confidence (each story is 1 item). Calculate verdict.
@@ -207,6 +263,21 @@ Count items by confidence (each story is 1 item). Calculate verdict.
 
 - **Create mode**: Write to `sdlc/req/draft/userstories-draft.md`
 - **Refine mode**: Write to `sdlc/req/draft/userstories-v{N}.md`
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/req/draft/userstories-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/req/draft/userstories-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/req-userstory --refine` to address issues
+> - Or run `/skill-evolution --analyze req/userstory` to improve the skill definition itself
 
 Tell the user:
 > **User stories {created/refined}!**

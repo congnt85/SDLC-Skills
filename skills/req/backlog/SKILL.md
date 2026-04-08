@@ -4,9 +4,9 @@ description: >
   Create or refine a prioritized product backlog from user stories and epics.
   Applies MoSCoW prioritization, dependency ordering, release grouping,
   and velocity-based capacity validation. Marks the MVP boundary.
-  ONLY activated by command: `/req-backlog`. Use `--create` or `--refine` to set mode.
+  ONLY activated by command: `/req-backlog`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: req
@@ -24,7 +24,7 @@ The backlog is the single, ordered list of everything the team will build. It tr
 
 ---
 
-## Two Modes
+## Three Modes
 
 ### Mode 1: Create (`--create`)
 
@@ -46,6 +46,14 @@ Improve existing backlog based on user feedback.
 | Existing backlog draft | Yes | `sdlc/req/draft/backlog-draft.md` or `sdlc/req/draft/backlog-v{N}.md` |
 | Review report / feedback | Yes | User provides directly or as `sdlc/req/input/review-report.md` |
 
+### Mode 3: Score (`--score`)
+
+Evaluate artifact quality with a detailed scoreboard.
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/req/draft/backlog-draft.md` or latest `backlog-v{N}.md` or `sdlc/req/final/backlog-final.md`, or user-specified path |
+
 ---
 
 ## Output
@@ -54,6 +62,7 @@ Improve existing backlog based on user feedback.
 |------|------------|----------|
 | Create | `backlog-draft.md` | `sdlc/req/draft/` |
 | Refine | `backlog-v{N}.md` | `sdlc/req/draft/` (N = next version number) |
+| Score | `backlog-scoreboard.md` | `sdlc/req/draft/` |
 
 When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/backlog-final.md`.
 
@@ -63,6 +72,7 @@ When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/ba
 
 ### Step 1: Determine Mode
 
+- User passes `--score` argument → **Mode 3 (Score)**
 - User passes `--refine` argument → **Mode 2 (Refine)**
 - User passes `--create` argument → **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/req/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
@@ -81,6 +91,9 @@ Read these files in order:
 7. `req/backlog/knowledge/backlog-prioritization-guide.md`
 8. `req/backlog/rules/output-rules.md`
 9. `req/backlog/templates/output-template.md`
+10. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
+11. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
+12. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
 
 ### Step 3: Resolve Input
 
@@ -127,6 +140,17 @@ For charter input (optional):
 
 **Mode 2 (Refine):** Standard refine input resolution.
 
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/req/final/backlog-final.md?                 → Read it → DONE
+3. Exists as sdlc/req/draft/backlog-v{N}.md (latest N)?       → Read it → DONE
+4. Exists as sdlc/req/draft/backlog-draft.md?                 → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
+```
+
 ### Step 4: Generate (Mode-specific)
 
 **Mode 1 -- Create:**
@@ -169,9 +193,56 @@ For charter input (optional):
 
 Standard refine workflow: scorecard -> feedback -> improvements -> versioned output.
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5-7: Validate, Readiness, Output
 
 Standard validation and output workflow.
+
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/req/draft/backlog-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/req/draft/backlog-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/req-backlog --refine` to address issues
+> - Or run `/skill-evolution --analyze req/backlog` to improve the skill definition itself
 
 Tell the user:
 > **Backlog {created/refined}!**

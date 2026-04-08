@@ -5,9 +5,9 @@ description: >
   executable test scenarios with steps, test data, expected results, and
   traceability to acceptance criteria. Covers functional, API, integration,
   and NFR test cases.
-  ONLY activated by command: `/test-cases`. Use `--create` or `--refine` to set mode.
+  ONLY activated by command: `/test-cases`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine"
+argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: test
@@ -23,12 +23,13 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 
 ---
 
-## Two Modes
+## Three Modes
 
 | Mode | Command | Input | Output |
 |------|---------|-------|--------|
 | **Create** | `/test-cases --create` | Requirements + design artifacts | New test-cases-draft.md |
 | **Refine** | `/test-cases --refine` | Existing draft + user feedback | Updated test-cases-draft.md |
+| **Score** | `/test-cases --score` | Existing artifact | test-cases-scoreboard.md |
 
 ---
 
@@ -55,12 +56,19 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 | test-cases-draft.md | **REQUIRED** | sdlc/test/draft/ — existing draft to improve |
 | User feedback | **REQUIRED** | Conversation — specific improvement requests |
 
+### Score Mode
+
+| Input | Required | Source |
+|-------|----------|--------|
+| Artifact to score | Yes | `sdlc/test/draft/test-cases-draft.md` or latest `test-cases-v{N}.md` or `sdlc/test/final/test-cases-final.md`, or user-specified path |
+
 ---
 
 ## Output
 
 - **File**: `sdlc/test/draft/test-cases-draft.md`
 - **Format**: Follows `test/cases/templates/output-template.md`
+- **Score**: `sdlc/test/draft/test-cases-scoreboard.md`
 
 ---
 
@@ -68,6 +76,7 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 
 ### Step 1 — Detect Mode
 
+- User passes `--score` argument → **Mode 3 (Score)**
 - User passes `--refine` argument → **Mode 2 (Refine)**
 - User passes `--create` argument → **Mode 1 (Create)**
 - No argument specified AND existing draft exists in `sdlc/test/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
@@ -85,6 +94,9 @@ Read these files in order. STOP if any required file is missing:
 6. `test/cases/knowledge/test-case-writing-guide.md`
 7. `test/cases/rules/output-rules.md`
 8. `test/cases/templates/output-template.md`
+9. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
+10. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
+11. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
 
 ### Step 3 — Resolve Inputs
 
@@ -164,6 +176,17 @@ For risk register (optional):
 - Copy resolved files to `sdlc/test/input/` for traceability
 - STOP if REQUIRED inputs (userstories-final.md, api-final.md) are not found — tell user what is missing
 - Log which optional inputs were found vs. missing
+
+**Mode 3 (Score):**
+
+```
+For artifact to score (required):
+1. User specified a path?                                     → Read it → DONE
+2. Exists in sdlc/test/final/test-cases-final.md?             → Read it → DONE
+3. Exists as sdlc/test/draft/test-cases-v{N}.md (latest N)?   → Read it → DONE
+4. Exists as sdlc/test/draft/test-cases-draft.md?             → Read it → DONE
+5. Not found? → Ask: "Provide the path to the artifact to score."
+```
 
 ### Step 4 — Generate (Create Mode)
 
@@ -245,6 +268,30 @@ Summary showing which ACs, endpoints, and risks are covered by which test cases.
 4. Update coverage matrix after changes
 5. Present changes summary to user
 
+**Mode 3 -- Score:**
+
+1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
+
+2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
+   - For each dimension, cite at least 2 specific evidence items from the artifact
+   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
+   - Record issues found during scoring
+
+3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
+   - ✅ PASS — artifact fully complies
+   - ❌ FAIL — artifact clearly violates
+   - ⚠️ PARTIAL — artifact partially complies
+
+4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
+   - Assign severity: HIGH / MED / LOW
+   - Link each to its dimension and artifact section
+
+5. **Generate Recommendations** — 3-7 actionable recommendations:
+   - HIGH severity issues first, then lowest-scoring dimensions
+   - Each specifies: what to change, where, expected result
+
+6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+
 ### Step 5 — Validate
 
 Check output against:
@@ -253,6 +300,14 @@ Check output against:
 - Quality rules from `skills/shared/rules/quality-rules.md`
 
 Fix any violations before proceeding.
+
+**Mode 3 (Score) — additional checks:**
+- All 5 dimensions scored with evidence (SCR-01, SCR-02)
+- Integer scores 1-5 (SCR-03)
+- Issues linked to dimensions and sections (SCR-04, SCR-05)
+- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
+- Scoring used this skill's own rules/templates as context (SCR-08)
+- Rules compliance section present (SCR-10)
 
 ### Step 6 — Readiness Assessment
 
@@ -273,6 +328,21 @@ Evaluate:
 1. Write `sdlc/test/draft/test-cases-draft.md`
 2. Present summary: test case counts by type/priority, coverage stats, gaps, confidence
 3. Suggest next step: `/impl-sprint` to begin implementation planning
+
+**Mode 3 (Score):**
+
+- Write to `sdlc/test/draft/test-cases-scoreboard.md`
+
+Tell the user:
+> **Scoreboard complete!**
+> - Output: `sdlc/test/draft/test-cases-scoreboard.md`
+> - Average: {avg}/5 — {verdict}
+> - Lowest: {dimension} ({score}/5)
+> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
+>
+> **Next steps:**
+> - Run `/test-cases --refine` to address issues
+> - Or run `/skill-evolution --analyze test/cases` to improve the skill definition itself
 
 ---
 
