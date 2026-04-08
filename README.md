@@ -1,6 +1,6 @@
 # SDLC Skills — User Guide
 
-A complete set of Claude Code skills covering the full Software Development Lifecycle using Agile/Scrum methodology. 26 skills + 5 utilities, 7 phases — from project charter to production operations. Each skill supports three modes: `--create`, `--refine`, and `--score`. Accepts any file type (md, pdf, docx, xlsx, pptx).
+A complete set of Claude Code skills covering the full Software Development Lifecycle using Agile/Scrum methodology. 29 skills + 5 utilities, 7 phases — from project charter to production operations. Each skill supports three modes: `--create`, `--refine`, and `--score`. Accepts any file type (md, pdf, docx, xlsx, pptx).
 
 ---
 
@@ -87,14 +87,17 @@ The fastest way to start a project from scratch:
 8. /design-stack        → Select technology stack
 9. /design-arch         → Define system architecture (C4)
 10. /design-db          → Design database schema
-11. /design-api         → Design API contracts
-12. /design-adr         → Document key decisions (run as needed)
-13. /test-strategy      → Define testing approach
-14. /test-plan          → Plan test execution
-15. /test-cases         → Write test cases
-16. /impl-sprint        → Plan sprint execution
-17. /impl-codegen       → Generate project scaffolding plan
-18. /impl-workflow      → Define dev workflow (branching, CI, PRs)
+11. /design-api         → Design API endpoints and error handling
+12. /design-api-security→ Define auth, pagination, rate limiting
+13. /design-adr         → Document key decisions (run as needed)
+14. /test-strategy      → Define testing approach
+15. /test-plan          → Plan test execution
+16. /test-cases         → Write functional and API test cases
+17. /test-integration   → Write integration and NFR test cases
+18. /impl-sprint        → Plan sprint execution
+19. /impl-scaffold      → Plan project structure and config
+20. /impl-codegen       → Plan modules, ORM, routes, test infra
+21. /impl-workflow      → Define dev workflow (branching, CI, PRs)
 19. /deploy-cicd        → Configure CI/CD pipeline
 20. /deploy-release     → Define release management
 21. /deploy-env         → Specify environments
@@ -135,7 +138,8 @@ You don't have to run all 26 — run only the skills you need. But follow the or
 | `/design-stack` | Select and justify technology stack | `scope-final.md` + `charter-final.md` | `tech-stack-draft.md` |
 | `/design-arch` | Define architecture (C4 diagrams) | `tech-stack-final.md` + `scope-final.md` | `architecture-draft.md` |
 | `/design-db` | Design database schema (ERD) | `architecture-final.md` + `userstories-final.md` | `database-draft.md` |
-| `/design-api` | Design REST API contracts | `architecture-final.md` + `userstories-final.md` | `api-draft.md` |
+| `/design-api` | Design API endpoints and error handling | `architecture-final.md` + `userstories-final.md` | `api-draft.md` |
+| `/design-api-security` | Define auth, pagination, rate limiting | `api-draft.md` + `tech-stack-final.md` | `api-security-draft.md` |
 | `/design-adr` | Document architecture decisions | Decision topic + design context | `adr-{NNN}-{slug}-draft.md` |
 
 ### Phase 4: Testing (test)
@@ -144,14 +148,16 @@ You don't have to run all 26 — run only the skills you need. But follow the or
 |---------|---------|-----------|------------|
 | `/test-strategy` | Define testing approach and tools | `tech-stack-final.md` + `architecture-final.md` | `test-strategy-draft.md` |
 | `/test-plan` | Plan test execution and schedule | `test-strategy-final.md` + `backlog-final.md` | `test-plan-draft.md` |
-| `/test-cases` | Write specific test cases | `userstories-final.md` + `api-final.md` | `test-cases-draft.md` |
+| `/test-cases` | Write functional and API test cases | `userstories-final.md` + `api-final.md` | `test-cases-draft.md` |
+| `/test-integration` | Write integration and NFR test cases | `test-cases-draft.md` + `architecture-final.md` | `test-integration-draft.md` |
 
 ### Phase 5: Implementation (impl)
 
 | Command | Purpose | Key Input | Key Output |
 |---------|---------|-----------|------------|
 | `/impl-sprint` | Plan sprint tasks and capacity | `backlog-final.md` + `userstories-final.md` | `sprint-plan-draft.md` |
-| `/impl-codegen` | Plan project scaffolding | `tech-stack-final.md` + `architecture-final.md` | `codegen-plan-draft.md` |
+| `/impl-scaffold` | Plan project structure and config | `tech-stack-final.md` + `architecture-final.md` | `scaffold-plan-draft.md` |
+| `/impl-codegen` | Plan modules, ORM, routes, test infra | `scaffold-plan-final.md` + design artifacts | `codegen-plan-draft.md` |
 | `/impl-workflow` | Define dev workflow (branching, CI, PRs) | `tech-stack-final.md` + `test-strategy-final.md` | `dev-workflow-draft.md` |
 
 ### Phase 6: Deployment (deploy)

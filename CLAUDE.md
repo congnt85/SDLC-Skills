@@ -8,7 +8,7 @@ This repo builds Claude Code skills covering the full Software Development Lifec
 
 ## Build Status
 
-All 7 phases are complete (26 skills + 5 utilities). Each skill accepts `--create`, `--refine`, or `--score` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills.
+All 7 phases are complete (29 skills + 5 utilities). Each skill accepts `--create`, `--refine`, or `--score` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills. Score mode and input resolution use shared workflows to minimize duplication.
 
 | Phase | Skill | Command | Status |
 |-------|-------|---------|--------|
@@ -23,11 +23,14 @@ All 7 phases are complete (26 skills + 5 utilities). Each skill accepts `--creat
 | **design** | architecture | `/design-arch` | **Done** |
 | **design** | database | `/design-db` | **Done** |
 | **design** | api | `/design-api` | **Done** |
+| **design** | api-security | `/design-api-security` | **Done** |
 | **design** | adr | `/design-adr` | **Done** |
 | **test** | strategy | `/test-strategy` | **Done** |
 | **test** | plan | `/test-plan` | **Done** |
 | **test** | cases | `/test-cases` | **Done** |
+| **test** | integration | `/test-integration` | **Done** |
 | **impl** | sprint | `/impl-sprint` | **Done** |
+| **impl** | scaffold | `/impl-scaffold` | **Done** |
 | **impl** | codegen | `/impl-codegen` | **Done** |
 | **impl** | workflow | `/impl-workflow` | **Done** |
 | **deploy** | cicd | `/deploy-cicd` | **Done** |
@@ -73,6 +76,7 @@ sdlc/                            # All skill I/O lives here (in user's project d
 
 - **3-layer resource scoping**: `skills/shared/` (project-wide) -> `<phase>/shared/` (phase-wide) -> `<skill>/` (skill-specific). Skills only read their own layer + ancestors, never sibling skills.
 - **Three modes per skill**: Mode 1 (Create) generates from input; Mode 2 (Refine) improves existing draft from user feedback; Mode 3 (Score) evaluates artifact quality with a detailed scoreboard. All modes in one SKILL.md.
+- **Shared workflows**: Score mode uses `skills/shared/knowledge/score-workflow.md`. Input resolution uses `skills/shared/knowledge/input-resolution-workflow.md`. Skills declare inputs as a table and reference these workflows instead of duplicating logic.
 - **Project directory I/O**: All skill input/output goes to `sdlc/<phase>/` in the user's project directory (cwd), NOT in the skills installation directory.
 - **Multi-format input**: Skills accept any file type (md/pdf/docx/xlsx/pptx). Non-md files are auto-converted via `/read-pdf`, `/read-word`, `/read-excel`, `/read-ppt` utility skills. Converted files are cached in `sdlc/<phase>/input/`.
 - **Input resolution priority**: User-specified path > `sdlc/<phase>/input/` > previous phase's `sdlc/<phase>/final/`. Converted files saved to `sdlc/<phase>/input/`.

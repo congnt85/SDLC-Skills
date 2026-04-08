@@ -94,91 +94,29 @@ Read these files in order:
 6. `impl/workflow/knowledge/dev-workflow-guide.md` -- workflow techniques and patterns
 7. `impl/workflow/rules/output-rules.md` -- workflow-specific output rules
 8. `impl/workflow/templates/output-template.md` -- expected output structure
-9. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
-10. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
-11. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
+For Mode 3 (Score): Read resources listed in `skills/shared/knowledge/score-workflow.md`
 
 ### Step 3: Resolve Input
 
-**File Type Conversion** (applies to all file inputs):
+Resolve inputs per `skills/shared/knowledge/input-resolution-workflow.md`.
 
-Before reading any input file, check its extension:
-- `.md` → Read directly, no conversion needed
-- `.pdf` → Run `/read-pdf <path> sdlc/impl/input/` → read the converted .md
-- `.docx` / `.doc` → Run `/read-word <path> sdlc/impl/input/` → read the converted .md
-- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/impl/input/` → read the converted .md
-- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/impl/input/` → read the converted .md
+**Create mode inputs:**
 
-Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+| Input | Required | Default Path | Fallback |
+|-------|----------|-------------|----------|
+| Tech Stack | Yes | `sdlc/design/final/tech-stack-final.md` | "No tech stack found. Please provide a path or run /design-stack first." |
+| Test Strategy | Yes | `sdlc/test/final/test-strategy-final.md` | "No test strategy found. Please provide a path or run /test-strategy first." |
+| Architecture | No | `sdlc/design/final/architecture-final.md` | Proceed without |
+| DoR/DoD | No | `sdlc/impl/final/dor-dod-final.md` | Proceed without |
+| Charter | No | `sdlc/init/final/charter-final.md` | Proceed without |
+| Codegen Plan | No | `sdlc/impl/final/codegen-plan-final.md` | Proceed without |
 
-Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+**Refine mode inputs:**
 
-**Mode 1 (Create):**
-
-```
-For tech-stack input (required):
-1. Exists in sdlc/design/final/tech-stack-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/tech-stack-final.md?           -> YES -> read it -> DONE
-4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
-
-For test-strategy input (required):
-1. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/test-strategy-final.md?        -> YES -> read it -> DONE
-4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
-
-For architecture input (optional):
-1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/architecture-final.md?         -> YES -> read it -> DONE
-4. Not found? -> Proceed without architecture.
-
-For DoR/DoD input (optional):
-1. Exists in sdlc/impl/final/dor-dod-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/dor-dod-final.md?              -> YES -> read it -> DONE
-4. Not found? -> Proceed without DoR/DoD.
-
-For charter input (optional):
-1. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/charter-final.md?              -> YES -> read it -> DONE
-4. Not found? -> Proceed without charter.
-
-For codegen plan input (optional):
-1. Exists in sdlc/impl/final/codegen-plan-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/codegen-plan-final.md?         -> YES -> read it -> DONE
-4. Not found? -> Proceed without codegen plan.
-```
-
-**Mode 2 (Refine):**
-
-```
-For workflow draft:
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/?                             -> YES -> read it -> DONE
-3. Exists in sdlc/impl/draft/ (latest version)?            -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-4. Not found? -> FAIL: "No existing workflow draft found. Run /impl-workflow first."
-
-For review report:
-1. User provided feedback directly in message?      -> Save to sdlc/impl/input/review-report.md
-2. User specified path?                             -> read it, copy to sdlc/impl/input/
-3. Exists in sdlc/impl/input/review-report.md?     -> read it
-4. Not found? -> Ask: "What feedback do you have on the current workflow document?"
-```
-
-**Mode 3 (Score):**
-
-```
-For artifact to score (required):
-1. User specified a path?                                     → Read it → DONE
-2. Exists in sdlc/impl/final/dev-workflow-final.md?             → Read it → DONE
-3. Exists as sdlc/impl/draft/dev-workflow-v{N}.md (latest N)?   → Read it → DONE
-4. Exists as sdlc/impl/draft/dev-workflow-draft.md?             → Read it → DONE
-5. Not found? → Ask: "Provide the path to the artifact to score."
-```
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing draft | Yes | `sdlc/impl/draft/dev-workflow-draft.md` or latest `dev-workflow-v{N}.md` |
+| Review feedback | Yes | User message or `sdlc/impl/input/review-report.md` |
 
 ### Step 4: Generate (Mode-specific)
 
@@ -276,27 +214,7 @@ For each section:
 
 **Mode 3 -- Score:**
 
-1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
-
-2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
-   - For each dimension, cite at least 2 specific evidence items from the artifact
-   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
-   - Record issues found during scoring
-
-3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
-   - ✅ PASS — artifact fully complies
-   - ❌ FAIL — artifact clearly violates
-   - ⚠️ PARTIAL — artifact partially complies
-
-4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
-   - Assign severity: HIGH / MED / LOW
-   - Link each to its dimension and artifact section
-
-5. **Generate Recommendations** — 3-7 actionable recommendations:
-   - HIGH severity issues first, then lowest-scoring dimensions
-   - Each specifies: what to change, where, expected result
-
-6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+Follow the standard score workflow in `skills/shared/knowledge/score-workflow.md` using this skill's rules and templates as context.
 
 ### Step 5: Validate Output
 
@@ -320,14 +238,6 @@ Check against rules:
 - Tech stack compliance (IMP-02)
 - No gold plating (IMP-06)
 - Approval section present (IMP-10)
-
-**Mode 3 (Score) — additional checks:**
-- All 5 dimensions scored with evidence (SCR-01, SCR-02)
-- Integer scores 1-5 (SCR-03)
-- Issues linked to dimensions and sections (SCR-04, SCR-05)
-- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
-- Scoring used this skill's own rules/templates as context (SCR-08)
-- Rules compliance section present (SCR-10)
 
 ### Step 6: Readiness Assessment
 
@@ -354,20 +264,7 @@ Tell the user:
 > - When satisfied, copy to `sdlc/impl/final/dev-workflow-final.md`
 > - Then run `/deploy-cicd` to define the CI/CD deployment pipeline
 
-**Mode 3 (Score):**
-
-- Write to `sdlc/impl/draft/dev-workflow-scoreboard.md`
-
-Tell the user:
-> **Scoreboard complete!**
-> - Output: `sdlc/impl/draft/dev-workflow-scoreboard.md`
-> - Average: {avg}/5 — {verdict}
-> - Lowest: {dimension} ({score}/5)
-> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
->
-> **Next steps:**
-> - Run `/impl-workflow --refine` to address issues
-> - Or run `/skill-evolution --analyze impl/workflow` to improve the skill definition itself
+**Mode 3 (Score):** Output per score workflow — sdlc/impl/draft/dev-workflow-scoreboard.md
 
 ---
 

@@ -94,97 +94,30 @@ Read these files in order:
 6. `test/plan/knowledge/test-planning-guide.md` -- test planning techniques
 7. `test/plan/rules/output-rules.md` -- plan-specific output rules
 8. `test/plan/templates/output-template.md` -- expected output structure
-9. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
-10. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
-11. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
+For Mode 3 (Score): Read resources listed in `skills/shared/knowledge/score-workflow.md`
 
 ### Step 3: Resolve Input
 
-**File Type Conversion** (applies to all file inputs):
+Resolve inputs per `skills/shared/knowledge/input-resolution-workflow.md`.
 
-Before reading any input file, check its extension:
-- `.md` → Read directly, no conversion needed
-- `.pdf` → Run `/read-pdf <path> sdlc/test/input/` → read the converted .md
-- `.docx` / `.doc` → Run `/read-word <path> sdlc/test/input/` → read the converted .md
-- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/test/input/` → read the converted .md
-- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/test/input/` → read the converted .md
+**Create mode inputs:**
 
-Converted files are saved to `sdlc/test/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+| Input | Required | Default Path | Fallback |
+|-------|----------|-------------|----------|
+| Test strategy | Yes | `sdlc/test/final/test-strategy-final.md` | "No test strategy found. Please provide a path or run /test-strategy first." |
+| Backlog | Yes | `sdlc/req/final/backlog-final.md` | "No backlog found. Please provide a path or run /req-backlog first." |
+| User stories | No | `sdlc/req/final/userstories-final.md` | Proceed without |
+| DoR/DoD | No | `sdlc/req/final/dor-dod-final.md` | Proceed without |
+| Architecture | No | `sdlc/design/final/architecture-final.md` | Proceed without |
+| Scope | No | `sdlc/init/final/scope-final.md` | Proceed without |
+| Risk register | No | `sdlc/init/final/risk-register-final.md` | Proceed without |
 
-Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+**Refine mode inputs:**
 
-**Mode 1 (Create):**
-
-```
-For test strategy input (required):
-1. Exists in sdlc/test/final/test-strategy-final.md?      -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/test-strategy-final.md?       -> YES -> read it -> DONE
-4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
-
-For backlog input (required):
-1. Exists in sdlc/req/final/backlog-final.md?              -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/backlog-final.md?              -> YES -> read it -> DONE
-4. Not found? -> Ask: "No backlog found. Please provide a path or run /req-backlog first."
-
-For user stories (optional):
-1. Exists in sdlc/req/final/userstories-final.md?          -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/userstories-final.md?          -> YES -> read it -> DONE
-4. Not found? -> Proceed without user stories.
-
-For DoR/DoD (optional):
-1. Exists in sdlc/req/final/dor-dod-final.md?              -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/dor-dod-final.md?              -> YES -> read it -> DONE
-4. Not found? -> Proceed without DoR/DoD.
-
-For architecture (optional):
-1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/architecture-final.md?         -> YES -> read it -> DONE
-4. Not found? -> Proceed without architecture.
-
-For scope (optional):
-1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/scope-final.md?                -> YES -> read it -> DONE
-4. Not found? -> Proceed without scope.
-
-For risk register (optional):
-1. Exists in sdlc/init/final/risk-register-final.md?       -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/risk-register-final.md?        -> YES -> read it -> DONE
-4. Not found? -> Proceed without risk register.
-```
-
-**Mode 2 (Refine):**
-
-```
-For plan draft:
-1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. Exists in sdlc/test/input/?                             -> YES -> read it -> DONE
-3. Exists in sdlc/test/draft/ (latest version)?            -> YES -> read it, copy to sdlc/test/input/ -> DONE
-4. Not found? -> FAIL: "No existing plan found. Run /test-plan first."
-
-For review report:
-1. User provided feedback directly in message?     -> Save to sdlc/test/input/review-report.md
-2. User specified path?                            -> read it, copy to sdlc/test/input/
-3. Exists in sdlc/test/input/review-report.md?    -> read it
-4. Not found? -> Ask: "What feedback do you have on the current test plan?"
-```
-
-**Mode 3 (Score):**
-
-```
-For artifact to score (required):
-1. User specified a path?                                     → Read it → DONE
-2. Exists in sdlc/test/final/test-plan-final.md?              → Read it → DONE
-3. Exists as sdlc/test/draft/test-plan-v{N}.md (latest N)?    → Read it → DONE
-4. Exists as sdlc/test/draft/test-plan-draft.md?              → Read it → DONE
-5. Not found? → Ask: "Provide the path to the artifact to score."
-```
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing draft | Yes | `sdlc/test/draft/test-plan-draft.md` or latest `test-plan-v{N}.md` |
+| Review feedback | Yes | User message or `sdlc/test/input/review-report.md` |
 
 ### Step 4: Generate (Mode-specific)
 
@@ -272,27 +205,7 @@ For each section:
 
 **Mode 3 -- Score:**
 
-1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
-
-2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
-   - For each dimension, cite at least 2 specific evidence items from the artifact
-   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
-   - Record issues found during scoring
-
-3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
-   - ✅ PASS — artifact fully complies
-   - ❌ FAIL — artifact clearly violates
-   - ⚠️ PARTIAL — artifact partially complies
-
-4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
-   - Assign severity: HIGH / MED / LOW
-   - Link each to its dimension and artifact section
-
-5. **Generate Recommendations** — 3-7 actionable recommendations:
-   - HIGH severity issues first, then lowest-scoring dimensions
-   - Each specifies: what to change, where, expected result
-
-6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+Follow the standard score workflow in `skills/shared/knowledge/score-workflow.md` using this skill's rules and templates as context.
 
 ### Step 5: Validate Output
 
@@ -319,14 +232,6 @@ Check against rules:
 - Approval section present (TST-13)
 - Cross-references consistent (REQ-10)
 
-**Mode 3 (Score) — additional checks:**
-- All 5 dimensions scored with evidence (SCR-01, SCR-02)
-- Integer scores 1-5 (SCR-03)
-- Issues linked to dimensions and sections (SCR-04, SCR-05)
-- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
-- Scoring used this skill's own rules/templates as context (SCR-08)
-- Rules compliance section present (SCR-10)
-
 ### Step 6: Readiness Assessment
 
 Generate assessment per `skills/shared/templates/readiness-assessment.md`:
@@ -339,20 +244,7 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 - **Create mode**: Write to `sdlc/test/draft/test-plan-draft.md`
 - **Refine mode**: Write to `sdlc/test/draft/test-plan-v{N}.md`, include Change Log and Diff Summary
 
-**Mode 3 (Score):**
-
-- Write to `sdlc/test/draft/test-plan-scoreboard.md`
-
-Tell the user:
-> **Scoreboard complete!**
-> - Output: `sdlc/test/draft/test-plan-scoreboard.md`
-> - Average: {avg}/5 — {verdict}
-> - Lowest: {dimension} ({score}/5)
-> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
->
-> **Next steps:**
-> - Run `/test-plan --refine` to address issues
-> - Or run `/skill-evolution --analyze test/plan` to improve the skill definition itself
+**Mode 3 (Score):** Output per score workflow — sdlc/test/draft/test-plan-scoreboard.md
 
 Tell the user:
 > **Test Plan {created/refined}!**

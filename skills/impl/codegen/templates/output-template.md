@@ -14,67 +14,13 @@ Expected structure for the code generation plan artifact.
 > **Status**: {Draft / In Review / Approved}
 > **Author**: AI-Generated
 > **Tech Stack**: {primary language + framework}
+> **Scaffold Plan**: {scaffold-plan-final.md version reference}
 
 ---
 
-## 1. Project Structure
+## 1. Module Specifications
 
-Full directory tree mirroring architecture components.
-
-```
-{project-name}/
-├── src/
-│   ├── {module-a}/
-│   │   ├── {module-a}.module.ts
-│   │   ├── {module-a}.controller.ts
-│   │   ├── {module-a}.service.ts
-│   │   ├── dto/
-│   │   │   ├── create-{module-a}.dto.ts
-│   │   │   └── update-{module-a}.dto.ts
-│   │   ├── entities/
-│   │   │   └── {module-a}.entity.ts
-│   │   └── interfaces/
-│   │       └── {module-a}.interface.ts
-│   ├── {module-b}/
-│   │   └── ...
-│   ├── common/
-│   │   ├── exceptions/
-│   │   ├── filters/
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   ├── decorators/
-│   │   ├── config/
-│   │   └── logging/
-│   ├── app.module.ts
-│   └── main.ts
-├── test/
-│   ├── integration/
-│   ├── e2e/
-│   └── utils/
-│       ├── factories/
-│       ├── fixtures/
-│       └── helpers/
-├── prisma/
-│   ├── schema.prisma
-│   └── migrations/
-├── config/
-├── scripts/
-├── .github/
-│   └── workflows/
-├── tsconfig.json
-├── package.json
-├── Dockerfile
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-└── README.md
-```
-
----
-
-## 2. Module Specifications
-
-### 2.1 {Module Name} Module
+### 1.1 {Module Name} Module
 
 | Field | Value |
 |-------|-------|
@@ -111,13 +57,13 @@ interface I{Module}Service {
 }
 ```
 
-> Repeat section 2.x for each module.
+> Repeat section 1.x for each module.
 
 ---
 
-## 3. ORM Models
+## 2. ORM Models
 
-### 3.1 {Entity Name}
+### 2.1 {Entity Name}
 
 **Source Table**: `{table_name}` from database-final.md
 **Confidence**: ✅ CONFIRMED / 🔶 ASSUMED / ❓ UNCLEAR
@@ -159,13 +105,13 @@ enum {EnumName} {
 }
 ```
 
-> Repeat section 3.x for each database table.
+> Repeat section 2.x for each database table.
 
 ---
 
-## 4. API Route Scaffolding
+## 3. API Route Scaffolding
 
-### 4.1 {Resource} Routes
+### 3.1 {Resource} Routes
 
 **Source**: `{resource}` from api-final.md
 **Controller File**: `src/{module}/{module}.controller.ts`
@@ -184,32 +130,13 @@ enum {EnumName} {
 - `RolesGuard` — delete operations (admin only)
 - `ValidationPipe` — POST/PATCH routes
 
-> Repeat section 4.x for each API resource group.
+> Repeat section 3.x for each API resource group.
 
 ---
 
-## 5. Configuration Files
+## 4. Test Infrastructure
 
-| # | File | Purpose | Key Settings | Source |
-|---|------|---------|-------------|--------|
-| 1 | `tsconfig.json` | TypeScript compiler | strict, paths, target ES2022 | tech-stack-final.md |
-| 2 | `tsconfig.build.json` | Build config | exclude tests | tech-stack-final.md |
-| 3 | `.eslintrc.js` | Linting rules | @typescript-eslint, prettier | tech-stack-final.md |
-| 4 | `.prettierrc` | Code formatting | singleQuote, trailingComma | tech-stack-final.md |
-| 5 | `jest.config.ts` | Test runner | coverage 80%, moduleNameMapper | test-strategy-final.md |
-| 6 | `docker-compose.yml` | Local dev services | DB, cache, mail | architecture-final.md |
-| 7 | `Dockerfile` | Container build | multi-stage (build, prod) | tech-stack-final.md |
-| 8 | `.env.example` | Environment template | all vars documented | all design artifacts |
-| 9 | `.gitignore` | Git exclusions | node_modules, dist, .env | — |
-| 10 | `.husky/pre-commit` | Git hooks | lint-staged | tech-stack-final.md |
-| 11 | `prisma/schema.prisma` | ORM schema | models, enums, relations | database-final.md |
-| 12 | `.github/workflows/ci.yml` | CI pipeline | lint, test, build | tech-stack-final.md |
-
----
-
-## 6. Test Infrastructure
-
-### 6.1 Directory Structure
+### 4.1 Directory Structure
 
 ```
 test/
@@ -231,7 +158,7 @@ test/
         └── request.ts
 ```
 
-### 6.2 Test Configuration
+### 4.2 Test Configuration
 
 | Config | Setting | Value |
 |--------|---------|-------|
@@ -246,7 +173,7 @@ test/
 | Timeout | Integration | {30000ms} |
 | Timeout | E2E | {60000ms} |
 
-### 6.3 Test Utilities
+### 4.3 Test Utilities
 
 | Utility | Purpose | File |
 |---------|---------|------|
@@ -259,22 +186,9 @@ test/
 
 ---
 
-## 7. Shared Utilities
+## 5. File Inventory
 
-| # | Utility | Purpose | Files | Confidence |
-|---|---------|---------|-------|------------|
-| 1 | Error Handling | Custom exceptions + global filter | `common/exceptions/`, `common/filters/http-exception.filter.ts` | {marker} |
-| 2 | Logging | Structured JSON logging | `common/logging/logger.service.ts`, `common/logging/logging.interceptor.ts` | {marker} |
-| 3 | Auth Guards | JWT validation + role-based access | `common/guards/jwt-auth.guard.ts`, `common/guards/roles.guard.ts`, `common/decorators/` | {marker} |
-| 4 | Validation | Global validation pipe + custom validators | `common/validation/validation.pipe.ts`, `common/validation/validators/` | {marker} |
-| 5 | Response Envelope | Standard API response wrapper | `common/interceptors/response.interceptor.ts`, `common/dto/response.dto.ts` | {marker} |
-| 6 | Config Validation | Environment variable validation | `common/config/config.schema.ts`, `common/config/*.config.ts` | {marker} |
-
----
-
-## 8. File Inventory
-
-### 8.1 Source Files
+### 5.1 Source Files
 
 | # | File Path | Purpose | Source | MVP |
 |---|-----------|---------|--------|-----|
@@ -283,7 +197,7 @@ test/
 | 3 | `src/{module}/{module}.service.ts` | {Module} business logic | architecture-final.md | Yes |
 | ... | ... | ... | ... | ... |
 
-### 8.2 Test Files
+### 5.2 Test Files
 
 | # | File Path | Purpose | Source | MVP |
 |---|-----------|---------|--------|-----|
@@ -291,28 +205,19 @@ test/
 | 2 | `test/integration/{module}.integration.spec.ts` | Integration test | — | Yes |
 | ... | ... | ... | ... | ... |
 
-### 8.3 Configuration Files
-
-| # | File Path | Purpose | Source | MVP |
-|---|-----------|---------|--------|-----|
-| 1 | `tsconfig.json` | TypeScript config | tech-stack-final.md | Yes |
-| 2 | `docker-compose.yml` | Dev services | architecture-final.md | Yes |
-| ... | ... | ... | ... | ... |
-
-### 8.4 Summary
+### 5.3 Summary
 
 | Category | Count |
 |----------|-------|
 | Source files | {N} |
 | Test files | {N} |
-| Configuration files | {N} |
 | **Total** | **{N}** |
 | MVP files | {N} |
 | [FUTURE] files | {N} |
 
 ---
 
-## 9. Q&A Log
+## 6. Q&A Log
 
 ### Q-001 (related: {item IDs})
 - **Impact**: HIGH / MEDIUM / LOW
@@ -325,7 +230,7 @@ test/
 
 ---
 
-## 10. Readiness Assessment
+## 7. Readiness Assessment
 
 | Metric | Value |
 |--------|-------|
@@ -342,7 +247,7 @@ test/
 
 ---
 
-## 11. Approval
+## 8. Approval
 
 | Role | Name | Decision | Date |
 |------|------|----------|------|

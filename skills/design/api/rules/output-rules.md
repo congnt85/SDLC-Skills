@@ -61,21 +61,6 @@ ALL responses MUST use the standard envelope format:
 - Error: `data` null, `errors` populated
 - Collections: `data` is array, `meta` has pagination info
 
-### API-08: Rate Limiting Specification
-Rate limits MUST be specified for:
-- All public (unauthenticated) endpoints
-- All high-traffic endpoints (list endpoints, search, webhooks)
-- Auth endpoints (login, token refresh) — with lower limits
-
-Each rate limit MUST specify: requests per time window (e.g., "100/min").
-
-### API-09: Authentication Documentation
-The API design MUST document:
-- Authentication mechanism (Bearer JWT, API Key, OAuth2)
-- Token format and claims (for JWT)
-- Token lifecycle (access token expiry, refresh flow)
-- How to include credentials in requests (header name, format)
-
 ---
 
 ## Consistency Rules
@@ -97,16 +82,12 @@ API output MUST follow this section order:
 1. API Overview
 2. Resource Inventory
 3. Endpoint Specifications
-4. Authentication & Authorization
-5. Error Handling
-6. Pagination & Filtering
-7. Rate Limiting
-8. WebSocket API (if applicable — omit if no real-time features)
-9. Q&A Log
-10. Readiness Assessment
-11. Approval
+4. Error Handling
+5. Q&A Log
+6. Readiness Assessment
+7. Approval
 
-Do not add, remove, or reorder sections (except WebSocket which is conditional).
+Do not add, remove, or reorder sections. Authentication, pagination, rate limiting, and WebSocket sections belong to `/design-api-security`.
 
 ### API-12: Confidence Markers on Endpoints
 Every endpoint specification MUST have a confidence marker:

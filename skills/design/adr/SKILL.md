@@ -10,7 +10,7 @@ argument-hint: "--create|--refine|--score"
 version: "1.0"
 category: sdlc
 phase: design
-prev_phase: design-arch
+prev_phase: design-api-security
 next_phase: null
 ---
 
@@ -101,74 +101,34 @@ Read these files in order:
 5. `design/adr/knowledge/adr-writing-guide.md` — ADR writing techniques
 6. `design/adr/rules/output-rules.md` — ADR-specific output rules
 7. `design/adr/templates/output-template.md` — expected output structure
-8. `skills/shared/knowledge/scoring-guide.md` — scoring methodology (Mode 3 only)
-9. `skills/shared/rules/scoring-rules.md` — scoring output rules (Mode 3 only)
-10. `skills/shared/templates/scoreboard-output-template.md` — scoreboard format (Mode 3 only)
+For Mode 3 (Score): Read resources listed in `skills/shared/knowledge/score-workflow.md`
 
 ### Step 3: Resolve Input
 
-**File Type Conversion** (applies to all file inputs):
+Resolve inputs per `skills/shared/knowledge/input-resolution-workflow.md`.
 
-Before reading any input file, check its extension:
-- `.md` → Read directly, no conversion needed
-- `.pdf` → Run `/read-pdf <path> sdlc/design/input/` → read the converted .md
-- `.docx` / `.doc` → Run `/read-word <path> sdlc/design/input/` → read the converted .md
-- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/design/input/` → read the converted .md
-- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/design/input/` → read the converted .md
+**Create mode inputs:**
 
-Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+| Input | Required | Default Path | Fallback |
+|-------|----------|-------------|----------|
+| Decision topic | Yes | User argument | "What architectural decision do you want to document?" |
+| ADR number | Auto | Scan `sdlc/design/draft/` for existing `adr-{NNN}-*-draft.md` | Next sequential (001 if none) |
+| tech-stack-final.md | No | `sdlc/design/final/` | Proceed without, note missing context |
+| architecture-final.md | No | `sdlc/design/final/` | Proceed without, note missing context |
+| database-final.md | No | `sdlc/design/final/` | Proceed without, note missing context |
+| api-final.md | No | `sdlc/design/final/` | Proceed without, note missing context |
+| charter-final.md | No | `sdlc/init/final/` | Proceed without, note missing context |
+| scope-final.md | No | `sdlc/init/final/` | Proceed without, note missing context |
+| risk-register-final.md | No | `sdlc/init/final/` | Proceed without, note missing context |
+| userstories-final.md | No | `sdlc/req/final/` | Proceed without, note missing context |
+| backlog-final.md | No | `sdlc/req/final/` | Proceed without, note missing context |
 
-Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+**Refine mode inputs:**
 
-**Mode 1 (Create):**
-
-```
-For decision topic (REQUIRED):
-1. User provided topic as argument? → Use it
-2. No argument? → Ask: "What architectural decision do you want to document?"
-
-For ADR number:
-1. Scan sdlc/design/draft/ for existing adr-{NNN}-*-draft.md files
-2. Determine next number (NNN = max existing + 1, or 001 if none)
-
-For context (ALL OPTIONAL — read what exists):
-1. Check sdlc/design/final/ for tech-stack-final.md, architecture-final.md,
-   database-final.md, api-final.md
-2. Check sdlc/init/final/ for charter-final.md, scope-final.md, risk-register-final.md
-3. Check sdlc/req/final/ for userstories-final.md, backlog-final.md
-4. User specified a different path? → Read it, convert if needed
-5. Check sdlc/design/input/ for any previously copied artifacts
-6. If found → copy to sdlc/design/input/ for traceability
-7. If not found → proceed without, note missing context
-```
-
-**Mode 2 (Refine):**
-
-```
-For existing ADR (REQUIRED):
-1. User specified ADR number or slug? → Find matching file in sdlc/design/draft/
-2. User specified path? → Read it
-3. Only one ADR in sdlc/design/draft/? → Use it
-4. Multiple ADRs in sdlc/design/draft/ and no specifier? → List them, ask user to choose
-5. No ADRs found? → FAIL: "No ADR found. Run /design-adr first."
-
-For review report:
-1. User provided feedback directly in message? → Save to sdlc/design/input/review-report.md
-2. User specified path? → Read it, copy to sdlc/design/input/
-3. Exists in sdlc/design/input/review-report.md? → Read it
-4. Not found? → Ask: "What feedback do you have on this ADR?"
-```
-
-**Mode 3 (Score):**
-
-```
-For artifact to score (required):
-1. User specified a path?                                     → Read it → DONE
-2. Exists in sdlc/design/final/adr-final.md?                  → Read it → DONE
-3. Exists as sdlc/design/draft/adr-v{N}.md (latest N)?        → Read it → DONE
-4. Exists as sdlc/design/draft/adr-draft.md?                  → Read it → DONE
-5. Not found? → Ask: "Provide the path to the artifact to score."
-```
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing ADR | Yes | `sdlc/design/draft/adr-{NNN}-{slug}-draft.md` (by number, slug, or user path) |
+| Review feedback | Yes | User message or `sdlc/design/input/review-report.md` |
 
 ### Step 4: Generate (Mode-specific)
 
@@ -240,27 +200,7 @@ For each section:
 
 **Mode 3 -- Score:**
 
-1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
-
-2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
-   - For each dimension, cite at least 2 specific evidence items from the artifact
-   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
-   - Record issues found during scoring
-
-3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
-   - ✅ PASS — artifact fully complies
-   - ❌ FAIL — artifact clearly violates
-   - ⚠️ PARTIAL — artifact partially complies
-
-4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
-   - Assign severity: HIGH / MED / LOW
-   - Link each to its dimension and artifact section
-
-5. **Generate Recommendations** — 3-7 actionable recommendations:
-   - HIGH severity issues first, then lowest-scoring dimensions
-   - Each specifies: what to change, where, expected result
-
-6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+Follow the standard score workflow in `skills/shared/knowledge/score-workflow.md` using this skill's rules and templates as context.
 
 ### Step 5: Validate Output
 
@@ -282,14 +222,6 @@ Check against rules:
 - Consistency across artifacts (DES-06)
 - ADR threshold met — DES-09 criteria (DES-09)
 
-**Mode 3 (Score) — additional checks:**
-- All 5 dimensions scored with evidence (SCR-01, SCR-02)
-- Integer scores 1-5 (SCR-03)
-- Issues linked to dimensions and sections (SCR-04, SCR-05)
-- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
-- Scoring used this skill's own rules/templates as context (SCR-08)
-- Rules compliance section present (SCR-10)
-
 ### Step 6: Readiness Assessment
 
 Generate assessment per `skills/shared/templates/readiness-assessment.md`:
@@ -302,20 +234,7 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 - **Create mode**: Write to `sdlc/design/draft/adr-{NNN}-{slug}-draft.md`
 - **Refine mode**: Update `sdlc/design/draft/adr-{NNN}-{slug}-draft.md` with Change Log
 
-**Mode 3 (Score):**
-
-- Write to `sdlc/design/draft/adr-scoreboard.md`
-
-Tell the user:
-> **Scoreboard complete!**
-> - Output: `sdlc/design/draft/adr-scoreboard.md`
-> - Average: {avg}/5 — {verdict}
-> - Lowest: {dimension} ({score}/5)
-> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
->
-> **Next steps:**
-> - Run `/design-adr --refine` to address issues
-> - Or run `/skill-evolution --analyze design/adr` to improve the skill definition itself
+**Mode 3 (Score):** Output per score workflow — `sdlc/design/draft/adr-scoreboard.md`
 
 Tell the user:
 > **ADR {NNN} created!**

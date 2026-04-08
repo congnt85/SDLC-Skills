@@ -1,10 +1,9 @@
 ---
 name: test-cases
 description: >
-  Create or refine test cases organized into test suites. Generates specific,
-  executable test scenarios with steps, test data, expected results, and
-  traceability to acceptance criteria. Covers functional, API, integration,
-  and NFR test cases.
+  Create or refine functional and API test cases organized into test suites.
+  Generates specific, executable test scenarios with steps, test data, expected
+  results, and traceability to acceptance criteria and API endpoints.
   ONLY activated by command: `/test-cases`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
 argument-hint: "--create|--refine|--score"
@@ -12,14 +11,14 @@ version: "1.0"
 category: sdlc
 phase: test
 prev_phase: test-plan
-next_phase: impl-sprint
+next_phase: test-integration
 ---
 
 # Test Cases Skill
 
 ## Purpose
 
-Create **test-cases-draft.md** with specific, executable test cases organized into suites, fully traced to requirements. Each test case includes concrete steps, test data, expected results, and traceability to acceptance criteria, API endpoints, quality attributes, or risks.
+Create **test-cases-draft.md** with specific, executable functional and API test cases organized into suites, fully traced to requirements. Each test case includes concrete steps, test data, expected results, and traceability to acceptance criteria or API endpoints.
 
 ---
 
@@ -44,10 +43,7 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 | test-strategy-final.md | Optional | sdlc/test/final/ — tools, approach, coverage targets |
 | test-plan-final.md | Optional | sdlc/test/final/ — scope, priorities |
 | database-final.md | Optional | sdlc/design/final/ — data constraints for test data |
-| architecture-final.md | Optional | sdlc/design/final/ — component boundaries for integration tests |
-| scope-final.md | Optional | sdlc/init/final/ — QA-xxx for NFR test cases |
 | backlog-final.md | Optional | sdlc/req/final/ — MVP boundary for test prioritization |
-| risk-register-final.md | Optional | sdlc/init/final/ — risk-based test cases |
 
 ### Refine Mode
 
@@ -94,99 +90,29 @@ Read these files in order. STOP if any required file is missing:
 6. `test/cases/knowledge/test-case-writing-guide.md`
 7. `test/cases/rules/output-rules.md`
 8. `test/cases/templates/output-template.md`
-9. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
-10. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
-11. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
+For Mode 3 (Score): Read resources listed in `skills/shared/knowledge/score-workflow.md`
 
 ### Step 3 — Resolve Inputs
 
-**File Type Conversion** (applies to all file inputs):
+Resolve inputs per `skills/shared/knowledge/input-resolution-workflow.md`.
 
-Before reading any input file, check its extension:
-- `.md` → Read directly, no conversion needed
-- `.pdf` → Run `/read-pdf <path> sdlc/test/input/` → read the converted .md
-- `.docx` / `.doc` → Run `/read-word <path> sdlc/test/input/` → read the converted .md
-- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/test/input/` → read the converted .md
-- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/test/input/` → read the converted .md
+**Create mode inputs:**
 
-Converted files are saved to `sdlc/test/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+| Input | Required | Default Path | Fallback |
+|-------|----------|-------------|----------|
+| User stories | Yes | `sdlc/req/final/userstories-final.md` | STOP: "No user stories found. Please provide a path or run /req-userstory first." |
+| API spec | Yes | `sdlc/design/final/api-final.md` | STOP: "No API design found. Please provide a path or run /design-api first." |
+| Test strategy | No | `sdlc/test/final/test-strategy-final.md` | Proceed without |
+| Test plan | No | `sdlc/test/final/test-plan-final.md` | Proceed without |
+| Database | No | `sdlc/design/final/database-final.md` | Proceed without |
+| Backlog | No | `sdlc/req/final/backlog-final.md` | Proceed without |
 
-Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+**Refine mode inputs:**
 
-**Mode 1 (Create) — Input resolution priority** (for each input file):
-
-```
-For userstories input (required):
-1. Exists in sdlc/req/final/userstories-final.md?          -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/userstories-final.md?          -> YES -> read it -> DONE
-4. Not found? -> STOP: "No user stories found. Please provide a path or run /req-userstory first."
-
-For api input (required):
-1. Exists in sdlc/design/final/api-final.md?               -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/api-final.md?                  -> YES -> read it -> DONE
-4. Not found? -> STOP: "No API design found. Please provide a path or run /design-api first."
-
-For test-strategy (optional):
-1. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/test-strategy-final.md?        -> YES -> read it -> DONE
-4. Not found? -> Proceed without test strategy.
-
-For test-plan (optional):
-1. Exists in sdlc/test/final/test-plan-final.md?           -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/test-plan-final.md?            -> YES -> read it -> DONE
-4. Not found? -> Proceed without test plan.
-
-For database (optional):
-1. Exists in sdlc/design/final/database-final.md?          -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/database-final.md?             -> YES -> read it -> DONE
-4. Not found? -> Proceed without database design.
-
-For architecture (optional):
-1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/architecture-final.md?         -> YES -> read it -> DONE
-4. Not found? -> Proceed without architecture.
-
-For scope (optional):
-1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/scope-final.md?                -> YES -> read it -> DONE
-4. Not found? -> Proceed without scope.
-
-For backlog (optional):
-1. Exists in sdlc/req/final/backlog-final.md?              -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/backlog-final.md?              -> YES -> read it -> DONE
-4. Not found? -> Proceed without backlog.
-
-For risk register (optional):
-1. Exists in sdlc/init/final/risk-register-final.md?       -> YES -> read it, copy to sdlc/test/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
-3. Exists in sdlc/test/input/risk-register-final.md?        -> YES -> read it -> DONE
-4. Not found? -> Proceed without risk register.
-```
-
-**Actions**:
-- Locate each input file using priority order above
-- Copy resolved files to `sdlc/test/input/` for traceability
-- STOP if REQUIRED inputs (userstories-final.md, api-final.md) are not found — tell user what is missing
-- Log which optional inputs were found vs. missing
-
-**Mode 3 (Score):**
-
-```
-For artifact to score (required):
-1. User specified a path?                                     → Read it → DONE
-2. Exists in sdlc/test/final/test-cases-final.md?             → Read it → DONE
-3. Exists as sdlc/test/draft/test-cases-v{N}.md (latest N)?   → Read it → DONE
-4. Exists as sdlc/test/draft/test-cases-draft.md?             → Read it → DONE
-5. Not found? → Ask: "Provide the path to the artifact to score."
-```
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing draft | Yes | `sdlc/test/draft/test-cases-draft.md` or latest `test-cases-v{N}.md` |
+| Review feedback | Yes | User message or `sdlc/test/input/review-report.md` |
 
 ### Step 4 — Generate (Create Mode)
 
@@ -197,8 +123,6 @@ Work through each step systematically:
 Group test cases by source:
 - **Functional suites**: one suite per user story (TS-xxx maps to US-xxx)
 - **API suites**: one suite per API resource
-- **Integration suites**: one suite per component interaction
-- **NFR suites**: one suite per quality attribute
 
 Present suite structure to user before proceeding.
 
@@ -221,41 +145,20 @@ For each API endpoint:
 - **Rate limiting**: exceed limit → 429
 - Use real request/response examples from api-final.md
 
-#### 4.4 Integration Test Cases
-
-For key component interactions:
-- **Service → Database**: CRUD operations with real DB
-- **Service → Cache**: cache hit/miss scenarios
-- **Service → External API**: webhook processing, API calls
-- **WebSocket**: connection, event subscription, message delivery
-
-#### 4.5 NFR Test Cases
-
-For each quality attribute:
-- **Performance**: load scenarios with specific user counts and targets
-- **Security**: OWASP Top 10 checks, auth bypass attempts, injection tests
-- **Availability**: failover scenarios, graceful degradation
-- **Data integrity**: FK constraint violations, concurrent updates
-
-#### 4.6 Test Data Specifications
+#### 4.4 Test Data Specifications
 
 For each suite:
 - Required test data entities
 - How to create them (seed, factory, manual)
 - Relationships between test data entities
 
-#### 4.7 Coverage Matrix
-
-Summary showing which ACs, endpoints, and risks are covered by which test cases. Identify gaps explicitly.
-
 ### Step 4 — Generate (Refine Mode)
 
 1. Read existing `sdlc/test/draft/test-cases-draft.md`
 2. Show **quality scorecard** first:
-   - Total test cases by type and priority
+   - Total test cases by type (functional, API) and priority
    - AC coverage % (Must Have, Should Have, Could Have)
    - API endpoint coverage %
-   - Quality attribute coverage %
    - Confidence distribution (CONFIRMED / ASSUMED / UNCLEAR)
    - Known gaps
 3. Apply user feedback — typical refinements:
@@ -263,86 +166,42 @@ Summary showing which ACs, endpoints, and risks are covered by which test cases.
    - Improve test data specificity
    - Add negative/edge cases
    - Improve coverage for specific endpoints
-   - Add integration test cases
    - Adjust priorities
-4. Update coverage matrix after changes
-5. Present changes summary to user
+4. Present changes summary to user
 
 **Mode 3 -- Score:**
 
-1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
-
-2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
-   - For each dimension, cite at least 2 specific evidence items from the artifact
-   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
-   - Record issues found during scoring
-
-3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
-   - ✅ PASS — artifact fully complies
-   - ❌ FAIL — artifact clearly violates
-   - ⚠️ PARTIAL — artifact partially complies
-
-4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
-   - Assign severity: HIGH / MED / LOW
-   - Link each to its dimension and artifact section
-
-5. **Generate Recommendations** — 3-7 actionable recommendations:
-   - HIGH severity issues first, then lowest-scoring dimensions
-   - Each specifies: what to change, where, expected result
-
-6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+Follow the standard score workflow in `skills/shared/knowledge/score-workflow.md` using this skill's rules and templates as context.
 
 ### Step 5 — Validate
 
 Check output against:
-- TCS rules (TCS-01 through TCS-16) from `test/cases/rules/output-rules.md`
+- TCS rules (TCS-01 through TCS-14) from `test/cases/rules/output-rules.md`
 - Test rules from `test/shared/rules/test-rules.md`
 - Quality rules from `skills/shared/rules/quality-rules.md`
 
 Fix any violations before proceeding.
 
-**Mode 3 (Score) — additional checks:**
-- All 5 dimensions scored with evidence (SCR-01, SCR-02)
-- Integer scores 1-5 (SCR-03)
-- Issues linked to dimensions and sections (SCR-04, SCR-05)
-- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
-- Scoring used this skill's own rules/templates as context (SCR-08)
-- Rules compliance section present (SCR-10)
-
 ### Step 6 — Readiness Assessment
 
 Evaluate:
-- % of Must Have ACs with ≥1 happy-path AND ≥1 negative test case
+- % of Must Have ACs with >=1 happy-path AND >=1 negative test case
 - % of API endpoints with happy + auth + 404 coverage
-- % of QA-xxx with ≥1 NFR test case
 - Confidence distribution (CONFIRMED / ASSUMED / UNCLEAR)
 - Coverage gaps
 
 **Verdict**:
-- **Ready** — ≥95% Must Have AC coverage, ≥90% API coverage, all QA attributes tested, ≤10% UNCLEAR
-- **Partially Ready** — ≥80% Must Have AC coverage, ≥70% API coverage, some gaps identified
+- **Ready** — >=95% Must Have AC coverage, >=90% API coverage, <=10% UNCLEAR
+- **Partially Ready** — >=80% Must Have AC coverage, >=70% API coverage, some gaps identified
 - **Not Ready** — below thresholds, significant gaps
 
 ### Step 7 — Output and Next Step
 
 1. Write `sdlc/test/draft/test-cases-draft.md`
 2. Present summary: test case counts by type/priority, coverage stats, gaps, confidence
-3. Suggest next step: `/impl-sprint` to begin implementation planning
+3. Suggest next step: `/test-integration` to create integration and NFR test cases
 
-**Mode 3 (Score):**
-
-- Write to `sdlc/test/draft/test-cases-scoreboard.md`
-
-Tell the user:
-> **Scoreboard complete!**
-> - Output: `sdlc/test/draft/test-cases-scoreboard.md`
-> - Average: {avg}/5 — {verdict}
-> - Lowest: {dimension} ({score}/5)
-> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
->
-> **Next steps:**
-> - Run `/test-cases --refine` to address issues
-> - Or run `/skill-evolution --analyze test/cases` to improve the skill definition itself
+**Mode 3 (Score):** Output per score workflow — sdlc/test/draft/test-cases-scoreboard.md
 
 ---
 
@@ -350,15 +209,17 @@ Tell the user:
 
 ### DOES
 
-- Write specific test cases with concrete steps, test data, and expected results
-- Organize test cases into suites by source (story, resource, QA attribute)
-- Trace every test case to a requirement (US-xxx.AC-N, QA-xxx, RISK-xxx, API endpoint)
+- Write specific functional and API test cases with concrete steps, test data, and expected results
+- Organize test cases into suites by source (user story, API resource)
+- Trace every test case to a requirement (US-xxx.AC-N or API endpoint)
 - Specify concrete test data (not placeholders)
-- Build coverage matrix and identify gaps
 - Assign priority and tags to every test case
 
 ### Does NOT
 
+- Write integration test cases (cross-component interactions) — that is `/test-integration`
+- Write NFR test cases (performance, security, availability) — that is `/test-integration`
+- Build the combined coverage matrix — that is `/test-integration`
 - Define testing approach or methodology — that is `/test-strategy`
 - Plan test execution schedule or resources — that is `/test-plan`
 - Implement or code automated tests — that is `/impl-codegen`

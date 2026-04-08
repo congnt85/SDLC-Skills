@@ -94,74 +94,30 @@ Read these files in order:
 6. `design/architecture/knowledge/c4-modeling-guide.md` — C4 modeling techniques
 7. `design/architecture/rules/output-rules.md` — architecture-specific output rules
 8. `design/architecture/templates/output-template.md` — expected output structure
-9. `skills/shared/knowledge/scoring-guide.md` — scoring methodology (Mode 3 only)
-10. `skills/shared/rules/scoring-rules.md` — scoring output rules (Mode 3 only)
-11. `skills/shared/templates/scoreboard-output-template.md` — scoreboard format (Mode 3 only)
+For Mode 3 (Score): Read resources listed in `skills/shared/knowledge/score-workflow.md`
 
 ### Step 3: Resolve Input
 
-**File Type Conversion** (applies to all file inputs):
+Resolve inputs per `skills/shared/knowledge/input-resolution-workflow.md`.
 
-Before reading any input file, check its extension:
-- `.md` → Read directly, no conversion needed
-- `.pdf` → Run `/read-pdf <path> sdlc/design/input/` → read the converted .md
-- `.docx` / `.doc` → Run `/read-word <path> sdlc/design/input/` → read the converted .md
-- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/design/input/` → read the converted .md
-- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/design/input/` → read the converted .md
+**Create mode inputs:**
 
-Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+| Input | Required | Default Path | Fallback |
+|-------|----------|-------------|----------|
+| tech-stack-final.md | Yes | `sdlc/design/final/` | "No tech stack document found. Run /design-stack first." |
+| scope-final.md | Yes | `sdlc/init/final/` | "No scope document found. Run /init-scope first." |
+| charter-final.md | No | `sdlc/init/final/` | Proceed without, note missing context in Q&A |
+| epics-final.md | No | `sdlc/req/final/` | Proceed without, note missing context in Q&A |
+| userstories-final.md | No | `sdlc/req/final/` | Proceed without, note missing context in Q&A |
+| backlog-final.md | No | `sdlc/req/final/` | Proceed without, note missing context in Q&A |
+| risk-register-final.md | No | `sdlc/init/final/` | Proceed without, note missing context in Q&A |
 
-Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+**Refine mode inputs:**
 
-**Mode 1 (Create):**
-
-```
-For tech-stack-final.md (REQUIRED):
-1. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
-2. User specified a different path? → Read it, convert if needed
-3. Exists in sdlc/design/input/tech-stack-final.md? → Read it
-4. Not found? → FAIL: "No tech stack document found. Run /design-stack first."
-
-For scope-final.md (REQUIRED):
-1. Exists in sdlc/init/final/scope-final.md? → Read it, copy to sdlc/design/input/
-2. User specified a different path? → Read it, convert if needed
-3. Exists in sdlc/design/input/scope-final.md? → Read it
-4. Not found? → FAIL: "No scope document found. Run /init-scope first."
-
-For optional inputs (charter, epics, userstories, backlog, risk-register):
-1. Check respective final/ folders first (sdlc/init/final/, sdlc/req/final/)
-2. User specified a different path? → Read it, convert if needed
-3. Check sdlc/design/input/ folder
-4. If found → copy to sdlc/design/input/ for traceability
-5. If not found → proceed without, note missing context in Q&A
-```
-
-**Mode 2 (Refine):**
-
-```
-For architecture draft:
-1. User specified path? → Read it, copy to sdlc/design/input/
-2. Exists in sdlc/design/input/? → Read it
-3. Exists in sdlc/design/draft/ (latest version)? → Read it, copy to sdlc/design/input/
-4. Not found? → FAIL: "No existing architecture document found. Run /design-arch first."
-
-For review report:
-1. User provided feedback directly in message? → Save to sdlc/design/input/review-report.md
-2. User specified path? → Read it, copy to sdlc/design/input/
-3. Exists in sdlc/design/input/review-report.md? → Read it
-4. Not found? → Ask: "What feedback do you have on the current architecture?"
-```
-
-**Mode 3 (Score):**
-
-```
-For artifact to score (required):
-1. User specified a path?                                     → Read it → DONE
-2. Exists in sdlc/design/final/architecture-final.md?         → Read it → DONE
-3. Exists as sdlc/design/draft/architecture-v{N}.md (latest N)? → Read it → DONE
-4. Exists as sdlc/design/draft/architecture-draft.md?         → Read it → DONE
-5. Not found? → Ask: "Provide the path to the artifact to score."
-```
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing draft | Yes | `sdlc/design/draft/architecture-draft.md` or latest `architecture-v{N}.md` |
+| Review feedback | Yes | User message or `sdlc/design/input/review-report.md` |
 
 ### Step 4: Generate (Mode-specific)
 
@@ -212,27 +168,7 @@ For each section:
 
 **Mode 3 -- Score:**
 
-1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
-
-2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
-   - For each dimension, cite at least 2 specific evidence items from the artifact
-   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
-   - Record issues found during scoring
-
-3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
-   - ✅ PASS — artifact fully complies
-   - ❌ FAIL — artifact clearly violates
-   - ⚠️ PARTIAL — artifact partially complies
-
-4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
-   - Assign severity: HIGH / MED / LOW
-   - Link each to its dimension and artifact section
-
-5. **Generate Recommendations** — 3-7 actionable recommendations:
-   - HIGH severity issues first, then lowest-scoring dimensions
-   - Each specifies: what to change, where, expected result
-
-6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+Follow the standard score workflow in `skills/shared/knowledge/score-workflow.md` using this skill's rules and templates as context.
 
 ### Step 5: Validate Output
 
@@ -256,14 +192,6 @@ Check against rules:
 - Consistency across artifacts (DES-06)
 - Mermaid diagrams required (DES-08)
 
-**Mode 3 (Score) — additional checks:**
-- All 5 dimensions scored with evidence (SCR-01, SCR-02)
-- Integer scores 1-5 (SCR-03)
-- Issues linked to dimensions and sections (SCR-04, SCR-05)
-- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
-- Scoring used this skill's own rules/templates as context (SCR-08)
-- Rules compliance section present (SCR-10)
-
 ### Step 6: Readiness Assessment
 
 Generate assessment per `skills/shared/templates/readiness-assessment.md`:
@@ -276,20 +204,7 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 - **Create mode**: Write to `sdlc/design/draft/architecture-draft.md`
 - **Refine mode**: Write to `sdlc/design/draft/architecture-v{N}.md`, include Change Log and Diff Summary
 
-**Mode 3 (Score):**
-
-- Write to `sdlc/design/draft/architecture-scoreboard.md`
-
-Tell the user:
-> **Scoreboard complete!**
-> - Output: `sdlc/design/draft/architecture-scoreboard.md`
-> - Average: {avg}/5 — {verdict}
-> - Lowest: {dimension} ({score}/5)
-> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
->
-> **Next steps:**
-> - Run `/design-arch --refine` to address issues
-> - Or run `/skill-evolution --analyze design/architecture` to improve the skill definition itself
+**Mode 3 (Score):** Output per score workflow — `sdlc/design/draft/architecture-scoreboard.md`
 
 Tell the user:
 > **Architecture {created/refined}!**

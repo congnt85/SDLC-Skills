@@ -22,12 +22,10 @@ Use this template for all test-cases-draft.md output. Replace `{placeholders}` w
 | TS-001 | {name} | US-001 | Functional | TC-001 — TC-005 | High |
 | TS-002 | {name} | US-002 | Functional | TC-006 — TC-010 | High |
 | TS-010 | {name} | /api/v1/projects | API | TC-050 — TC-060 | High |
-| TS-020 | {name} | QA-001 | NFR/Performance | TC-100 — TC-103 | Critical |
-
 **Summary**:
 - Total test suites: {N}
 - Total test cases: {N}
-- By type: Functional ({N}), API ({N}), Integration ({N}), NFR ({N})
+- By type: Functional ({N}), API ({N})
 - By priority: Critical ({N}), High ({N}), Medium ({N}), Low ({N})
 - Automation: Automated ({N}), Manual ({N})
 
@@ -239,110 +237,7 @@ Content-Type: application/json
 
 ---
 
-## 4. Integration Test Cases
-
-### TS-030: {Component Interaction} Integration Tests
-
-#### TC-080: {Integration Test Title} ✅
-
-| Field | Value |
-|-------|-------|
-| **ID** | TC-080 |
-| **Type** | Integration |
-| **Priority** | High |
-| **Source** | {component A → component B interaction} |
-| **Automation** | Automated |
-
-**Preconditions**:
-1. {component A is running}
-2. {component B is running}
-3. {test data exists in both components}
-
-**Test Steps**:
-| Step | Action | Expected Result |
-|------|--------|----------------|
-| 1 | {trigger action in component A} | {component A processes and calls component B} |
-| 2 | {verify component B received the call} | {component B state updated correctly} |
-| 3 | {verify end-to-end result} | {final state is consistent across components} |
-
-**Test Data**:
-| Field | Value | Component | Notes |
-|-------|-------|-----------|-------|
-| {field} | {value} | {component} | {notes} |
-
-**Tags**: integration, happy-path, critical-path
-
----
-
-## 5. NFR Test Cases
-
-### TS-020: Performance Tests (QA-001)
-
-#### TC-100: {Performance Test Title} ✅
-
-| Field | Value |
-|-------|-------|
-| **ID** | TC-100 |
-| **Type** | Performance |
-| **Priority** | Critical |
-| **Source** | QA-001 |
-| **Tool** | {performance testing tool, e.g., k6, JMeter} |
-
-**Scenario**:
-- {description of the load scenario and what it simulates}
-
-**Test Configuration**:
-| Parameter | Value |
-|-----------|-------|
-| Virtual users | {N} |
-| Ramp-up period | {duration} |
-| Sustained duration | {duration} |
-| Target endpoint(s) | {endpoint list} |
-| Think time | {duration between requests} |
-
-**Test Data Volume**:
-| Entity | Count | Notes |
-|--------|-------|-------|
-| {entity} | {N} | {pre-seeded before test} |
-
-**Acceptance Criteria**:
-| Metric | Target | Measurement Method |
-|--------|--------|--------------------|
-| p95 response time | < {target} | k6 summary / Grafana |
-| p99 response time | < {target} | k6 summary / Grafana |
-| Error rate | < {target}% | Failed requests / total |
-| Throughput | > {target} RPS | Requests per second |
-
-**Tags**: performance, nfr, load-test
-
----
-
-### TS-021: Security Tests (QA-004)
-
-#### TC-110: {Security Test Title} ✅
-
-| Field | Value |
-|-------|-------|
-| **ID** | TC-110 |
-| **Type** | Security |
-| **Priority** | Critical |
-| **Source** | QA-004 |
-| **OWASP** | {OWASP Top 10 category, e.g., A03:2021 Injection} |
-
-**Preconditions**:
-1. {precondition}
-
-**Test Steps**:
-| Step | Action | Expected Result |
-|------|--------|----------------|
-| 1 | {inject malicious input} | {input sanitized or rejected} |
-| 2 | {verify no data leaked} | {response contains only authorized data} |
-
-**Tags**: security, nfr, negative
-
----
-
-## 6. Test Data Specifications
+## 4. Test Data Specifications
 
 ### Test Data Set: {name}
 
@@ -359,43 +254,7 @@ Content-Type: application/json
 
 ---
 
-## 7. Coverage Matrix
-
-### AC Coverage
-
-| Story | Priority | AC | Test Cases | Coverage |
-|-------|----------|-----|-----------|----------|
-| US-001 | Must Have | AC-1 | TC-001, TC-002 | ✅ Full |
-| US-001 | Must Have | AC-2 | TC-003 | 🔶 Happy path only |
-| US-002 | Must Have | AC-1 | — | ❌ Gap |
-
-### API Endpoint Coverage
-
-| Endpoint | Happy | Auth | 404 | Validation | Other | Coverage |
-|----------|-------|------|-----|-----------|-------|----------|
-| GET /api/v1/projects | TC-050 | TC-051 | — | — | — | 🔶 Partial |
-| POST /api/v1/projects | TC-055 | TC-056 | — | TC-057 | TC-058 (409) | ✅ Full |
-
-### Risk Coverage
-
-| Risk ID | Risk Description | Test Cases | Coverage |
-|---------|-----------------|-----------|----------|
-| RISK-001 | {risk description} | TC-xxx, TC-yyy | ✅ Full |
-| RISK-002 | {risk description} | — | ❌ Gap |
-
-### Coverage Summary
-
-| Metric | Total | Covered | Coverage % | Target |
-|--------|-------|---------|-----------|--------|
-| Must Have ACs | {N} | {N} | {%} | ≥95% |
-| Should Have ACs | {N} | {N} | {%} | ≥80% |
-| API Endpoints | {N} | {N} | {%} | ≥90% |
-| Quality Attributes | {N} | {N} | {%} | 100% |
-| High/Critical Risks | {N} | {N} | {%} | 100% |
-
----
-
-## 8. Q&A Log
+## 5. Q&A Log
 
 | # | Question | Context | Answer | Impact |
 |---|----------|---------|--------|--------|
@@ -403,7 +262,7 @@ Content-Type: application/json
 
 ---
 
-## 9. Readiness Assessment
+## 6. Readiness Assessment
 
 ### Confidence Distribution
 
@@ -417,10 +276,9 @@ Content-Type: application/json
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| Must Have AC coverage ≥95% | ✅ Met / ❌ Not Met | {details} |
-| API endpoint coverage ≥90% | ✅ Met / ❌ Not Met | {details} |
-| All QA attributes tested | ✅ Met / ❌ Not Met | {details} |
-| UNCLEAR items ≤10% | ✅ Met / ❌ Not Met | {details} |
+| Must Have AC coverage >=95% | ✅ Met / ❌ Not Met | {details} |
+| API endpoint coverage >=90% | ✅ Met / ❌ Not Met | {details} |
+| UNCLEAR items <=10% | ✅ Met / ❌ Not Met | {details} |
 
 ### Verdict: {Ready | Partially Ready | Not Ready}
 
@@ -434,7 +292,7 @@ Content-Type: application/json
 
 ---
 
-## 10. Approval
+## 7. Approval
 
 | Role | Name | Decision | Date |
 |------|------|----------|------|

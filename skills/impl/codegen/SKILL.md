@@ -1,16 +1,16 @@
 ---
 name: impl-codegen
 description: >
-  Create or refine a code generation plan. Defines project directory structure,
-  module specifications, configuration files, ORM models, API route scaffolding,
-  and test infrastructure. Plans what code to generate, not the code itself.
+  Create or refine a code generation plan. Defines module specifications,
+  ORM models, API route scaffolding, test infrastructure, and file inventory.
+  Plans what code to generate, not the code itself. Requires scaffold plan as input.
   ONLY activated by command: `/impl-codegen`. Use `--create`, `--refine`, or `--score` to set mode.
   NEVER auto-trigger based on keywords.
 argument-hint: "--create|--refine|--score"
-version: "1.0"
+version: "2.0"
 category: sdlc
 phase: impl
-prev_phase: impl-sprint
+prev_phase: impl-scaffold
 next_phase: impl-workflow
 ---
 
@@ -18,9 +18,9 @@ next_phase: impl-workflow
 
 ## Purpose
 
-Create or refine a code generation plan (`codegen-plan-draft.md`) that defines the complete project scaffolding blueprint — directory layout, module specifications, ORM model definitions, API route stubs, configuration files, and test infrastructure.
+Create or refine a code generation plan (`codegen-plan-draft.md`) that defines module specifications, ORM model definitions, API route stubs, test infrastructure, and a complete file inventory.
 
-This skill bridges "what to build" (design artifacts) and "how to build it" (actual implementation). It plans what code files to generate, their structure, and their relationships — without writing the actual source code.
+This skill takes the scaffold plan (directory layout, config files, shared utilities) as input and plans the feature-level code files to generate — their structure, interfaces, and relationships — without writing the actual source code.
 
 ---
 
@@ -28,10 +28,11 @@ This skill bridges "what to build" (design artifacts) and "how to build it" (act
 
 ### Mode 1: Create (`--create`)
 
-Generate a code generation plan from design artifacts.
+Generate a code generation plan from scaffold plan and design artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
+| Scaffold Plan (final) | Yes | `sdlc/impl/final/scaffold-plan-final.md` or user-specified path |
 | Tech Stack (final) | Yes | `sdlc/design/final/tech-stack-final.md` or user-specified path |
 | Architecture (final) | Yes | `sdlc/design/final/architecture-final.md` or user-specified path |
 | Database (final) | Yes | `sdlc/design/final/database-final.md` or user-specified path |
@@ -90,123 +91,55 @@ Read these files in order:
 3. `skills/shared/rules/output-rules.md` -- versioning, input resolution, diff summary
 4. `impl/shared/rules/impl-rules.md` -- implementation phase rules
 5. `impl/shared/templates/codegen/codegen-template.md` -- codegen card format
-6. `impl/codegen/knowledge/scaffolding-guide.md` -- scaffolding techniques
+6. `impl/codegen/knowledge/scaffolding-guide.md` -- scaffolding techniques (sections 2, 3, 5)
 7. `impl/codegen/rules/output-rules.md` -- codegen-specific output rules
 8. `impl/codegen/templates/output-template.md` -- expected output structure
-9. `skills/shared/knowledge/scoring-guide.md` -- scoring methodology (Mode 3 only)
-10. `skills/shared/rules/scoring-rules.md` -- scoring output rules (Mode 3 only)
-11. `skills/shared/templates/scoreboard-output-template.md` -- scoreboard format (Mode 3 only)
+For Mode 3 (Score): Read resources listed in `skills/shared/knowledge/score-workflow.md`
 
 ### Step 3: Resolve Input
 
-**File Type Conversion** (applies to all file inputs):
+Resolve inputs per `skills/shared/knowledge/input-resolution-workflow.md`.
 
-Before reading any input file, check its extension:
-- `.md` → Read directly, no conversion needed
-- `.pdf` → Run `/read-pdf <path> sdlc/impl/input/` → read the converted .md
-- `.docx` / `.doc` → Run `/read-word <path> sdlc/impl/input/` → read the converted .md
-- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/impl/input/` → read the converted .md
-- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/impl/input/` → read the converted .md
+**Create mode inputs:**
 
-Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+| Input | Required | Default Path | Fallback |
+|-------|----------|-------------|----------|
+| Scaffold Plan | Yes | `sdlc/impl/final/scaffold-plan-final.md` | "No scaffold plan found. Please provide a path or run /impl-scaffold first." |
+| Tech Stack | Yes | `sdlc/design/final/tech-stack-final.md` | "No tech stack found. Please provide a path or run /design-stack first." |
+| Architecture | Yes | `sdlc/design/final/architecture-final.md` | "No architecture found. Please provide a path or run /design-arch first." |
+| Database | Yes | `sdlc/design/final/database-final.md` | "No database design found. Please provide a path or run /design-db first." |
+| API | Yes | `sdlc/design/final/api-final.md` | "No API design found. Please provide a path or run /design-api first." |
+| Test Strategy | No | `sdlc/test/final/test-strategy-final.md` | Proceed without |
+| DoR/DoD | No | `sdlc/impl/final/dor-dod-final.md` | Proceed without |
 
-Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+**Refine mode inputs:**
 
-**Mode 1 (Create):**
-
-```
-For tech-stack input (required):
-1. Exists in sdlc/design/final/tech-stack-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/tech-stack-final.md?           -> YES -> read it -> DONE
-4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
-
-For architecture input (required):
-1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/architecture-final.md?         -> YES -> read it -> DONE
-4. Not found? -> Ask: "No architecture found. Please provide a path or run /design-arch first."
-
-For database input (required):
-1. Exists in sdlc/design/final/database-final.md?          -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/database-final.md?             -> YES -> read it -> DONE
-4. Not found? -> Ask: "No database design found. Please provide a path or run /design-db first."
-
-For API input (required):
-1. Exists in sdlc/design/final/api-final.md?               -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/api-final.md?                  -> YES -> read it -> DONE
-4. Not found? -> Ask: "No API design found. Please provide a path or run /design-api first."
-
-For test strategy (optional):
-1. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/test-strategy-final.md?        -> YES -> read it -> DONE
-4. Not found? -> Proceed without test strategy.
-
-For DoR/DoD (optional):
-1. Exists in sdlc/impl/final/dor-dod-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
-3. Exists in sdlc/impl/input/dor-dod-final.md?              -> YES -> read it -> DONE
-4. Not found? -> Proceed without DoR/DoD.
-```
-
-**Mode 2 (Refine):**
-
-```
-For codegen plan draft:
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/?                             -> YES -> read it -> DONE
-3. Exists in sdlc/impl/draft/ (latest version)?            -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-4. Not found? -> FAIL: "No existing codegen plan found. Run /impl-codegen first."
-
-For review report:
-1. User provided feedback directly in message?      -> Save to sdlc/impl/input/review-report.md
-2. User specified path?                             -> read it, copy to sdlc/impl/input/
-3. Exists in sdlc/impl/input/review-report.md?     -> read it
-4. Not found? -> Ask: "What feedback do you have on the current codegen plan?"
-```
-
-**Mode 3 (Score):**
-
-```
-For artifact to score (required):
-1. User specified a path?                                     → Read it → DONE
-2. Exists in sdlc/impl/final/codegen-plan-final.md?             → Read it → DONE
-3. Exists as sdlc/impl/draft/codegen-plan-v{N}.md (latest N)?   → Read it → DONE
-4. Exists as sdlc/impl/draft/codegen-plan-draft.md?             → Read it → DONE
-5. Not found? → Ask: "Provide the path to the artifact to score."
-```
+| Input | Required | Source |
+|-------|----------|--------|
+| Existing draft | Yes | `sdlc/impl/draft/codegen-plan-draft.md` or latest `codegen-plan-v{N}.md` |
+| Review feedback | Yes | User message or `sdlc/impl/input/review-report.md` |
 
 ### Step 4: Generate (Mode-specific)
 
 **Mode 1 -- Create:**
 
-Work through the codegen plan **section by section, incrementally**:
+Work through the codegen plan **section by section, incrementally**. Use the scaffold plan as the foundation — it provides the directory structure, config files, and shared utilities. This skill adds the feature-level detail.
 
-1. **Project Structure** -- Full directory tree mirroring architecture components
-   - Map each architecture component to a source directory under `src/`
-   - Add test directories (unit, integration, e2e)
-   - Add configuration, scripts, and infrastructure directories
-   - Follow framework conventions (NestJS modules, React feature folders, etc.)
-   - Present proposed directory tree to user before detailing modules
-
-2. **Module Specifications** -- For each architecture component
+1. **Module Specifications** -- For each architecture component
    - Define module name, source component, associated stories (US-xxx)
    - List all files to generate within the module (controller, service, DTO, entity, etc.)
    - Define key interfaces and types
    - Specify inter-module dependencies
    - Tag MVP vs [FUTURE] modules
 
-3. **ORM Models/Entities** -- For each database table from database-final.md
+2. **ORM Models/Entities** -- For each database table from database-final.md
    - Map table to entity/model file
    - Map column types to language types (UUID->string, TIMESTAMPTZ->Date, JSONB->Record)
    - Map relationships to decorators/attributes (@OneToMany, @ManyToOne, etc.)
    - Map enums to language-level enums or union types
    - Include validation decorators
 
-4. **API Route Scaffolding** -- For each API resource from api-final.md
+3. **API Route Scaffolding** -- For each API resource from api-final.md
    - Map resource to controller file
    - Map each endpoint to a handler method with HTTP method, path, and handler name
    - Create DTO specifications for request validation (CreateXxxDto, UpdateXxxDto)
@@ -214,17 +147,7 @@ Work through the codegen plan **section by section, incrementally**:
    - Map rate limits to decorators
    - Link each route to source stories (US-xxx)
 
-5. **Configuration Files** -- All config files needed for the tech stack
-   - Language config (tsconfig.json, pyproject.toml, etc.)
-   - Linting and formatting (eslint, prettier, etc.)
-   - Test config (jest, vitest, pytest, etc.)
-   - Docker files (Dockerfile, docker-compose.yml)
-   - Environment config (.env.example with all vars documented)
-   - Git config (.gitignore, hooks)
-   - CI config (.github/workflows/)
-   - ORM config (prisma schema, TypeORM config, etc.)
-
-6. **Test Infrastructure** -- Test directory structure and setup
+4. **Test Infrastructure** -- Test directory structure and setup
    - Co-located or separated test structure
    - Test config files with coverage thresholds
    - Fixture and factory setup (test data builders)
@@ -232,15 +155,7 @@ Work through the codegen plan **section by section, incrementally**:
    - Integration test setup (testcontainers, test database)
    - E2E test config (Playwright, Cypress, etc.)
 
-7. **Shared Utilities** -- Common modules every project needs
-   - Error handling (custom exceptions, global exception filter)
-   - Logging (structured logging setup)
-   - Auth middleware/guards
-   - Validation pipe/middleware
-   - Response formatting (standard envelope)
-   - Config validation (environment variable schema)
-
-8. **File Inventory** -- Complete list of ALL files to generate
+5. **File Inventory** -- Complete list of ALL files to generate
    - File path, purpose, source reference (which design artifact), MVP status
    - Summary counts: total files, source files, test files, config files
 
@@ -269,57 +184,26 @@ For each section:
 
 **Mode 3 -- Score:**
 
-1. **Read Context** — Read this skill's own `templates/output-template.md` and `rules/output-rules.md` to understand expected structure and quality constraints.
-
-2. **Score Each Dimension** — Evaluate the artifact against all 5 quality dimensions (Completeness, Clarity, Consistency, Quantification, Traceability):
-   - For each dimension, cite at least 2 specific evidence items from the artifact
-   - Score using criteria from `skills/shared/knowledge/scoring-guide.md`
-   - Record issues found during scoring
-
-3. **Check Skill Rules Compliance** — For each rule in this skill's `rules/output-rules.md`:
-   - ✅ PASS — artifact fully complies
-   - ❌ FAIL — artifact clearly violates
-   - ⚠️ PARTIAL — artifact partially complies
-
-4. **Compile Issues** — Gather all issues from dimension scoring and rules compliance:
-   - Assign severity: HIGH / MED / LOW
-   - Link each to its dimension and artifact section
-
-5. **Generate Recommendations** — 3-7 actionable recommendations:
-   - HIGH severity issues first, then lowest-scoring dimensions
-   - Each specifies: what to change, where, expected result
-
-6. **Calculate Summary** — Average score, lowest/highest dimensions, overall verdict (🟢 Strong ≥4.0 / 🟡 Adequate 3.0-3.9 / 🔴 Needs Work <3.0)
+Follow the standard score workflow in `skills/shared/knowledge/score-workflow.md` using this skill's rules and templates as context.
 
 ### Step 5: Validate Output
 
 Check against rules:
 - Every item has a confidence marker (CR-01)
-- Directory structure mirrors architecture components (CDG-01)
 - Every architecture component maps to a module (CDG-02)
 - Every database table has an ORM model spec (CDG-03)
 - Every API resource has a controller spec (CDG-04)
 - Every module specifies source stories (CDG-05)
-- Config files match tech-stack versions (CDG-06)
 - Test infra matches test strategy tools (CDG-07)
 - Complete file inventory present (CDG-08)
 - Correct section order (CDG-09)
 - Naming follows language/framework conventions (CDG-12, IMP-09)
-- Environment variables documented (CDG-13)
 - MVP modules identified (CDG-14)
 - Traces to design artifacts (IMP-01)
 - Tech stack compliance (IMP-02)
 - No gold plating (IMP-06)
 - Dependency ordering respected (IMP-08)
 - Approval section present (IMP-10)
-
-**Mode 3 (Score) — additional checks:**
-- All 5 dimensions scored with evidence (SCR-01, SCR-02)
-- Integer scores 1-5 (SCR-03)
-- Issues linked to dimensions and sections (SCR-04, SCR-05)
-- Recommendations are actionable, 3-7 count (SCR-06, SCR-07)
-- Scoring used this skill's own rules/templates as context (SCR-08)
-- Rules compliance section present (SCR-10)
 
 ### Step 6: Readiness Assessment
 
@@ -338,7 +222,7 @@ Tell the user:
 > - Output: `sdlc/impl/draft/codegen-plan-{version}.md`
 > - Readiness: {verdict}
 > - Modules: {total} (MVP: {N}, Future: {N})
-> - Files planned: {total} ({N} source, {N} test, {N} config)
+> - Files planned: {total} ({N} source, {N} test)
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
@@ -346,36 +230,23 @@ Tell the user:
 > - When satisfied, copy to `sdlc/impl/final/codegen-plan-final.md`
 > - Then run `/impl-workflow` to define the implementation workflow
 
-**Mode 3 (Score):**
-
-- Write to `sdlc/impl/draft/codegen-plan-scoreboard.md`
-
-Tell the user:
-> **Scoreboard complete!**
-> - Output: `sdlc/impl/draft/codegen-plan-scoreboard.md`
-> - Average: {avg}/5 — {verdict}
-> - Lowest: {dimension} ({score}/5)
-> - Issues: {N} (HIGH: {H}, MED: {M}, LOW: {L})
->
-> **Next steps:**
-> - Run `/impl-codegen --refine` to address issues
-> - Or run `/skill-evolution --analyze impl/codegen` to improve the skill definition itself
+**Mode 3 (Score):** Output per score workflow — sdlc/impl/draft/codegen-plan-scoreboard.md
 
 ---
 
 ## Scope Rules
 
 ### This skill DOES:
-- Plan project directory structure from architecture components
 - Define module specifications with files, interfaces, and dependencies
 - Specify ORM model/entity definitions from database design
 - Plan API controller/route scaffolding from API design
-- List all configuration files with key settings
 - Plan test infrastructure setup
-- Define shared utility modules
 - Create a complete file inventory with purpose and source references
 
 ### This skill does NOT:
+- Plan project directory structure (belongs to `impl/scaffold`)
+- List configuration files (belongs to `impl/scaffold`)
+- Define shared utility modules (belongs to `impl/scaffold`)
 - Write actual source code (belongs to code generation / developer work)
 - Implement business logic (belongs to implementation execution)
 - Run code generators or CLI scaffolding tools (belongs to developer work)
