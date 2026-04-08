@@ -1,6 +1,6 @@
 # SDLC Skills — User Guide
 
-A complete set of Claude Code skills covering the full Software Development Lifecycle using Agile/Scrum methodology. 26 skills + 4 utilities, 56 commands, 7 phases — from project charter to production operations. Accepts any file type (md, pdf, docx, xlsx, pptx).
+A complete set of Claude Code skills covering the full Software Development Lifecycle using Agile/Scrum methodology. 26 skills + 5 utilities, 7 phases — from project charter to production operations. Each skill supports three modes: `--create`, `--refine`, and `--score`. Accepts any file type (md, pdf, docx, xlsx, pptx).
 
 ---
 
@@ -18,6 +18,8 @@ A complete set of Claude Code skills covering the full Software Development Life
 - [Upgrading Skills](#upgrading-skills)
 - [Uninstalling](#uninstalling)
 - [Multi-Format Input](#multi-format-input)
+- [Scoring Artifacts](#scoring-artifacts)
+- [Skill Evolution](#skill-evolution)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -37,18 +39,22 @@ A complete set of Claude Code skills covering the full Software Development Life
 git clone https://github.com/your-org/SDLC-Skills.git
 cd SDLC-Skills
 
-# 2. Install skills to Claude Code
-bash install.sh
+# 2a. Install globally (available in all projects)
+bash install.sh -g
+
+# 2b. Or install into a specific project
+bash install.sh /path/to/my-project
 ```
 
-This copies all skills to `~/.claude/skills/`, where Claude Code discovers them automatically.
+Global install copies skills to `~/.claude/skills/`. Project install copies to `<project>/.claude/skills/`. Claude Code discovers them automatically.
 
 ### Development Mode (Symlink)
 
 If you plan to modify or contribute to the skills, use symlink mode. Changes to the source files take effect immediately — no reinstall needed.
 
 ```bash
-bash install.sh --symlink
+bash install.sh --symlink -g              # Symlink globally
+bash install.sh --symlink /path/to/project # Symlink into project
 ```
 
 ### Verify Installation
@@ -58,7 +64,8 @@ After installation, start Claude Code and type any skill command (e.g., `/init-c
 You can also check installed skills:
 
 ```bash
-ls ~/.claude/skills/sdlc-*
+ls ~/.claude/skills/sdlc-*        # Global install
+ls my-project/.claude/skills/sdlc-* # Project install
 ```
 
 Expected output includes `sdlc-shared`, `sdlc-init-shared`, `sdlc-init-charter`, `sdlc-req-epic`, etc.
@@ -175,7 +182,7 @@ Each skill contains 5 files (in the installation directory):
 
 ```
 skills/<phase>/<skill>/
-├── SKILL.md               # Workflow definition (create + refine modes)
+├── SKILL.md               # Workflow definition (create + refine + score modes)
 ├── knowledge/
 │   └── <guide>.md         # Domain techniques and knowledge
 ├── rules/
@@ -217,11 +224,21 @@ skills/shared/              → Project-wide rules (doc standards, quality rules
 
 Skills read from their own layer and ancestors, never from sibling skills.
 
+### Three Modes
+
+Every skill supports three modes, all in one command:
+
+| Mode | Flag | Purpose | Output |
+|------|------|---------|--------|
+| Create | `--create` | Generate artifact from scratch | `{artifact}-draft.md` |
+| Refine | `--refine` | Improve existing draft from feedback | `{artifact}-v{N}.md` |
+| Score | `--score` | Evaluate quality with detailed scoreboard | `{artifact}-scoreboard.md` |
+
 ### 7-Step Workflow
 
 Every skill follows the same workflow:
 
-1. **Determine Mode** — Create or Refine based on command used
+1. **Determine Mode** — Create, Refine, or Score based on `--create`/`--refine`/`--score` argument
 2. **Read Knowledge & Rules** — Load all 3 layers of rules and knowledge
 3. **Resolve Input** — Find input files (user path > `sdlc/<phase>/input/` > previous `sdlc/<phase>/final/`). Non-md files are auto-converted.
 4. **Generate** — Produce the artifact section by section
@@ -235,16 +252,18 @@ Every skill follows the same workflow:
 
 ### Starting a Skill
 
-Type the command in Claude Code:
+Type the command in Claude Code with a mode flag:
 
 ```
-/init-charter "A real-time sprint tracking tool that integrates with GitHub"
+/init-charter --create "A real-time sprint tracking tool that integrates with GitHub"
+/init-charter --refine
+/init-charter --score
 ```
 
-Or without arguments — the skill will ask for input:
+Or without a mode flag — the skill will determine the mode automatically (create if no draft exists, or ask if a draft is found):
 
 ```
-/init-charter
+/init-charter "A real-time sprint tracking tool"
 ```
 
 ### Providing Input Files
@@ -386,7 +405,7 @@ Every item in every artifact gets a confidence marker:
 
 4. **Promote when ready** — Copy drafts to `final/` when the readiness verdict is acceptable for your needs.
 
-5. **Skip what you don't need** — Not every project needs all 23 skills. A small project might only need: charter → scope → epic → userstory → backlog → tech-stack → architecture.
+5. **Skip what you don't need** — Not every project needs all 26 skills. A small project might only need: charter → scope → epic → userstory → backlog → tech-stack → architecture.
 
 ### Minimum Viable Path
 
@@ -458,8 +477,9 @@ cd /path/to/SDLC-Skills
 # 2. Pull latest changes
 git pull origin master
 
-# 3. Reinstall skills
-bash install.sh
+# 3. Reinstall skills (same command you used to install)
+bash install.sh -g                          # If installed globally
+bash install.sh /path/to/my-project         # If installed per-project
 ```
 
 If using symlink mode, pulling is sufficient — symlinks already point to the source:
@@ -553,6 +573,63 @@ You can also run converter skills standalone:
 ```
 
 Converted files are cached — if the markdown output already exists and is newer than the source file, conversion is skipped.
+
+---
+
+## Scoring Artifacts
+
+Every skill supports a `--score` mode that evaluates artifact quality without modifying it.
+
+### How to Score
+
+```
+/init-charter --score
+/design-arch --score path/to/architecture.md
+```
+
+### What Score Produces
+
+A scoreboard file (`{artifact}-scoreboard.md`) evaluating 5 quality dimensions:
+
+| Dimension | What It Measures |
+|-----------|-----------------|
+| **Completeness** | All sections present and populated? Tables filled? Diagrams included? |
+| **Clarity** | Unambiguous language? Actionable items? Jargon defined? |
+| **Consistency** | Cross-references valid? Terms consistent? IDs unique? |
+| **Quantification** | Metrics specific? Numeric thresholds? Units specified? |
+| **Traceability** | Items traced to source? Upward and downward links present? |
+
+Each dimension is scored 1-5 with specific evidence citations. The output includes:
+
+- Dimension scores with evidence
+- Issues found (HIGH / MED / LOW severity)
+- 3-7 actionable recommendations
+- Skill rules compliance check (PASS / FAIL / PARTIAL per rule)
+- Overall verdict: Strong (>=4.0) / Adequate (3.0-3.9) / Needs Work (<3.0)
+
+### Score → Refine Loop
+
+```
+/init-charter --score     → charter-scoreboard.md (identifies issues)
+/init-charter --refine    → charter-v{N}.md (addresses issues)
+/init-charter --score     → charter-scoreboard.md (verify improvement)
+```
+
+---
+
+## Skill Evolution
+
+The `/skill-evolution` utility analyzes score results to identify gaps in skill definitions themselves — not just artifacts.
+
+### Usage
+
+```
+/skill-evolution --analyze init/charter
+```
+
+This reads scoreboard outputs and draft-vs-final diffs to find recurring quality issues, then suggests patches to the skill's knowledge, rules, or templates.
+
+Use this when the same quality issues keep appearing across multiple refine cycles — it means the skill definition needs improvement, not just the artifact.
 
 ---
 
