@@ -8,7 +8,7 @@ This repo builds Claude Code skills covering the full Software Development Lifec
 
 ## Build Status
 
-All 7 phases are complete (26 skills + 4 utilities). Each skill accepts `--create` or `--refine` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills.
+All 7 phases are complete (26 skills + 5 utilities). Each skill accepts `--create` or `--refine` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills.
 
 | Phase | Skill | Command | Status |
 |-------|-------|---------|--------|
@@ -42,6 +42,7 @@ All 7 phases are complete (26 skills + 4 utilities). Each skill accepts `--creat
 | **utils** | read-word | `/read-word` | **Done** |
 | **utils** | read-excel | `/read-excel` | **Done** |
 | **utils** | read-ppt | `/read-ppt` | **Done** |
+| **utils** | skill-evolution | `/skill-evolution` | **Done** |
 
 ## Repository Structure
 
