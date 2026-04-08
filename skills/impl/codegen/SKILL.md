@@ -6,7 +6,7 @@ description: >
   and test infrastructure. Plans what code to generate, not the code itself.
   ONLY activated by commands: `/impl-codegen` (create) or `/impl-codegen-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or tech-stack-final.md]"
+argument-hint: "[path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -32,12 +32,12 @@ Generate a code generation plan from design artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Tech Stack (final) | Yes | `design/final/tech-stack-final.md` or user-specified path |
-| Architecture (final) | Yes | `design/final/architecture-final.md` or user-specified path |
-| Database (final) | Yes | `design/final/database-final.md` or user-specified path |
-| API (final) | Yes | `design/final/api-final.md` or user-specified path |
-| Test Strategy (final) | No | `test/final/test-strategy-final.md` — test tools and structure |
-| DoR/DoD (final) | No | `impl/final/dor-dod-final.md` — code quality standards |
+| Tech Stack (final) | Yes | `sdlc/design/final/tech-stack-final.md` or user-specified path |
+| Architecture (final) | Yes | `sdlc/design/final/architecture-final.md` or user-specified path |
+| Database (final) | Yes | `sdlc/design/final/database-final.md` or user-specified path |
+| API (final) | Yes | `sdlc/design/final/api-final.md` or user-specified path |
+| Test Strategy (final) | No | `sdlc/test/final/test-strategy-final.md` — test tools and structure |
+| DoR/DoD (final) | No | `sdlc/impl/final/dor-dod-final.md` — code quality standards |
 
 ### Mode 2: Refine (`/impl-codegen-refine`)
 
@@ -45,8 +45,8 @@ Improve existing codegen plan based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing codegen plan draft | Yes | `draft/codegen-plan-draft.md` or `draft/codegen-plan-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing codegen plan draft | Yes | `sdlc/impl/draft/codegen-plan-draft.md` or `sdlc/impl/draft/codegen-plan-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/impl/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -55,10 +55,10 @@ Improve existing codegen plan based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `codegen-plan-draft.md` | `draft/` |
-| Refine | `codegen-plan-v{N}.md` | `draft/` (N = next version number) |
+| Create | `codegen-plan-draft.md` | `sdlc/impl/draft/` |
+| Refine | `codegen-plan-v{N}.md` | `sdlc/impl/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `impl/final/codegen-plan-final.md`.
+When user is satisfied -> they copy from `sdlc/impl/draft/` to `sdlc/impl/final/codegen-plan-final.md`.
 
 ---
 
@@ -66,9 +66,9 @@ When user is satisfied -> they copy from `draft/` to `impl/final/codegen-plan-fi
 
 ### Step 1: Determine Mode
 
-- User runs `/impl-codegen-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/impl-codegen-refine` AND existing draft exists in `sdlc/impl/draft/` -> **Mode 2 (Refine)**
 - User runs `/impl-codegen` -> **Mode 1 (Create)**
-- User runs `/impl-codegen` but draft already exists -> Ask: "A codegen plan draft already exists. Create new (overwrite) or refine existing?"
+- User runs `/impl-codegen` but draft already exists in `sdlc/impl/draft/` -> Ask: "A codegen plan draft already exists. Create new (overwrite) or refine existing?"
 
 ### Step 2: Read Knowledge and Rules
 
@@ -85,43 +85,54 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/impl/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/impl/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/impl/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/impl/input/` → read the converted .md
+
+Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For tech-stack input (required):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/tech-stack-final.md?             -> YES -> read it -> DONE
-3. Exists in design/final/tech-stack-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/tech-stack-final.md?          -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/tech-stack-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For architecture input (required):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?           -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md?    -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/architecture-final.md?        -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No architecture found. Please provide a path or run /design-arch first."
 
 For database input (required):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/database-final.md?               -> YES -> read it -> DONE
-3. Exists in design/final/database-final.md?        -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/database-final.md?            -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/database-final.md?          -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No database design found. Please provide a path or run /design-db first."
 
 For API input (required):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/api-final.md?                    -> YES -> read it -> DONE
-3. Exists in design/final/api-final.md?             -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/api-final.md?                 -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/api-final.md?               -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No API design found. Please provide a path or run /design-api first."
 
 For test strategy (optional):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/test-strategy-final.md?          -> YES -> read it -> DONE
-3. Exists in test/final/test-strategy-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/test-strategy-final.md?       -> YES -> read it -> DONE
+3. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Proceed without test strategy.
 
 For DoR/DoD (optional):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/dor-dod-final.md?                -> YES -> read it -> DONE
-3. Exists in impl/final/dor-dod-final.md?           -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/dor-dod-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/impl/final/dor-dod-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Proceed without DoR/DoD.
 ```
 
@@ -129,15 +140,15 @@ For DoR/DoD (optional):
 
 ```
 For codegen plan draft:
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                                -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?               -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/?                             -> YES -> read it -> DONE
+3. Exists in sdlc/impl/draft/ (latest version)?            -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> FAIL: "No existing codegen plan found. Run /impl-codegen first."
 
 For review report:
-1. User provided feedback directly in message?      -> Save to input/review-report.md
-2. User specified path?                             -> read it, copy to input/
-3. Exists in input/review-report.md?                -> read it
+1. User provided feedback directly in message?      -> Save to sdlc/impl/input/review-report.md
+2. User specified path?                             -> read it, copy to sdlc/impl/input/
+3. Exists in sdlc/impl/input/review-report.md?     -> read it
 4. Not found? -> Ask: "What feedback do you have on the current codegen plan?"
 ```
 
@@ -227,7 +238,7 @@ For each section:
    - Rebalance MVP vs [FUTURE] tagging if needed
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/codegen-plan-v{N}.md`
+8. Write improved version to `sdlc/impl/draft/codegen-plan-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -260,12 +271,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/codegen-plan-draft.md`
-- **Refine mode**: Write to `draft/codegen-plan-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/impl/draft/codegen-plan-draft.md`
+- **Refine mode**: Write to `sdlc/impl/draft/codegen-plan-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Codegen plan {created/refined}!**
-> - Output: `draft/codegen-plan-{version}.md`
+> - Output: `sdlc/impl/draft/codegen-plan-{version}.md`
 > - Readiness: {verdict}
 > - Modules: {total} (MVP: {N}, Future: {N})
 > - Files planned: {total} ({N} source, {N} test, {N} config)
@@ -273,7 +284,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/impl-codegen-refine`
-> - When satisfied, copy to `impl/final/codegen-plan-final.md`
+> - When satisfied, copy to `sdlc/impl/final/codegen-plan-final.md`
 > - Then run `/impl-workflow` to define the implementation workflow
 
 ---

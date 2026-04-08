@@ -1,6 +1,6 @@
 # SDLC Skills — User Guide
 
-A complete set of Claude Code skills covering the full Software Development Lifecycle using Agile/Scrum methodology. 23 skills, 46 commands, 7 phases — from project charter to production operations.
+A complete set of Claude Code skills covering the full Software Development Lifecycle using Agile/Scrum methodology. 26 skills + 4 utilities, 56 commands, 7 phases — from project charter to production operations. Accepts any file type (md, pdf, docx, xlsx, pptx).
 
 ---
 
@@ -17,6 +17,7 @@ A complete set of Claude Code skills covering the full Software Development Life
 - [Working on a Real Project](#working-on-a-real-project)
 - [Upgrading Skills](#upgrading-skills)
 - [Uninstalling](#uninstalling)
+- [Multi-Format Input](#multi-format-input)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -97,7 +98,7 @@ The fastest way to start a project from scratch:
 26. /ops-change         → Define change management
 ```
 
-You don't have to run all 23 — run only the skills you need. But follow the order within a phase, as later skills read from earlier skills' outputs.
+You don't have to run all 26 — run only the skills you need. But follow the order within a phase, as later skills read from earlier skills' outputs.
 
 ---
 
@@ -170,7 +171,7 @@ You don't have to run all 23 — run only the skills you need. But follow the or
 
 ### Anatomy of a Skill
 
-Each skill contains 5 files:
+Each skill contains 5 files (in the installation directory):
 
 ```
 skills/<phase>/<skill>/
@@ -182,6 +183,26 @@ skills/<phase>/<skill>/
 └── templates/
     ├── output-template.md # Expected output structure
     └── sample-output.md   # Complete example (TaskFlow project)
+```
+
+All skill I/O goes to your **project directory** (not the skills installation):
+
+```
+your-project/
+└── sdlc/
+    ├── init/
+    │   ├── input/         # Converted non-md files
+    │   ├── draft/         # Skill output (charter-draft.md, etc.)
+    │   └── final/         # Promoted artifacts (charter-final.md, etc.)
+    ├── req/
+    │   ├── input/
+    │   ├── draft/
+    │   └── final/
+    ├── design/
+    ├── test/
+    ├── impl/
+    ├── deploy/
+    └── ops/
 ```
 
 ### 3-Layer Resource Scoping
@@ -202,11 +223,11 @@ Every skill follows the same workflow:
 
 1. **Determine Mode** — Create or Refine based on command used
 2. **Read Knowledge & Rules** — Load all 3 layers of rules and knowledge
-3. **Resolve Input** — Find input files (user path > `input/` > previous `final/`)
+3. **Resolve Input** — Find input files (user path > `sdlc/<phase>/input/` > previous `sdlc/<phase>/final/`). Non-md files are auto-converted.
 4. **Generate** — Produce the artifact section by section
 5. **Validate** — Check output against all applicable rules
 6. **Readiness Assessment** — Count confidence markers, calculate verdict
-7. **Output** — Write to `draft/`, report readiness to user
+7. **Output** — Write to `sdlc/<phase>/draft/`, report readiness to user
 
 ---
 
@@ -228,27 +249,31 @@ Or without arguments — the skill will ask for input:
 
 ### Providing Input Files
 
-You can point to existing files:
+You can point to existing files — any format is accepted:
 
 ```
 /init-scope path/to/my-charter.md
+/init-scope path/to/my-charter.pdf
+/init-scope path/to/my-charter.docx
 ```
 
-Or place files in the skill's `input/` directory beforehand:
+Non-markdown files are automatically converted to markdown via utility skills (`/read-pdf`, `/read-word`, `/read-excel`, `/read-ppt`). Converted files are cached in `sdlc/<phase>/input/`.
+
+Or place files in the input directory beforehand:
 
 ```
-cp my-charter.md skills/init/scope/input/charter-final.md
+cp my-charter.md sdlc/init/input/charter-final.md
 /init-scope
 ```
 
 ### Reading Output
 
-Skills write to `draft/`:
+Skills write to `sdlc/<phase>/draft/` in your project directory:
 
 ```
-skills/init/charter/draft/charter-draft.md      # First version
-skills/init/charter/draft/charter-v2.md          # After refine
-skills/init/charter/draft/charter-v3.md          # After second refine
+sdlc/init/draft/charter-draft.md      # First version
+sdlc/init/draft/charter-v2.md          # After refine
+sdlc/init/draft/charter-v3.md          # After second refine
 ```
 
 Each output includes:
@@ -291,10 +316,10 @@ Then provide your feedback in one of three ways:
 ### Refine Cycle
 
 ```
-/init-charter              → draft/charter-draft.md     (v1, 30% Ready)
-/init-charter-refine       → draft/charter-v2.md        (v2, 55% Ready)
-/init-charter-refine       → draft/charter-v3.md        (v3, 85% Ready)
-  └── Satisfied? Copy to init/final/charter-final.md
+/init-charter              → sdlc/init/draft/charter-draft.md     (v1, 30% Ready)
+/init-charter-refine       → sdlc/init/draft/charter-v2.md        (v2, 55% Ready)
+/init-charter-refine       → sdlc/init/draft/charter-v3.md        (v3, 85% Ready)
+  └── Satisfied? Copy to sdlc/init/final/charter-final.md
 ```
 
 Repeat until the readiness verdict meets your needs, then promote to `final/`.
@@ -303,14 +328,14 @@ Repeat until the readiness verdict meets your needs, then promote to `final/`.
 
 ## Draft/Final Pipeline
 
-Skills write to `draft/`. The next phase reads from `final/`. **You control the promotion.**
+Skills write to `sdlc/<phase>/draft/`. The next phase reads from `sdlc/<phase>/final/`. **You control the promotion.**
 
 ### Promoting a Draft
 
 When satisfied with a draft, copy it to the phase's `final/` directory:
 
 ```bash
-cp skills/init/charter/draft/charter-v3.md skills/init/final/charter-final.md
+cp sdlc/init/draft/charter-v3.md sdlc/init/final/charter-final.md
 ```
 
 This is a manual quality gate — it ensures only reviewed artifacts flow downstream.
@@ -318,14 +343,14 @@ This is a manual quality gate — it ensures only reviewed artifacts flow downst
 ### Pipeline Flow
 
 ```
-init/final/  →  req reads  →  req/final/  →  design reads  →  design/final/
-                                                                    ↓
-ops reads  ←  deploy/final/  ←  deploy reads  ←  impl/final/  ←  impl reads
-                                                                    ↑
-                                                              test/final/
+sdlc/init/final/  →  req reads  →  sdlc/req/final/  →  design reads  →  sdlc/design/final/
+                                                                              ↓
+sdlc/ops/final/  ←  deploy reads  ←  sdlc/deploy/final/  ←  impl reads  ←  sdlc/impl/final/
+                                                                              ↑
+                                                                        sdlc/test/final/
 ```
 
-Each phase reads from the previous phase's `final/` directory. If an input isn't found in `final/`, the skill will ask you for a path or tell you which prerequisite skill to run first.
+Each phase reads from the previous phase's `sdlc/<phase>/final/` directory. If an input isn't found in `final/`, the skill will ask you for a path or tell you which prerequisite skill to run first.
 
 ---
 
@@ -383,13 +408,33 @@ For a small project, the essential skills are:
 
 ### Working Directory Setup
 
-You can work in any directory. Skills will look for `final/` artifacts relative to the skills installation path. For a dedicated project workspace:
+Skills create `sdlc/` in your current working directory. Just navigate to your project and start:
 
 ```bash
-mkdir my-project && cd my-project
+cd my-project
+/init-charter "A task management app"
 
-# Skills will create input/ and draft/ within their own directories
-# Promote outputs to the phase final/ directories when ready
+# Skills will create sdlc/init/draft/, sdlc/init/input/, etc. as needed
+# Promote outputs to sdlc/<phase>/final/ when ready
+```
+
+Your project directory will look like:
+
+```
+my-project/
+├── sdlc/
+│   ├── init/
+│   │   ├── input/          # Converted files (from pdf/docx/etc.)
+│   │   ├── draft/          # charter-draft.md, scope-draft.md, etc.
+│   │   └── final/          # charter-final.md (promoted by you)
+│   ├── req/
+│   ├── design/
+│   ├── test/
+│   ├── impl/
+│   ├── deploy/
+│   └── ops/
+├── src/                    # Your code
+└── ...
 ```
 
 ---
@@ -427,8 +472,8 @@ git pull origin master
 
 ### Upgrade Safety
 
-- **Your drafts are safe.** Drafts are written inside the skill directories (`draft/`). If you used copy mode, your installed drafts are separate from the source. If you used symlink mode, `git pull` won't touch files in `draft/` or `input/` since they're gitignored.
-- **Your final/ artifacts are safe.** The `final/` directories are separate from skill code and are not overwritten by installation.
+- **Your drafts are safe.** Drafts are written to `sdlc/` in your project directory, not inside the skills installation. Reinstalling skills never touches your project artifacts.
+- **Your final/ artifacts are safe.** The `sdlc/<phase>/final/` directories are in your project directory and are not affected by skill updates.
 - **Reinstalling cleans old skills.** The installer removes and re-creates each skill, so renamed or deleted skills are cleaned up automatically.
 
 ### Version Checking
@@ -469,6 +514,48 @@ rm -rf ~/.claude/skills/sdlc-design-*
 
 ---
 
+## Multi-Format Input
+
+Skills accept input in any of these formats:
+
+| Format | Extension | Converter Skill |
+|--------|-----------|----------------|
+| Markdown | `.md` | None (read directly) |
+| PDF | `.pdf` | `/read-pdf` |
+| Word | `.docx`, `.doc` | `/read-word` |
+| Excel | `.xlsx`, `.xls` | `/read-excel` |
+| PowerPoint | `.pptx`, `.ppt` | `/read-ppt` |
+
+### How It Works
+
+When you provide a non-markdown file as input, the skill automatically:
+
+1. Detects the file extension
+2. Runs the appropriate converter skill (e.g., `/read-pdf`)
+3. Saves the converted markdown to `sdlc/<phase>/input/`
+4. Reads the converted file and proceeds normally
+
+```
+/init-charter path/to/project-brief.pdf
+# → Converts to sdlc/init/input/project-brief.md
+# → Creates sdlc/init/draft/charter-draft.md
+```
+
+### Using Converters Directly
+
+You can also run converter skills standalone:
+
+```
+/read-pdf path/to/document.pdf sdlc/init/input/
+/read-word path/to/document.docx sdlc/req/input/
+/read-excel path/to/spreadsheet.xlsx sdlc/req/input/
+/read-ppt path/to/presentation.pptx sdlc/design/input/
+```
+
+Converted files are cached — if the markdown output already exists and is newer than the source file, conversion is skipped.
+
+---
+
 ## Troubleshooting
 
 ### Skill Command Not Recognized
@@ -480,14 +567,14 @@ rm -rf ~/.claude/skills/sdlc-design-*
 ### "No charter found" / Missing Input
 
 - The skill can't find a required input file
-- Either provide a path as argument: `/init-scope path/to/charter.md`
-- Or promote the prerequisite: `cp skills/init/charter/draft/charter-v2.md skills/init/final/charter-final.md`
+- Either provide a path as argument: `/init-scope path/to/charter.md` (any format: md, pdf, docx, xlsx, pptx)
+- Or promote the prerequisite: `cp sdlc/init/draft/charter-v2.md sdlc/init/final/charter-final.md`
 
 ### Skill Reads Wrong Version
 
-- Skills read from `final/` by default
+- Skills read from `sdlc/<phase>/final/` by default
 - If you've refined multiple times, make sure the latest version is promoted to `final/`
-- Check: `ls skills/<phase>/final/`
+- Check: `ls sdlc/<phase>/final/`
 
 ### Output Not What Expected
 

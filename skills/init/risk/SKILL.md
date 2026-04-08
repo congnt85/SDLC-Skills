@@ -6,7 +6,7 @@ description: >
   scoring, risk categorization, heat maps, and monitoring plans.
   ONLY activated by commands: `/init-risk` (create) or `/init-risk-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to charter-final.md or scope-final.md]"
+argument-hint: "[path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: init
@@ -32,8 +32,8 @@ Generate a new risk register from charter and/or scope documents.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Charter (final or draft) | Yes | `init/final/charter-final.md` or user-specified path |
-| Scope (final or draft) | No | `init/final/scope-final.md` or user-specified path |
+| Charter (final or draft) | Yes | `sdlc/init/final/charter-final.md` or user-specified path |
+| Scope (final or draft) | No | `sdlc/init/final/scope-final.md` or user-specified path |
 | Additional context | No | User provides known risks, concerns |
 
 ### Mode 2: Refine (`/init-risk-refine`)
@@ -42,8 +42,8 @@ Improve an existing risk register based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing risk register draft | Yes | `draft/risk-register-draft.md` or `draft/risk-register-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing risk register draft | Yes | `sdlc/init/draft/risk-register-draft.md` or `sdlc/init/draft/risk-register-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/init/input/review-report.md` |
 | Additional details | No | New risks, score adjustments, mitigation updates |
 
 ---
@@ -52,10 +52,10 @@ Improve an existing risk register based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `risk-register-draft.md` | `draft/` |
-| Refine | `risk-register-v{N}.md` | `draft/` (N = next version number) |
+| Create | `risk-register-draft.md` | `sdlc/init/draft/` |
+| Refine | `risk-register-v{N}.md` | `sdlc/init/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `init/final/risk-register-final.md`.
+When user is satisfied -> they copy from `sdlc/init/draft/` to `sdlc/init/final/risk-register-final.md`.
 
 ---
 
@@ -63,7 +63,7 @@ When user is satisfied -> they copy from `draft/` to `init/final/risk-register-f
 
 ### Step 1: Determine Mode
 
-- User runs `/init-risk-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/init-risk-refine` AND existing draft exists in `sdlc/init/draft/` -> **Mode 2 (Refine)**
 - User runs `/init-risk` -> **Mode 1 (Create)**
 - User runs `/init-risk` but draft already exists -> Ask: "A risk register draft already exists. Create new (overwrite) or refine existing?"
 
@@ -83,19 +83,30 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/init/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/init/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/init/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/init/input/` → read the converted .md
+
+Converted files are saved to `sdlc/init/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For charter input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?           -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
+2. Exists in sdlc/init/input/charter-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md? -> YES -> read it, copy to sdlc/init/input/ -> DONE
 4. Not found? -> Ask: "No charter found. Please provide a charter path or run /init-charter first."
 
 For scope input (optional but recommended):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?             -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?        -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
+2. Exists in sdlc/init/input/scope-final.md?   -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?   -> YES -> read it, copy to sdlc/init/input/ -> DONE
 4. Not found? -> Warn: "No scope document found. Risk register will be based on charter only. Run /init-scope for a more comprehensive risk analysis."
    Proceed without scope.
 ```
@@ -104,15 +115,15 @@ For scope input (optional but recommended):
 
 ```
 For risk register draft:
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                           -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
+2. Exists in sdlc/init/input/?                 -> YES -> read it -> DONE
+3. Exists in sdlc/init/draft/ (latest version)? -> YES -> read it, copy to sdlc/init/input/ -> DONE
 4. Not found? -> FAIL: "No existing risk register found. Run /init-risk first."
 
 For review report:
-1. User provided feedback directly in message? -> Save to input/review-report.md
-2. User specified path?                        -> read it, copy to input/
-3. Exists in input/review-report.md?           -> read it
+1. User provided feedback directly in message? -> Save to sdlc/init/input/review-report.md
+2. User specified path?                        -> read it, copy to sdlc/init/input/
+3. Exists in sdlc/init/input/review-report.md? -> read it
 4. Not found? -> Ask: "What feedback do you have on the current risk register?"
 ```
 
@@ -176,7 +187,7 @@ For each risk:
    - Fill in [TBD] owners where possible
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/risk-register-v{N}.md`
+8. Write improved version to `sdlc/init/draft/risk-register-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -204,19 +215,19 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/risk-register-draft.md`
-- **Refine mode**: Write to `draft/risk-register-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/init/draft/risk-register-draft.md`
+- **Refine mode**: Write to `sdlc/init/draft/risk-register-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Risk register {created/refined}!**
-> - Output: `draft/risk-register-{version}.md`
+> - Output: `sdlc/init/draft/risk-register-{version}.md`
 > - Readiness: {verdict}
 > - Risks: {total} ({critical} Critical, {high} High, {medium} Medium, {low} Low)
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/init-risk-refine`
-> - When satisfied, copy to `init/final/risk-register-final.md`
+> - When satisfied, copy to `sdlc/init/final/risk-register-final.md`
 > - Initiation phase complete! Run `/req-epic` to start requirements
 
 ---

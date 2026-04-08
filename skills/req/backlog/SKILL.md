@@ -6,7 +6,7 @@ description: >
   and velocity-based capacity validation. Marks the MVP boundary.
   ONLY activated by commands: `/req-backlog` (create) or `/req-backlog-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to userstories-final.md]"
+argument-hint: "[path to userstories file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -18,7 +18,7 @@ next_phase: req-trace
 
 ## Purpose
 
-Create or refine a prioritized product backlog (`backlog-draft.md`) that orders all user stories by priority, validates capacity against velocity, groups stories into releases, and marks the MVP boundary.
+Create or refine a prioritized product backlog (`sdlc/req/draft/backlog-draft.md`) that orders all user stories by priority, validates capacity against velocity, groups stories into releases, and marks the MVP boundary.
 
 The backlog is the single, ordered list of everything the team will build. It transforms individual stories into a delivery plan.
 
@@ -32,10 +32,10 @@ Generate a prioritized backlog from user stories and epics.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| User stories (final) | Yes | `req/final/userstories-final.md` or user-specified path |
-| Epics (final) | Yes | `req/final/epics-final.md` or user-specified path |
-| Scope (final) | No | `init/final/scope-final.md` — for MoSCoW alignment validation |
-| Charter (final) | No | `init/final/charter-final.md` — for budget/timeline constraints |
+| User stories (final) | Yes | `sdlc/req/final/userstories-final.md` or user-specified path |
+| Epics (final) | Yes | `sdlc/req/final/epics-final.md` or user-specified path |
+| Scope (final) | No | `sdlc/init/final/scope-final.md` — for MoSCoW alignment validation |
+| Charter (final) | No | `sdlc/init/final/charter-final.md` — for budget/timeline constraints |
 
 ### Mode 2: Refine (`/req-backlog-refine`)
 
@@ -43,8 +43,8 @@ Improve existing backlog based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing backlog draft | Yes | `draft/backlog-draft.md` or `draft/backlog-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing backlog draft | Yes | `sdlc/req/draft/backlog-draft.md` or `sdlc/req/draft/backlog-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/req/input/review-report.md` |
 
 ---
 
@@ -52,10 +52,10 @@ Improve existing backlog based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `backlog-draft.md` | `draft/` |
-| Refine | `backlog-v{N}.md` | `draft/` (N = next version number) |
+| Create | `backlog-draft.md` | `sdlc/req/draft/` |
+| Refine | `backlog-v{N}.md` | `sdlc/req/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `req/final/backlog-final.md`.
+When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/backlog-final.md`.
 
 ---
 
@@ -81,21 +81,32 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/req/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/req/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/req/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/req/input/` → read the converted .md
+
+Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For userstories input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/userstories-final.md?       -> YES -> read it -> DONE
-3. Exists in req/final/userstories-final.md?   -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/userstories-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/userstories-final.md? -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Ask: "No user stories found. Run /req-userstory first."
 
 For epics input (required):
-1-3. Standard resolution from req/final/
+1-3. Standard resolution from sdlc/req/final/
 4. Not found? -> Ask: "No epics found. Run /req-epic first."
 
 For scope and charter (optional):
-Standard resolution from init/final/. Proceed without if not found.
+Standard resolution from sdlc/init/final/. Proceed without if not found.
 ```
 
 **Mode 2 (Refine):** Standard refine input resolution.
@@ -148,7 +159,7 @@ Standard validation and output workflow.
 
 Tell the user:
 > **Backlog {created/refined}!**
-> - Output: `draft/backlog-{version}.md`
+> - Output: `sdlc/req/draft/backlog-{version}.md`
 > - Readiness: {verdict}
 > - Stories: {total} ({must} Must, {should} Should, {could} Could)
 > - Total points: {N} ({mvp_pts} for MVP)
@@ -157,7 +168,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/req-backlog-refine`
-> - When satisfied, copy to `req/final/backlog-final.md`
+> - When satisfied, copy to `sdlc/req/final/backlog-final.md`
 > - Then run `/req-trace` to build the traceability matrix and DoR/DoD
 
 ---

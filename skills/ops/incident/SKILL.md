@@ -5,7 +5,7 @@ description: >
   roles, escalation matrix, communication plan, and post-incident review
   process. ONLY activated by commands: `/ops-incident` (create) or
   `/ops-incident-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to monitoring-plan-final.md or env-spec-final.md]"
+argument-hint: "[path to monitoring-plan-final.md or env-spec-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -31,12 +31,12 @@ Generate an incident response document from monitoring plan and infrastructure a
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Monitoring plan (final) | Yes | `ops/final/monitoring-plan-final.md` or user-specified path |
-| Environment spec (final) | Yes | `deploy/final/env-spec-final.md` or user-specified path |
-| Architecture (final) | No | `design/final/architecture-final.md` -- service dependencies for impact analysis |
-| Scope (final) | No | `init/final/scope-final.md` -- availability targets for severity calibration |
-| Charter (final) | No | `init/final/charter-final.md` -- team structure for on-call assignments |
-| Release plan (final) | No | `deploy/final/release-plan-final.md` -- rollback procedures |
+| Monitoring plan (final) | Yes | `sdlc/ops/final/monitoring-plan-final.md` or user-specified path |
+| Environment spec (final) | Yes | `sdlc/deploy/final/env-spec-final.md` or user-specified path |
+| Architecture (final) | No | `sdlc/design/final/architecture-final.md` -- service dependencies for impact analysis |
+| Scope (final) | No | `sdlc/init/final/scope-final.md` -- availability targets for severity calibration |
+| Charter (final) | No | `sdlc/init/final/charter-final.md` -- team structure for on-call assignments |
+| Release plan (final) | No | `sdlc/deploy/final/release-plan-final.md` -- rollback procedures |
 
 ### Mode 2: Refine (`/ops-incident-refine`)
 
@@ -44,8 +44,8 @@ Improve existing incident response document based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing incident response draft | Yes | `draft/incident-response-draft.md` or `draft/incident-response-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing incident response draft | Yes | `sdlc/ops/draft/incident-response-draft.md` or `sdlc/ops/draft/incident-response-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/ops/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -54,10 +54,10 @@ Improve existing incident response document based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `incident-response-draft.md` | `draft/` |
-| Refine | `incident-response-v{N}.md` | `draft/` (N = next version number) |
+| Create | `incident-response-draft.md` | `sdlc/ops/draft/` |
+| Refine | `incident-response-v{N}.md` | `sdlc/ops/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `ops/final/incident-response-final.md`.
+When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/incident-response-final.md`.
 
 ---
 
@@ -65,7 +65,7 @@ When user is satisfied -> they copy from `draft/` to `ops/final/incident-respons
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-incident-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/ops-incident-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
 - User runs `/ops-incident` -> **Mode 1 (Create)**
 - User runs `/ops-incident` but draft already exists -> Ask: "An incident response draft already exists. Create new (overwrite) or refine existing?"
 
@@ -83,43 +83,54 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/ops/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/ops/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/ops/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/ops/input/` → read the converted .md
+
+Converted files are saved to `sdlc/ops/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For monitoring plan input (required):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/monitoring-plan-final.md?         -> YES -> read it -> DONE
-3. Exists in ops/final/monitoring-plan-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/monitoring-plan-final.md?   -> YES -> read it -> DONE
+3. Exists in sdlc/ops/final/monitoring-plan-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Ask: "No monitoring plan found. Please provide a path or run /ops-monitor first."
 
 For environment spec input (required):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/env-spec-final.md?                -> YES -> read it -> DONE
-3. Exists in deploy/final/env-spec-final.md?         -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/env-spec-final.md?          -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/env-spec-final.md?       -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Ask: "No environment spec found. Please provide a path or run /deploy-env first."
 
 For architecture input (optional):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?            -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/architecture-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without architecture document.
 
 For scope input (optional):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?                   -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?              -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/scope-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?             -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without scope document.
 
 For charter input (optional):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?                 -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?            -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/charter-final.md?           -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md?           -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without charter document.
 
 For release plan input (optional):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/release-plan-final.md?            -> YES -> read it -> DONE
-3. Exists in deploy/final/release-plan-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/release-plan-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/release-plan-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without release plan document.
 ```
 
@@ -127,15 +138,15 @@ For release plan input (optional):
 
 ```
 For incident response draft:
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                                 -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?                -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/?                        -> YES -> read it -> DONE
+3. Exists in sdlc/ops/draft/ (latest version)?       -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> FAIL: "No existing incident response draft found. Run /ops-incident first."
 
 For review report:
-1. User provided feedback directly in message?       -> Save to input/review-report.md
-2. User specified path?                              -> read it, copy to input/
-3. Exists in input/review-report.md?                 -> read it
+1. User provided feedback directly in message?       -> Save to sdlc/ops/input/review-report.md
+2. User specified path?                              -> read it, copy to sdlc/ops/input/
+3. Exists in sdlc/ops/input/review-report.md?        -> read it
 4. Not found? -> Ask: "What feedback do you have on the current incident response document?"
 ```
 
@@ -215,7 +226,7 @@ For each section:
    - Update escalation and communication details
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/incident-response-v{N}.md`
+8. Write improved version to `sdlc/ops/draft/incident-response-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -246,12 +257,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/incident-response-draft.md`
-- **Refine mode**: Write to `draft/incident-response-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/ops/draft/incident-response-draft.md`
+- **Refine mode**: Write to `sdlc/ops/draft/incident-response-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Incident Response Document {created/refined}!**
-> - Output: `draft/incident-response-{version}.md`
+> - Output: `sdlc/ops/draft/incident-response-{version}.md`
 > - Readiness: {verdict}
 > - Severity Levels: {count} defined
 > - Incident Roles: {count} defined
@@ -261,7 +272,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/ops-incident-refine`
-> - When satisfied, copy to `ops/final/incident-response-final.md`
+> - When satisfied, copy to `sdlc/ops/final/incident-response-final.md`
 > - Then run `/ops-sla` to define SLA targets and error budgets
 
 ---

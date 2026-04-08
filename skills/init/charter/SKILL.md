@@ -7,7 +7,7 @@ description: >
   Produces a structured project charter document.
   ONLY activated by commands: `/init-charter` (create) or `/init-charter-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[project idea or path to input file]"
+argument-hint: "[project idea or path to input file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: init
@@ -32,7 +32,7 @@ Generate a new charter from user input.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Project idea / description | ✅ | User provides directly or as file in `input/` |
+| Project idea / description | ✅ | User provides directly or as file in `sdlc/init/input/` |
 | Known constraints | No | Budget, timeline, team, tech mandates |
 | Existing context | No | Any prior documents the user has |
 
@@ -42,8 +42,8 @@ Improve an existing charter based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing charter draft | ✅ | `draft/charter-draft.md` or `draft/charter-v{N}.md` |
-| Review report / feedback | ✅ | User provides directly or as `input/review-report.md` |
+| Existing charter draft | ✅ | `sdlc/init/draft/charter-draft.md` or `sdlc/init/draft/charter-v{N}.md` |
+| Review report / feedback | ✅ | User provides directly or as `sdlc/init/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -52,10 +52,10 @@ Improve an existing charter based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `charter-draft.md` | `draft/` |
-| Refine | `charter-v{N}.md` | `draft/` (N = next version number) |
+| Create | `charter-draft.md` | `sdlc/init/draft/` |
+| Refine | `charter-v{N}.md` | `sdlc/init/draft/` (N = next version number) |
 
-When user is satisfied → they copy from `draft/` to `init/final/charter-final.md`.
+When user is satisfied → they copy from `sdlc/init/draft/` to `sdlc/init/final/charter-final.md`.
 
 ---
 
@@ -63,7 +63,7 @@ When user is satisfied → they copy from `draft/` to `init/final/charter-final.
 
 ### Step 1: Determine Mode
 
-- User runs `/init-charter-refine` AND existing draft exists in `draft/` → **Mode 2 (Refine)**
+- User runs `/init-charter-refine` AND existing draft exists in `sdlc/init/draft/` → **Mode 2 (Refine)**
 - User runs `/init-charter` → **Mode 1 (Create)**
 - User runs `/init-charter` but draft already exists → Ask: "A draft already exists. Create new (overwrite) or refine existing?"
 
@@ -86,11 +86,22 @@ If budget estimation is needed:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/init/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/init/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/init/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/init/input/` → read the converted .md
+
+Converted files are saved to `sdlc/init/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
-1. User provided project idea as argument? → Use it, save to input/
-2. File exists in input/ (e.g., input/vague-idea.md)? → Read it
+1. User provided project idea as argument? → Use it, save to sdlc/init/input/
+2. File exists in sdlc/init/input/ (e.g., sdlc/init/input/vague-idea.md)? → Read it
 3. Nothing found? → Ask user: "What's your project idea? A sentence or paragraph is fine."
 ```
 
@@ -98,15 +109,15 @@ If budget estimation is needed:
 
 ```
 For charter draft:
-1. User specified path? → Read it, copy to input/
-2. Exists in input/? → Read it
-3. Exists in draft/ (latest version)? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/init/input/
+2. Exists in sdlc/init/input/? → Read it
+3. Exists in sdlc/init/draft/ (latest version)? → Read it, copy to sdlc/init/input/
 4. Not found? → FAIL: "No existing charter found. Run /init-charter first."
 
 For review report:
-1. User provided feedback directly in message? → Save to input/review-report.md
-2. User specified path? → Read it, copy to input/
-3. Exists in input/review-report.md? → Read it
+1. User provided feedback directly in message? → Save to sdlc/init/input/review-report.md
+2. User specified path? → Read it, copy to sdlc/init/input/
+3. Exists in sdlc/init/input/review-report.md? → Read it
 4. Not found? → Ask: "What feedback do you have on the current charter?"
 ```
 
@@ -161,7 +172,7 @@ For each section:
    - Proactively suggest improvements for weak areas
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/charter-v{N}.md`
+8. Write improved version to `sdlc/init/draft/charter-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -185,18 +196,18 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/charter-draft.md`
-- **Refine mode**: Write to `draft/charter-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/init/draft/charter-draft.md`
+- **Refine mode**: Write to `sdlc/init/draft/charter-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Charter {created/refined}!**
-> - Output: `draft/charter-{version}.md`
+> - Output: `sdlc/init/draft/charter-{version}.md`
 > - Readiness: {verdict}
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/init-charter-refine`
-> - When satisfied, copy to `init/final/charter-final.md`
+> - When satisfied, copy to `sdlc/init/final/charter-final.md`
 > - Then run `/init-scope` to define detailed project scope
 
 ---

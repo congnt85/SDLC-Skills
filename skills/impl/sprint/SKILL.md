@@ -6,7 +6,7 @@ description: >
   stories against Definition of Ready and tasks against team velocity.
   ONLY activated by commands: `/impl-sprint` (create) or `/impl-sprint-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to backlog-final.md or sprint number to plan]"
+argument-hint: "[path to backlog-final.md or sprint number to plan] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -32,15 +32,15 @@ Generate a sprint execution plan from the prioritized backlog and design artifac
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Backlog (final) | Yes | `req/final/backlog-final.md` or user-specified path |
-| User stories (final) | Yes | `req/final/userstories-final.md` or user-specified path |
-| DoR/DoD (final) | Yes | `req/final/dor-dod-final.md` or user-specified path |
-| Architecture (final) | No | `design/final/architecture-final.md` — component structure for task decomposition |
-| API (final) | No | `design/final/api-final.md` — endpoint details for implementation tasks |
-| Database (final) | No | `design/final/database-final.md` — table details for migration tasks |
-| Test cases (final) | No | `test/final/test-cases-final.md` — test cases to include as test tasks |
-| Charter (final) | No | `init/final/charter-final.md` — team structure, timeline constraints |
-| Epics (final) | No | `req/final/epics-final.md` — epic grouping for sprint themes |
+| Backlog (final) | Yes | `sdlc/req/final/backlog-final.md` or user-specified path |
+| User stories (final) | Yes | `sdlc/req/final/userstories-final.md` or user-specified path |
+| DoR/DoD (final) | Yes | `sdlc/req/final/dor-dod-final.md` or user-specified path |
+| Architecture (final) | No | `sdlc/design/final/architecture-final.md` — component structure for task decomposition |
+| API (final) | No | `sdlc/design/final/api-final.md` — endpoint details for implementation tasks |
+| Database (final) | No | `sdlc/design/final/database-final.md` — table details for migration tasks |
+| Test cases (final) | No | `sdlc/test/final/test-cases-final.md` — test cases to include as test tasks |
+| Charter (final) | No | `sdlc/init/final/charter-final.md` — team structure, timeline constraints |
+| Epics (final) | No | `sdlc/req/final/epics-final.md` — epic grouping for sprint themes |
 
 ### Mode 2: Refine (`/impl-sprint-refine`)
 
@@ -48,8 +48,8 @@ Improve existing sprint plan based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing sprint plan draft | Yes | `draft/sprint-plan-draft.md` or `draft/sprint-plan-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing sprint plan draft | Yes | `sdlc/impl/draft/sprint-plan-draft.md` or `sdlc/impl/draft/sprint-plan-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/impl/input/review-report.md` |
 
 ---
 
@@ -57,10 +57,10 @@ Improve existing sprint plan based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `sprint-plan-draft.md` | `draft/` |
-| Refine | `sprint-plan-v{N}.md` | `draft/` (N = next version number) |
+| Create | `sprint-plan-draft.md` | `sdlc/impl/draft/` |
+| Refine | `sprint-plan-v{N}.md` | `sdlc/impl/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `impl/final/sprint-plan-final.md`.
+When user is satisfied -> they copy from `sdlc/impl/draft/` to `sdlc/impl/final/sprint-plan-final.md`.
 
 ---
 
@@ -85,31 +85,42 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/impl/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/impl/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/impl/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/impl/input/` → read the converted .md
+
+Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For backlog input (required):
-1. User specified path?                      -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/backlog-final.md?         -> YES -> read it -> DONE
-3. Exists in req/final/backlog-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/backlog-final.md?       -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/backlog-final.md?         -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No backlog found. Run /req-backlog first."
 
 For userstories input (required):
-1-3. Standard resolution from req/final/
+1-3. Standard resolution from sdlc/req/final/
 4. Not found? -> Ask: "No user stories found. Run /req-userstory first."
 
 For dor-dod input (required):
-1-3. Standard resolution from req/final/
+1-3. Standard resolution from sdlc/req/final/
 4. Not found? -> Ask: "No DoR/DoD found. Run /req-trace first."
 
 For design artifacts (optional):
-Standard resolution from design/final/. Proceed without if not found.
+Standard resolution from sdlc/design/final/. Proceed without if not found.
 
 For test cases (optional):
-Standard resolution from test/final/. Proceed without if not found.
+Standard resolution from sdlc/test/final/. Proceed without if not found.
 
 For charter and epics (optional):
-Standard resolution from init/final/ and req/final/. Proceed without if not found.
+Standard resolution from sdlc/init/final/ and sdlc/req/final/. Proceed without if not found.
 ```
 
 **Mode 2 (Refine):** Standard refine input resolution.
@@ -203,7 +214,7 @@ Count confidence markers across all sprint plan items:
 
 Tell the user:
 > **Sprint plan {created/refined}!**
-> - Output: `draft/sprint-plan-{version}.md`
+> - Output: `sdlc/impl/draft/sprint-plan-{version}.md`
 > - Readiness: {verdict}
 > - Sprints planned: {N} detailed, {M} high-level
 > - Total tasks: {N} across {M} stories
@@ -213,7 +224,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/impl-sprint-refine`
-> - When satisfied, copy to `impl/final/sprint-plan-final.md`
+> - When satisfied, copy to `sdlc/impl/final/sprint-plan-final.md`
 > - Then run `/impl-codegen` to generate implementation code from the sprint plan
 
 ---

@@ -6,7 +6,7 @@ description: >
   deployment strategies, security scanning, and build configuration.
   ONLY activated by commands: `/deploy-cicd` (create) or `/deploy-cicd-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to dev-workflow-final.md or tech-stack-final.md]"
+argument-hint: "[path to dev-workflow-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -32,12 +32,12 @@ Generate a CI/CD pipeline definition from development workflow, test strategy, a
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Dev workflow (final) | Yes | `impl/final/dev-workflow-final.md` or user-specified path |
-| Test strategy (final) | Yes | `test/final/test-strategy-final.md` or user-specified path |
-| Tech stack (final) | Yes | `design/final/tech-stack-final.md` or user-specified path |
-| Architecture (final) | No | `design/final/architecture-final.md` — service topology, deployment targets |
-| Codegen plan (final) | No | `impl/final/codegen-plan-final.md` — project structure, build commands |
-| DoR/DoD (final) | No | `impl/final/dor-dod-final.md` — DoD for deployment gates |
+| Dev workflow (final) | Yes | `sdlc/impl/final/dev-workflow-final.md` or user-specified path |
+| Test strategy (final) | Yes | `sdlc/test/final/test-strategy-final.md` or user-specified path |
+| Tech stack (final) | Yes | `sdlc/design/final/tech-stack-final.md` or user-specified path |
+| Architecture (final) | No | `sdlc/design/final/architecture-final.md` — service topology, deployment targets |
+| Codegen plan (final) | No | `sdlc/impl/final/codegen-plan-final.md` — project structure, build commands |
+| DoR/DoD (final) | No | `sdlc/impl/final/dor-dod-final.md` — DoD for deployment gates |
 
 ### Mode 2: Refine (`/deploy-cicd-refine`)
 
@@ -45,8 +45,8 @@ Improve existing CI/CD pipeline definition based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing pipeline draft | Yes | `draft/cicd-pipeline-draft.md` or `draft/cicd-pipeline-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing pipeline draft | Yes | `sdlc/deploy/draft/cicd-pipeline-draft.md` or `sdlc/deploy/draft/cicd-pipeline-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/deploy/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -55,10 +55,10 @@ Improve existing CI/CD pipeline definition based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `cicd-pipeline-draft.md` | `draft/` |
-| Refine | `cicd-pipeline-v{N}.md` | `draft/` (N = next version number) |
+| Create | `cicd-pipeline-draft.md` | `sdlc/deploy/draft/` |
+| Refine | `cicd-pipeline-v{N}.md` | `sdlc/deploy/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `deploy/final/cicd-pipeline-final.md`.
+When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/final/cicd-pipeline-final.md`.
 
 ---
 
@@ -66,7 +66,7 @@ When user is satisfied -> they copy from `draft/` to `deploy/final/cicd-pipeline
 
 ### Step 1: Determine Mode
 
-- User runs `/deploy-cicd-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/deploy-cicd-refine` AND existing draft exists in `sdlc/deploy/draft/` -> **Mode 2 (Refine)**
 - User runs `/deploy-cicd` -> **Mode 1 (Create)**
 - User runs `/deploy-cicd` but draft already exists -> Ask: "A CI/CD pipeline draft already exists. Create new (overwrite) or refine existing?"
 
@@ -84,43 +84,54 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/deploy/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/deploy/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/deploy/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/deploy/input/` → read the converted .md
+
+Converted files are saved to `sdlc/deploy/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For dev workflow input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/dev-workflow-final.md?      -> YES -> read it -> DONE
-3. Exists in impl/final/dev-workflow-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/dev-workflow-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/impl/final/dev-workflow-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No dev workflow found. Please provide a path or run /impl-workflow first."
 
 For test strategy input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/test-strategy-final.md?     -> YES -> read it -> DONE
-3. Exists in test/final/test-strategy-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/test-strategy-final.md?     -> YES -> read it -> DONE
+3. Exists in sdlc/test/final/test-strategy-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
 
 For tech stack input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/tech-stack-final.md?        -> YES -> read it -> DONE
-3. Exists in design/final/tech-stack-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/tech-stack-final.md?        -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/tech-stack-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For architecture input (optional):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?      -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/architecture-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without architecture document.
 
 For codegen plan input (optional):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/codegen-plan-final.md?      -> YES -> read it -> DONE
-3. Exists in impl/final/codegen-plan-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/codegen-plan-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/impl/final/codegen-plan-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without codegen plan.
 
 For DoR/DoD input (optional):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/dor-dod-final.md?           -> YES -> read it -> DONE
-3. Exists in impl/final/dor-dod-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/dor-dod-final.md?           -> YES -> read it -> DONE
+3. Exists in sdlc/impl/final/dor-dod-final.md?      -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without DoR/DoD.
 ```
 
@@ -128,15 +139,15 @@ For DoR/DoD input (optional):
 
 ```
 For pipeline draft:
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                           -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/?               -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/draft/ (latest version)? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> FAIL: "No existing pipeline draft found. Run /deploy-cicd first."
 
 For review report:
-1. User provided feedback directly in message? -> Save to input/review-report.md
-2. User specified path?                        -> read it, copy to input/
-3. Exists in input/review-report.md?           -> read it
+1. User provided feedback directly in message? -> Save to sdlc/deploy/input/review-report.md
+2. User specified path?                        -> read it, copy to sdlc/deploy/input/
+3. Exists in sdlc/deploy/input/review-report.md? -> read it
 4. Not found? -> Ask: "What feedback do you have on the current pipeline definition?"
 ```
 
@@ -208,7 +219,7 @@ For each section:
    - Refine deployment strategies based on new information
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/cicd-pipeline-v{N}.md`
+8. Write improved version to `sdlc/deploy/draft/cicd-pipeline-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -237,12 +248,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/cicd-pipeline-draft.md`
-- **Refine mode**: Write to `draft/cicd-pipeline-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/deploy/draft/cicd-pipeline-draft.md`
+- **Refine mode**: Write to `sdlc/deploy/draft/cicd-pipeline-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **CI/CD Pipeline {created/refined}!**
-> - Output: `draft/cicd-pipeline-{version}.md`
+> - Output: `sdlc/deploy/draft/cicd-pipeline-{version}.md`
 > - Readiness: {verdict}
 > - Stages: {total} ({blocking}: blocking, {advisory}: advisory)
 > - Deployment: {strategies listed per environment}
@@ -250,7 +261,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/deploy-cicd-refine`
-> - When satisfied, copy to `deploy/final/cicd-pipeline-final.md`
+> - When satisfied, copy to `sdlc/deploy/final/cicd-pipeline-final.md`
 > - Then run `/deploy-release` to define the release process
 
 ---

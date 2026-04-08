@@ -30,6 +30,25 @@ if [ -d "$SRC_DIR/shared" ]; then
   count=$((count + 1))
 fi
 
+# Install utility skills (read-pdf, read-word, read-excel, read-ppt)
+if [ -d "$SRC_DIR/shared/utils" ]; then
+  for util_dir in "$SRC_DIR"/shared/utils/*/; do
+    [ -d "$util_dir" ] || continue
+    util=$(basename "$util_dir")
+    [ -f "$util_dir/SKILL.md" ] || continue
+    target="sdlc-${util}"
+    rm -rf "$SKILL_DIR/$target"
+    if [ "$MODE" = "symlink" ]; then
+      ln -s "$util_dir" "$SKILL_DIR/$target"
+      echo "  Linked: $target"
+    else
+      cp -r "$util_dir" "$SKILL_DIR/$target"
+      echo "  Installed: $target"
+    fi
+    count=$((count + 1))
+  done
+fi
+
 # Install each phase and its skills
 for phase_dir in "$SRC_DIR"/init "$SRC_DIR"/req "$SRC_DIR"/design "$SRC_DIR"/test "$SRC_DIR"/impl "$SRC_DIR"/deploy "$SRC_DIR"/ops; do
   [ -d "$phase_dir" ] || continue
@@ -92,7 +111,7 @@ done
 echo ""
 echo "Done! $count items installed to $SKILL_DIR"
 echo ""
-echo "Commands (23 skills, 46 commands):"
+echo "Commands (26 skills + 4 utilities, 56 commands):"
 echo ""
 echo "  Init:   /init-charter  /init-scope  /init-risk"
 echo "  Req:    /req-epic  /req-userstory  /req-backlog  /req-trace"
@@ -101,6 +120,9 @@ echo "  Test:   /test-strategy  /test-plan  /test-cases"
 echo "  Impl:   /impl-sprint  /impl-codegen  /impl-workflow"
 echo "  Deploy: /deploy-cicd  /deploy-release  /deploy-env"
 echo "  Ops:    /ops-monitor  /ops-incident  /ops-sla  /ops-runbook  /ops-change"
+echo "  Utils:  /read-pdf  /read-word  /read-excel  /read-ppt"
 echo ""
-echo "  Each command has a -refine variant (e.g., /init-charter-refine)"
-echo "  See GUIDE.md for full documentation."
+echo "  Each skill command has a -refine variant (e.g., /init-charter-refine)"
+echo "  Skills accept any file type: md, pdf, docx, xlsx, pptx"
+echo "  Output goes to sdlc/<phase>/draft/ in your project directory"
+echo "  See README.md for full documentation."

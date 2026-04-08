@@ -6,7 +6,7 @@ description: >
   and release calendar. Maps releases to backlog milestones (MVP, R2, R3).
   ONLY activated by commands: `/deploy-release` (create) or `/deploy-release-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to cicd-pipeline-final.md]"
+argument-hint: "[path to cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -32,12 +32,12 @@ Generate a release management plan from CI/CD pipeline definition and backlog.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| CI/CD pipeline (final) | Yes | `deploy/final/cicd-pipeline-final.md` or user-specified path |
-| Backlog (final) | Yes | `req/final/backlog-final.md` or user-specified path |
-| Dev workflow (final) | No | `impl/final/dev-workflow-final.md` — branching and merge strategy |
-| Charter (final) | No | `init/final/charter-final.md` — timeline, milestone dates |
-| DoR/DoD (final) | No | `req/final/dor-dod-final.md` — DoD for release quality gates |
-| Scope (final) | No | `init/final/scope-final.md` — quality attributes for release criteria |
+| CI/CD pipeline (final) | Yes | `sdlc/deploy/final/cicd-pipeline-final.md` or user-specified path |
+| Backlog (final) | Yes | `sdlc/req/final/backlog-final.md` or user-specified path |
+| Dev workflow (final) | No | `sdlc/impl/final/dev-workflow-final.md` — branching and merge strategy |
+| Charter (final) | No | `sdlc/init/final/charter-final.md` — timeline, milestone dates |
+| DoR/DoD (final) | No | `sdlc/req/final/dor-dod-final.md` — DoD for release quality gates |
+| Scope (final) | No | `sdlc/init/final/scope-final.md` — quality attributes for release criteria |
 
 ### Mode 2: Refine (`/deploy-release-refine`)
 
@@ -45,8 +45,8 @@ Improve existing release plan based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing release plan draft | Yes | `draft/release-plan-draft.md` or `draft/release-plan-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing release plan draft | Yes | `sdlc/deploy/draft/release-plan-draft.md` or `sdlc/deploy/draft/release-plan-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/deploy/input/review-report.md` |
 
 ---
 
@@ -54,10 +54,10 @@ Improve existing release plan based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `release-plan-draft.md` | `draft/` |
-| Refine | `release-plan-v{N}.md` | `draft/` (N = next version number) |
+| Create | `release-plan-draft.md` | `sdlc/deploy/draft/` |
+| Refine | `release-plan-v{N}.md` | `sdlc/deploy/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `deploy/final/release-plan-final.md`.
+When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/final/release-plan-final.md`.
 
 ---
 
@@ -82,26 +82,37 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/deploy/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/deploy/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/deploy/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/deploy/input/` → read the converted .md
+
+Converted files are saved to `sdlc/deploy/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For cicd-pipeline input (required):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/cicd-pipeline-final.md?           -> YES -> read it -> DONE
-3. Exists in deploy/final/cicd-pipeline-final.md?    -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/cicd-pipeline-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No CI/CD pipeline found. Run /deploy-cicd first."
 
 For backlog input (required):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/backlog-final.md?                 -> YES -> read it -> DONE
-3. Exists in req/final/backlog-final.md?             -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/backlog-final.md?     -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/backlog-final.md?        -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No backlog found. Run /req-backlog first."
 
 For dev-workflow, charter, dor-dod, scope (optional):
-Standard resolution from respective final/ directories. Proceed without if not found.
+Standard resolution from respective sdlc/<phase>/final/ directories. Proceed without if not found.
 ```
 
-**Mode 2 (Refine):** Standard refine input resolution.
+**Mode 2 (Refine):** Standard refine input resolution (drafts in `sdlc/deploy/draft/`, input in `sdlc/deploy/input/`).
 
 ### Step 4: Generate (Mode-specific)
 
@@ -172,7 +183,7 @@ Standard validation and output workflow.
 
 Tell the user:
 > **Release plan {created/refined}!**
-> - Output: `draft/release-plan-{version}.md`
+> - Output: `sdlc/deploy/draft/release-plan-{version}.md`
 > - Readiness: {verdict}
 > - Versioning: {scheme summary}
 > - Release types: {N} defined
@@ -183,7 +194,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/deploy-release-refine`
-> - When satisfied, copy to `deploy/final/release-plan-final.md`
+> - When satisfied, copy to `sdlc/deploy/final/release-plan-final.md`
 > - Then run `/deploy-env` to define environment management
 
 ---

@@ -7,7 +7,7 @@ description: >
   development practices.
   ONLY activated by commands: `/impl-workflow` (create) or `/impl-workflow-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to tech-stack-final.md or test-strategy-final.md]"
+argument-hint: "[path to tech-stack-final.md or test-strategy-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -33,12 +33,12 @@ Generate a development workflow from tech stack and test strategy artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Tech Stack (final) | Yes | `design/final/tech-stack-final.md` or user-specified path |
-| Test Strategy (final) | Yes | `test/final/test-strategy-final.md` or user-specified path |
-| Architecture (final) | No | `design/final/architecture-final.md` -- service boundaries for branching scope |
-| DoR/DoD (final) | No | `impl/final/dor-dod-final.md` -- DoD criteria for PR checklist |
-| Charter (final) | No | `init/final/charter-final.md` -- team size for review requirements |
-| Codegen Plan (final) | No | `impl/final/codegen-plan-final.md` -- project structure for CI config |
+| Tech Stack (final) | Yes | `sdlc/design/final/tech-stack-final.md` or user-specified path |
+| Test Strategy (final) | Yes | `sdlc/test/final/test-strategy-final.md` or user-specified path |
+| Architecture (final) | No | `sdlc/design/final/architecture-final.md` -- service boundaries for branching scope |
+| DoR/DoD (final) | No | `sdlc/impl/final/dor-dod-final.md` -- DoD criteria for PR checklist |
+| Charter (final) | No | `sdlc/init/final/charter-final.md` -- team size for review requirements |
+| Codegen Plan (final) | No | `sdlc/impl/final/codegen-plan-final.md` -- project structure for CI config |
 
 ### Mode 2: Refine (`/impl-workflow-refine`)
 
@@ -46,8 +46,8 @@ Improve existing workflow document based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing workflow draft | Yes | `draft/dev-workflow-draft.md` or `draft/dev-workflow-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing workflow draft | Yes | `sdlc/impl/draft/dev-workflow-draft.md` or `sdlc/impl/draft/dev-workflow-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/impl/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -56,10 +56,10 @@ Improve existing workflow document based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `dev-workflow-draft.md` | `draft/` |
-| Refine | `dev-workflow-v{N}.md` | `draft/` (N = next version number) |
+| Create | `dev-workflow-draft.md` | `sdlc/impl/draft/` |
+| Refine | `dev-workflow-v{N}.md` | `sdlc/impl/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `impl/final/dev-workflow-final.md`.
+When user is satisfied -> they copy from `sdlc/impl/draft/` to `sdlc/impl/final/dev-workflow-final.md`.
 
 ---
 
@@ -67,9 +67,9 @@ When user is satisfied -> they copy from `draft/` to `impl/final/dev-workflow-fi
 
 ### Step 1: Determine Mode
 
-- User runs `/impl-workflow-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/impl-workflow-refine` AND existing draft exists in `sdlc/impl/draft/` -> **Mode 2 (Refine)**
 - User runs `/impl-workflow` -> **Mode 1 (Create)**
-- User runs `/impl-workflow` but draft already exists -> Ask: "A workflow draft already exists. Create new (overwrite) or refine existing?"
+- User runs `/impl-workflow` but draft already exists in `sdlc/impl/draft/` -> Ask: "A workflow draft already exists. Create new (overwrite) or refine existing?"
 
 ### Step 2: Read Knowledge and Rules
 
@@ -86,43 +86,54 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/impl/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/impl/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/impl/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/impl/input/` → read the converted .md
+
+Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For tech-stack input (required):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/tech-stack-final.md?             -> YES -> read it -> DONE
-3. Exists in design/final/tech-stack-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/tech-stack-final.md?          -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/tech-stack-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For test-strategy input (required):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/test-strategy-final.md?          -> YES -> read it -> DONE
-3. Exists in test/final/test-strategy-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/test-strategy-final.md?       -> YES -> read it -> DONE
+3. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
 
 For architecture input (optional):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?           -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md?    -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/architecture-final.md?        -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Proceed without architecture.
 
 For DoR/DoD input (optional):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/dor-dod-final.md?                -> YES -> read it -> DONE
-3. Exists in impl/final/dor-dod-final.md?           -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/dor-dod-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/impl/final/dor-dod-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Proceed without DoR/DoD.
 
 For charter input (optional):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?                -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?           -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/charter-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Proceed without charter.
 
 For codegen plan input (optional):
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/codegen-plan-final.md?           -> YES -> read it -> DONE
-3. Exists in impl/final/codegen-plan-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/codegen-plan-final.md?        -> YES -> read it -> DONE
+3. Exists in sdlc/impl/final/codegen-plan-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> Proceed without codegen plan.
 ```
 
@@ -130,15 +141,15 @@ For codegen plan input (optional):
 
 ```
 For workflow draft:
-1. User specified path?                             -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                                -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?               -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. Exists in sdlc/impl/input/?                             -> YES -> read it -> DONE
+3. Exists in sdlc/impl/draft/ (latest version)?            -> YES -> read it, copy to sdlc/impl/input/ -> DONE
 4. Not found? -> FAIL: "No existing workflow draft found. Run /impl-workflow first."
 
 For review report:
-1. User provided feedback directly in message?      -> Save to input/review-report.md
-2. User specified path?                             -> read it, copy to input/
-3. Exists in input/review-report.md?                -> read it
+1. User provided feedback directly in message?      -> Save to sdlc/impl/input/review-report.md
+2. User specified path?                             -> read it, copy to sdlc/impl/input/
+3. Exists in sdlc/impl/input/review-report.md?     -> read it
 4. Not found? -> Ask: "What feedback do you have on the current workflow document?"
 ```
 
@@ -234,7 +245,7 @@ For each section:
    - Refine SLAs and thresholds based on team input
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/dev-workflow-v{N}.md`
+8. Write improved version to `sdlc/impl/draft/dev-workflow-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -268,12 +279,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/dev-workflow-draft.md`
-- **Refine mode**: Write to `draft/dev-workflow-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/impl/draft/dev-workflow-draft.md`
+- **Refine mode**: Write to `sdlc/impl/draft/dev-workflow-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Development workflow {created/refined}!**
-> - Output: `draft/dev-workflow-{version}.md`
+> - Output: `sdlc/impl/draft/dev-workflow-{version}.md`
 > - Readiness: {verdict}
 > - Branching model: {model}
 > - Pipeline stages: {count}
@@ -281,7 +292,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/impl-workflow-refine`
-> - When satisfied, copy to `impl/final/dev-workflow-final.md`
+> - When satisfied, copy to `sdlc/impl/final/dev-workflow-final.md`
 > - Then run `/deploy-cicd` to define the CI/CD deployment pipeline
 
 ---

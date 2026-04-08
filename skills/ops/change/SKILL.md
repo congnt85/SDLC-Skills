@@ -5,7 +5,7 @@ description: >
   are requested, reviewed, approved, executed, and tracked. ONLY activated by
   commands: `/ops-change` (create) or `/ops-change-refine` (refine). NEVER
   auto-trigger based on keywords.
-argument-hint: "[path to release-plan-final.md or cicd-pipeline-final.md]"
+argument-hint: "[path to release-plan-final.md or cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -31,12 +31,12 @@ Generate a change management process from release and deployment artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Release plan (final) | Yes | `deploy/final/release-plan-final.md` or user-specified path |
-| CI/CD pipeline (final) | Yes | `deploy/final/cicd-pipeline-final.md` or user-specified path |
-| Incident response (final) | No | `ops/final/incident-response-final.md` — emergency change handling |
-| Monitoring plan (final) | No | `ops/final/monitoring-plan-final.md` — change monitoring, rollback triggers |
-| Environment spec (final) | No | `deploy/final/env-spec-final.md` — environments affected by changes |
-| SLA spec (final) | No | `ops/final/sla-spec-final.md` — SLO impact assessment for changes |
+| Release plan (final) | Yes | `sdlc/deploy/final/release-plan-final.md` or user-specified path |
+| CI/CD pipeline (final) | Yes | `sdlc/deploy/final/cicd-pipeline-final.md` or user-specified path |
+| Incident response (final) | No | `sdlc/ops/final/incident-response-final.md` — emergency change handling |
+| Monitoring plan (final) | No | `sdlc/ops/final/monitoring-plan-final.md` — change monitoring, rollback triggers |
+| Environment spec (final) | No | `sdlc/deploy/final/env-spec-final.md` — environments affected by changes |
+| SLA spec (final) | No | `sdlc/ops/final/sla-spec-final.md` — SLO impact assessment for changes |
 
 ### Mode 2: Refine (`/ops-change-refine`)
 
@@ -44,8 +44,8 @@ Improve existing change management document based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing change mgmt draft | Yes | `draft/change-mgmt-draft.md` or `draft/change-mgmt-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing change mgmt draft | Yes | `sdlc/ops/draft/change-mgmt-draft.md` or `sdlc/ops/draft/change-mgmt-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/ops/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -54,10 +54,10 @@ Improve existing change management document based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `change-mgmt-draft.md` | `draft/` |
-| Refine | `change-mgmt-v{N}.md` | `draft/` (N = next version number) |
+| Create | `change-mgmt-draft.md` | `sdlc/ops/draft/` |
+| Refine | `change-mgmt-v{N}.md` | `sdlc/ops/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `ops/final/change-mgmt-final.md`.
+When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/change-mgmt-final.md`.
 
 ---
 
@@ -65,7 +65,7 @@ When user is satisfied -> they copy from `draft/` to `ops/final/change-mgmt-fina
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-change-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/ops-change-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
 - User runs `/ops-change` -> **Mode 1 (Create)**
 - User runs `/ops-change` but draft already exists -> Ask: "A change management draft already exists. Create new (overwrite) or refine existing?"
 
@@ -83,43 +83,54 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/ops/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/ops/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/ops/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/ops/input/` → read the converted .md
+
+Converted files are saved to `sdlc/ops/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For release plan input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/release-plan-final.md?         -> YES -> read it -> DONE
-3. Exists in deploy/final/release-plan-final.md?  -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/release-plan-final.md?     -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/release-plan-final.md?  -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Ask: "No release plan found. Please provide a path or run /deploy-release first."
 
 For CI/CD pipeline input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/cicd-pipeline-final.md?        -> YES -> read it -> DONE
-3. Exists in deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/cicd-pipeline-final.md?    -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Ask: "No CI/CD pipeline document found. Please provide a path or run /deploy-cicd first."
 
 For incident response input (optional):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/incident-response-final.md?       -> YES -> read it -> DONE
-3. Exists in ops/final/incident-response-final.md?   -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/incident-response-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/ops/final/incident-response-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without incident response document.
 
 For monitoring plan input (optional):
-1. User specified path?                              -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/monitoring-plan-final.md?         -> YES -> read it -> DONE
-3. Exists in ops/final/monitoring-plan-final.md?     -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/monitoring-plan-final.md?   -> YES -> read it -> DONE
+3. Exists in sdlc/ops/final/monitoring-plan-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without monitoring plan document.
 
 For environment spec input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/env-spec-final.md?             -> YES -> read it -> DONE
-3. Exists in deploy/final/env-spec-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/env-spec-final.md?         -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/env-spec-final.md?      -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without environment spec document.
 
 For SLA spec input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/sla-spec-final.md?             -> YES -> read it -> DONE
-3. Exists in ops/final/sla-spec-final.md?         -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/sla-spec-final.md?         -> YES -> read it -> DONE
+3. Exists in sdlc/ops/final/sla-spec-final.md?         -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without SLA spec document.
 ```
 
@@ -127,15 +138,15 @@ For SLA spec input (optional):
 
 ```
 For change mgmt draft:
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                              -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?             -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                           -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/?                     -> YES -> read it -> DONE
+3. Exists in sdlc/ops/draft/ (latest version)?    -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> FAIL: "No existing change management draft found. Run /ops-change first."
 
 For review report:
-1. User provided feedback directly in message?    -> Save to input/review-report.md
-2. User specified path?                           -> read it, copy to input/
-3. Exists in input/review-report.md?              -> read it
+1. User provided feedback directly in message?    -> Save to sdlc/ops/input/review-report.md
+2. User specified path?                           -> read it, copy to sdlc/ops/input/
+3. Exists in sdlc/ops/input/review-report.md?     -> read it
 4. Not found? -> Ask: "What feedback do you have on the current change management document?"
 ```
 
@@ -213,7 +224,7 @@ For each section:
    - Update change windows and CAB process as needed
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/change-mgmt-v{N}.md`
+8. Write improved version to `sdlc/ops/draft/change-mgmt-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -241,12 +252,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/change-mgmt-draft.md`
-- **Refine mode**: Write to `draft/change-mgmt-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/ops/draft/change-mgmt-draft.md`
+- **Refine mode**: Write to `sdlc/ops/draft/change-mgmt-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Change Management Document {created/refined}!**
-> - Output: `draft/change-mgmt-{version}.md`
+> - Output: `sdlc/ops/draft/change-mgmt-{version}.md`
 > - Readiness: {verdict}
 > - Change types: {count} (Standard: {S}, Normal: {N}, Emergency: {E})
 > - Process steps: {count}
@@ -255,7 +266,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/ops-change-refine`
-> - When satisfied, copy to `ops/final/change-mgmt-final.md`
+> - When satisfied, copy to `sdlc/ops/final/change-mgmt-final.md`
 > - This is the final skill in the SDLC pipeline -- your operational documentation is complete!
 
 ---

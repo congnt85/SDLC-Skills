@@ -6,7 +6,7 @@ description: >
   networking, security, scaling policies, backup/DR, and cost estimation for all
   environments. ONLY activated by commands: `/deploy-env` (create) or
   `/deploy-env-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or tech-stack-final.md]"
+argument-hint: "[path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -32,13 +32,13 @@ Generate an environment specification from architecture, tech-stack, and CI/CD p
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Architecture (final) | Yes | `design/final/architecture-final.md` or user-specified path |
-| Tech stack (final) | Yes | `design/final/tech-stack-final.md` or user-specified path |
-| CI/CD pipeline (final) | Yes | `deploy/final/cicd-pipeline-final.md` or user-specified path |
-| Scope (final) | No | `init/final/scope-final.md` — quality attributes (availability, performance targets) |
-| Charter (final) | No | `init/final/charter-final.md` — budget constraints |
-| Database design (final) | No | `design/final/database-final.md` — database sizing, backup requirements |
-| Test plan (final) | No | `test/final/test-plan-final.md` — test environment requirements |
+| Architecture (final) | Yes | `sdlc/design/final/architecture-final.md` or user-specified path |
+| Tech stack (final) | Yes | `sdlc/design/final/tech-stack-final.md` or user-specified path |
+| CI/CD pipeline (final) | Yes | `sdlc/deploy/final/cicd-pipeline-final.md` or user-specified path |
+| Scope (final) | No | `sdlc/init/final/scope-final.md` — quality attributes (availability, performance targets) |
+| Charter (final) | No | `sdlc/init/final/charter-final.md` — budget constraints |
+| Database design (final) | No | `sdlc/design/final/database-final.md` — database sizing, backup requirements |
+| Test plan (final) | No | `sdlc/test/final/test-plan-final.md` — test environment requirements |
 
 ### Mode 2: Refine (`/deploy-env-refine`)
 
@@ -46,8 +46,8 @@ Improve existing environment specification based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing env spec draft | Yes | `draft/env-spec-draft.md` or `draft/env-spec-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing env spec draft | Yes | `sdlc/deploy/draft/env-spec-draft.md` or `sdlc/deploy/draft/env-spec-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/deploy/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -56,10 +56,10 @@ Improve existing environment specification based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `env-spec-draft.md` | `draft/` |
-| Refine | `env-spec-v{N}.md` | `draft/` (N = next version number) |
+| Create | `env-spec-draft.md` | `sdlc/deploy/draft/` |
+| Refine | `env-spec-v{N}.md` | `sdlc/deploy/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `deploy/final/env-spec-final.md`.
+When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/final/env-spec-final.md`.
 
 ---
 
@@ -67,7 +67,7 @@ When user is satisfied -> they copy from `draft/` to `deploy/final/env-spec-fina
 
 ### Step 1: Determine Mode
 
-- User runs `/deploy-env-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/deploy-env-refine` AND existing draft exists in `sdlc/deploy/draft/` -> **Mode 2 (Refine)**
 - User runs `/deploy-env` -> **Mode 1 (Create)**
 - User runs `/deploy-env` but draft already exists -> Ask: "An environment spec draft already exists. Create new (overwrite) or refine existing?"
 
@@ -85,49 +85,60 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/deploy/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/deploy/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/deploy/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/deploy/input/` → read the converted .md
+
+Converted files are saved to `sdlc/deploy/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For architecture input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?         -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md?  -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/architecture-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No architecture document found. Please provide a path or run /design-arch first."
 
 For tech stack input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/tech-stack-final.md?           -> YES -> read it -> DONE
-3. Exists in design/final/tech-stack-final.md?    -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/tech-stack-final.md?   -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/tech-stack-final.md?   -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For CI/CD pipeline input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/cicd-pipeline-final.md?        -> YES -> read it -> DONE
-3. Exists in deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/cicd-pipeline-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Ask: "No CI/CD pipeline found. Please provide a path or run /deploy-cicd first."
 
 For scope input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?                -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?           -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/scope-final.md?        -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?           -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without scope document.
 
 For charter input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?              -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?         -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/charter-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md?         -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without charter document.
 
 For database design input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/database-final.md?             -> YES -> read it -> DONE
-3. Exists in design/final/database-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/database-final.md?     -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/database-final.md?     -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without database document.
 
 For test plan input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/test-plan-final.md?            -> YES -> read it -> DONE
-3. Exists in test/final/test-plan-final.md?       -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/test-plan-final.md?    -> YES -> read it -> DONE
+3. Exists in sdlc/test/final/test-plan-final.md?       -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> Proceed without test plan document.
 ```
 
@@ -135,15 +146,15 @@ For test plan input (optional):
 
 ```
 For env spec draft:
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                              -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?             -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                           -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+2. Exists in sdlc/deploy/input/?                  -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/draft/ (latest version)? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
 4. Not found? -> FAIL: "No existing env spec draft found. Run /deploy-env first."
 
 For review report:
-1. User provided feedback directly in message?    -> Save to input/review-report.md
-2. User specified path?                           -> read it, copy to input/
-3. Exists in input/review-report.md?              -> read it
+1. User provided feedback directly in message?    -> Save to sdlc/deploy/input/review-report.md
+2. User specified path?                           -> read it, copy to sdlc/deploy/input/
+3. Exists in sdlc/deploy/input/review-report.md? -> read it
 4. Not found? -> Ask: "What feedback do you have on the current environment specification?"
 ```
 
@@ -231,7 +242,7 @@ For each section:
    - Update cost estimates if infrastructure changes
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/env-spec-v{N}.md`
+8. Write improved version to `sdlc/deploy/draft/env-spec-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -263,12 +274,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/env-spec-draft.md`
-- **Refine mode**: Write to `draft/env-spec-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/deploy/draft/env-spec-draft.md`
+- **Refine mode**: Write to `sdlc/deploy/draft/env-spec-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Environment Specification {created/refined}!**
-> - Output: `draft/env-spec-{version}.md`
+> - Output: `sdlc/deploy/draft/env-spec-{version}.md`
 > - Readiness: {verdict}
 > - Environments: {count} ({list})
 > - Services: {total} across all environments
@@ -277,7 +288,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/deploy-env-refine`
-> - When satisfied, copy to `deploy/final/env-spec-final.md`
+> - When satisfied, copy to `sdlc/deploy/final/env-spec-final.md`
 > - Then run `/ops-monitor` to define monitoring and alerting
 
 ---

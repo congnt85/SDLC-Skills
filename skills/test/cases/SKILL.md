@@ -7,7 +7,7 @@ description: >
   and NFR test cases.
   ONLY activated by commands: `/test-cases` (create) or `/test-cases-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to userstories-final.md or api-final.md]"
+argument-hint: "[path to userstories-final.md or api-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: test
@@ -38,28 +38,28 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 
 | Input | Required | Source |
 |-------|----------|--------|
-| userstories-final.md | **REQUIRED** | req/final/ — acceptance criteria drive test cases |
-| api-final.md | **REQUIRED** | design/final/ — API endpoints drive API test cases |
-| test-strategy-final.md | Optional | test/final/ — tools, approach, coverage targets |
-| test-plan-final.md | Optional | test/final/ — scope, priorities |
-| database-final.md | Optional | design/final/ — data constraints for test data |
-| architecture-final.md | Optional | design/final/ — component boundaries for integration tests |
-| scope-final.md | Optional | init/final/ — QA-xxx for NFR test cases |
-| backlog-final.md | Optional | req/final/ — MVP boundary for test prioritization |
-| risk-register-final.md | Optional | init/final/ — risk-based test cases |
+| userstories-final.md | **REQUIRED** | sdlc/req/final/ — acceptance criteria drive test cases |
+| api-final.md | **REQUIRED** | sdlc/design/final/ — API endpoints drive API test cases |
+| test-strategy-final.md | Optional | sdlc/test/final/ — tools, approach, coverage targets |
+| test-plan-final.md | Optional | sdlc/test/final/ — scope, priorities |
+| database-final.md | Optional | sdlc/design/final/ — data constraints for test data |
+| architecture-final.md | Optional | sdlc/design/final/ — component boundaries for integration tests |
+| scope-final.md | Optional | sdlc/init/final/ — QA-xxx for NFR test cases |
+| backlog-final.md | Optional | sdlc/req/final/ — MVP boundary for test prioritization |
+| risk-register-final.md | Optional | sdlc/init/final/ — risk-based test cases |
 
 ### Refine Mode
 
 | Input | Required | Source |
 |-------|----------|--------|
-| test-cases-draft.md | **REQUIRED** | test/cases/draft/ — existing draft to improve |
+| test-cases-draft.md | **REQUIRED** | sdlc/test/draft/ — existing draft to improve |
 | User feedback | **REQUIRED** | Conversation — specific improvement requests |
 
 ---
 
 ## Output
 
-- **File**: `test/cases/draft/test-cases-draft.md`
+- **File**: `sdlc/test/draft/test-cases-draft.md`
 - **Format**: Follows `test/cases/templates/output-template.md`
 
 ---
@@ -87,14 +87,25 @@ Read these files in order. STOP if any required file is missing:
 
 ### Step 3 — Resolve Inputs
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/test/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/test/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/test/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/test/input/` → read the converted .md
+
+Converted files are saved to `sdlc/test/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Input resolution priority** (for each input file):
 1. User-specified path (from command argument)
-2. Own `test/cases/input/` directory
-3. Previous skill's final directory (req/final/, design/final/, test/final/, init/final/)
+2. Own `sdlc/test/input/` directory
+3. Previous skill's final directory (sdlc/req/final/, sdlc/design/final/, sdlc/test/final/, sdlc/init/final/)
 
 **Actions**:
 - Locate each input file using priority order above
-- Copy resolved files to `test/cases/input/` for traceability
+- Copy resolved files to `sdlc/test/input/` for traceability
 - STOP if REQUIRED inputs (userstories-final.md, api-final.md) are not found — tell user what is missing
 - Log which optional inputs were found vs. missing
 
@@ -160,7 +171,7 @@ Summary showing which ACs, endpoints, and risks are covered by which test cases.
 
 ### Step 4 — Generate (Refine Mode)
 
-1. Read existing `test/cases/draft/test-cases-draft.md`
+1. Read existing `sdlc/test/draft/test-cases-draft.md`
 2. Show **quality scorecard** first:
    - Total test cases by type and priority
    - AC coverage % (Must Have, Should Have, Could Have)
@@ -203,7 +214,7 @@ Evaluate:
 
 ### Step 7 — Output and Next Step
 
-1. Write `test/cases/draft/test-cases-draft.md`
+1. Write `sdlc/test/draft/test-cases-draft.md`
 2. Present summary: test case counts by type/priority, coverage stats, gaps, confidence
 3. Suggest next step: `/impl-sprint` to begin implementation planning
 

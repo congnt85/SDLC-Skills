@@ -42,28 +42,38 @@ All 7 phases are complete (23 skills, 46 commands). The project migrated from a 
 ## Repository Structure
 
 ```
-skills/
-  shared/                    # Project-wide: rules/, knowledge/, templates/
+skills/                          # Skill definitions (installed to ~/.claude/skills/)
+  shared/                        # Project-wide: rules/, knowledge/, templates/
+    utils/                       # Converter utilities: read-pdf, read-word, read-excel, read-ppt
   <phase>/
-    final/                   # Phase output (user promotes drafts here)
-    shared/                  # Phase-wide: rules/, knowledge/, templates/
+    shared/                      # Phase-wide: rules/, knowledge/, templates/
     <skill>/
-      SKILL.md               # Skill definition (two modes: create + refine)
-      input/                 # Resolved input files (copied here for traceability)
-      draft/                 # Draft output (skill writes here)
-      knowledge/             # Skill-specific knowledge
-      rules/                 # Skill-specific output rules
-      templates/             # Output template + sample output
+      SKILL.md                   # Skill definition (two modes: create + refine)
+      knowledge/                 # Skill-specific knowledge
+      rules/                     # Skill-specific output rules
+      templates/                 # Output template + sample output
+```
+
+### Project Directory (created in user's working directory)
+
+```
+sdlc/                            # All skill I/O lives here (in user's project dir)
+  <phase>/
+    input/                       # Converted non-md files (from /read-pdf, /read-word, etc.)
+    draft/                       # Skill output (skills write here)
+    final/                       # Promoted artifacts (user copies drafts here)
 ```
 
 ## Architecture Patterns
 
 - **3-layer resource scoping**: `skills/shared/` (project-wide) -> `<phase>/shared/` (phase-wide) -> `<skill>/` (skill-specific). Skills only read their own layer + ancestors, never sibling skills.
 - **Two modes per skill**: Mode 1 (Create) generates from input; Mode 2 (Refine) improves existing draft from user feedback. Both modes in one SKILL.md.
-- **Input resolution priority**: User-specified path > own `input/` > previous skill's `final/`. Always copy to own `input/` for traceability.
-- **Draft/final separation**: Skills write to `draft/`. User promotes to `<phase>/final/` when satisfied. Next phase reads from `final/`.
+- **Project directory I/O**: All skill input/output goes to `sdlc/<phase>/` in the user's project directory (cwd), NOT in the skills installation directory.
+- **Multi-format input**: Skills accept any file type (md/pdf/docx/xlsx/pptx). Non-md files are auto-converted via `/read-pdf`, `/read-word`, `/read-excel`, `/read-ppt` utility skills. Converted files are cached in `sdlc/<phase>/input/`.
+- **Input resolution priority**: User-specified path > `sdlc/<phase>/input/` > previous phase's `sdlc/<phase>/final/`. Converted files saved to `sdlc/<phase>/input/`.
+- **Draft/final separation**: Skills write to `sdlc/<phase>/draft/`. User promotes to `sdlc/<phase>/final/` when satisfied. Next phase reads from `final/`.
 - **Confidence marking**: Every item gets ✅ CONFIRMED / 🔶 ASSUMED / ❓ UNCLEAR. Readiness assessment counts these for go/no-go verdict.
-- **Pipeline flow**: init/final/ -> req reads -> req/final/ -> design reads -> design/final/ -> test+impl read -> deploy reads -> ops reads.
+- **Pipeline flow**: sdlc/init/final/ -> req reads -> sdlc/req/final/ -> design reads -> sdlc/design/final/ -> test+impl read -> deploy reads -> ops reads.
 
 ## Install & Test
 

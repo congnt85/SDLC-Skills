@@ -6,7 +6,7 @@ description: >
   implementable stories for each persona, including NFR and spike stories.
   ONLY activated by commands: `/req-userstory` (create) or `/req-userstory-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to epics-final.md or scope-final.md]"
+argument-hint: "[path to epics file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -18,7 +18,7 @@ next_phase: req-backlog
 
 ## Purpose
 
-Create or refine a user stories document (`userstories-draft.md`) that decomposes epics into implementable stories with acceptance criteria. Each story follows the "As a / I want / So that" format, satisfies INVEST criteria, and includes Gherkin acceptance criteria.
+Create or refine a user stories document (`sdlc/req/draft/userstories-draft.md`) that decomposes epics into implementable stories with acceptance criteria. Each story follows the "As a / I want / So that" format, satisfies INVEST criteria, and includes Gherkin acceptance criteria.
 
 ---
 
@@ -30,9 +30,9 @@ Generate user stories from epics and scope features.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Epics (final) | Yes | `req/final/epics-final.md` or user-specified path |
-| Scope (final) | Yes | `init/final/scope-final.md` or user-specified path |
-| Risk register (final) | No | `init/final/risk-register-final.md` — high risks become spike stories |
+| Epics (final) | Yes | `sdlc/req/final/epics-final.md` or user-specified path |
+| Scope (final) | Yes | `sdlc/init/final/scope-final.md` or user-specified path |
+| Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — high risks become spike stories |
 
 ### Mode 2: Refine (`/req-userstory-refine`)
 
@@ -40,8 +40,8 @@ Improve existing stories based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing stories draft | Yes | `draft/userstories-draft.md` or `draft/userstories-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing stories draft | Yes | `sdlc/req/draft/userstories-draft.md` or `sdlc/req/draft/userstories-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/req/input/review-report.md` |
 | Additional details | No | New stories, AC refinements |
 
 ---
@@ -50,10 +50,10 @@ Improve existing stories based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `userstories-draft.md` | `draft/` |
-| Refine | `userstories-v{N}.md` | `draft/` (N = next version number) |
+| Create | `userstories-draft.md` | `sdlc/req/draft/` |
+| Refine | `userstories-v{N}.md` | `sdlc/req/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `req/final/userstories-final.md`.
+When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/userstories-final.md`.
 
 ---
 
@@ -61,7 +61,7 @@ When user is satisfied -> they copy from `draft/` to `req/final/userstories-fina
 
 ### Step 1: Determine Mode
 
-- User runs `/req-userstory-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/req-userstory-refine` AND existing draft exists in `sdlc/req/draft/` -> **Mode 2 (Refine)**
 - User runs `/req-userstory` -> **Mode 1 (Create)**
 - User runs `/req-userstory` but draft already exists -> Ask: "A stories draft already exists. Create new (overwrite) or refine existing?"
 
@@ -84,23 +84,34 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/req/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/req/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/req/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/req/input/` → read the converted .md
+
+Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For epics input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/epics-final.md?             -> YES -> read it -> DONE
-3. Exists in req/final/epics-final.md?         -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/epics-final.md?    -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/epics-final.md?    -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Ask: "No epics found. Please provide a path or run /req-epic first."
 
 For scope input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?             -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?        -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/scope-final.md?    -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Ask: "No scope found. Please provide a path or run /init-scope first."
 
 For risk register (optional):
-1-3. Standard resolution from init/final/
+1-3. Standard resolution from sdlc/init/final/
 4. Not found? -> Proceed without spike stories.
 ```
 
@@ -164,7 +175,7 @@ For each section:
    - Add missing edge case AC
    - Fix INVEST violations
 6. Tag changes: `[UPDATED]`, `[NEW]`
-7. Write to `draft/userstories-v{N}.md`
+7. Write to `sdlc/req/draft/userstories-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -189,12 +200,12 @@ Count items by confidence (each story is 1 item). Calculate verdict.
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/userstories-draft.md`
-- **Refine mode**: Write to `draft/userstories-v{N}.md`
+- **Create mode**: Write to `sdlc/req/draft/userstories-draft.md`
+- **Refine mode**: Write to `sdlc/req/draft/userstories-v{N}.md`
 
 Tell the user:
 > **User stories {created/refined}!**
-> - Output: `draft/userstories-{version}.md`
+> - Output: `sdlc/req/draft/userstories-{version}.md`
 > - Readiness: {verdict}
 > - Stories: {total} (Must Have: {N}, Should Have: {N}, Could Have: {N})
 > - NFR stories: {N}, Spike stories: {N}
@@ -202,7 +213,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/req-userstory-refine`
-> - When satisfied, copy to `req/final/userstories-final.md`
+> - When satisfied, copy to `sdlc/req/final/userstories-final.md`
 > - Then run `/req-backlog` to prioritize and order the product backlog
 
 ---

@@ -6,7 +6,7 @@ description: >
   Mermaid notation. Maps quality attributes to architectural decisions.
   ONLY activated by commands: `/design-arch` (create) or `/design-arch-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to tech-stack-final.md or scope-final.md]"
+argument-hint: "[path to tech-stack-final.md or scope-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -32,13 +32,13 @@ Generate a new architecture document from tech stack and scope artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| tech-stack-final.md | ✅ | `design/final/` or user-specified path |
-| scope-final.md | ✅ | `init/final/` or user-specified path |
-| charter-final.md | No | `init/final/` — constraints, team structure |
-| epics-final.md | No | `req/final/` — epic structure for architecture phasing |
-| userstories-final.md | No | `req/final/` — stories drive component design |
-| backlog-final.md | No | `req/final/` — MVP boundary for v1 architecture scope |
-| risk-register-final.md | No | `init/final/` — technical/integration risks |
+| tech-stack-final.md | ✅ | `sdlc/design/final/` or user-specified path |
+| scope-final.md | ✅ | `sdlc/init/final/` or user-specified path |
+| charter-final.md | No | `sdlc/init/final/` — constraints, team structure |
+| epics-final.md | No | `sdlc/req/final/` — epic structure for architecture phasing |
+| userstories-final.md | No | `sdlc/req/final/` — stories drive component design |
+| backlog-final.md | No | `sdlc/req/final/` — MVP boundary for v1 architecture scope |
+| risk-register-final.md | No | `sdlc/init/final/` — technical/integration risks |
 
 ### Mode 2: Refine (`/design-arch-refine`)
 
@@ -46,8 +46,8 @@ Improve an existing architecture document based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing architecture draft | ✅ | `draft/architecture-draft.md` or `draft/architecture-v{N}.md` |
-| Review report / feedback | ✅ | User provides directly or as `input/review-report.md` |
+| Existing architecture draft | ✅ | `sdlc/design/draft/architecture-draft.md` or `sdlc/design/draft/architecture-v{N}.md` |
+| Review report / feedback | ✅ | User provides directly or as `sdlc/design/input/review-report.md` |
 | Additional context | No | New information the user wants to incorporate |
 
 ---
@@ -56,10 +56,10 @@ Improve an existing architecture document based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `architecture-draft.md` | `draft/` |
-| Refine | `architecture-v{N}.md` | `draft/` (N = next version number) |
+| Create | `architecture-draft.md` | `sdlc/design/draft/` |
+| Refine | `architecture-v{N}.md` | `sdlc/design/draft/` (N = next version number) |
 
-When user is satisfied → they copy from `draft/` to `design/final/architecture-final.md`.
+When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/final/architecture-final.md`.
 
 ---
 
@@ -67,7 +67,7 @@ When user is satisfied → they copy from `draft/` to `design/final/architecture
 
 ### Step 1: Determine Mode
 
-- User runs `/design-arch-refine` AND existing draft exists in `draft/` → **Mode 2 (Refine)**
+- User runs `/design-arch-refine` AND existing draft exists in `sdlc/design/draft/` → **Mode 2 (Refine)**
 - User runs `/design-arch` → **Mode 1 (Create)**
 - User runs `/design-arch` but draft already exists → Ask: "A draft already exists. Create new (overwrite) or refine existing?"
 
@@ -86,25 +86,36 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/design/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/design/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/design/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/design/input/` → read the converted .md
+
+Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For tech-stack-final.md (REQUIRED):
-1. User specified path? → Read it, copy to input/
-2. Exists in input/tech-stack-final.md? → Read it
-3. Exists in design/final/tech-stack-final.md? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/tech-stack-final.md? → Read it
+3. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No tech stack document found. Run /design-stack first."
 
 For scope-final.md (REQUIRED):
-1. User specified path? → Read it, copy to input/
-2. Exists in input/scope-final.md? → Read it
-3. Exists in init/final/scope-final.md? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/scope-final.md? → Read it
+3. Exists in sdlc/init/final/scope-final.md? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No scope document found. Run /init-scope first."
 
 For optional inputs (charter, epics, userstories, backlog, risk-register):
-1. Check input/ folder first
-2. Check respective final/ folders (init/final/, req/final/)
-3. If found → copy to input/ for traceability
+1. Check sdlc/design/input/ folder first
+2. Check respective final/ folders (sdlc/init/final/, sdlc/req/final/)
+3. If found → copy to sdlc/design/input/ for traceability
 4. If not found → proceed without, note missing context in Q&A
 ```
 
@@ -112,15 +123,15 @@ For optional inputs (charter, epics, userstories, backlog, risk-register):
 
 ```
 For architecture draft:
-1. User specified path? → Read it, copy to input/
-2. Exists in input/? → Read it
-3. Exists in draft/ (latest version)? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/? → Read it
+3. Exists in sdlc/design/draft/ (latest version)? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No existing architecture document found. Run /design-arch first."
 
 For review report:
-1. User provided feedback directly in message? → Save to input/review-report.md
-2. User specified path? → Read it, copy to input/
-3. Exists in input/review-report.md? → Read it
+1. User provided feedback directly in message? → Save to sdlc/design/input/review-report.md
+2. User specified path? → Read it, copy to sdlc/design/input/
+3. Exists in sdlc/design/input/review-report.md? → Read it
 4. Not found? → Ask: "What feedback do you have on the current architecture?"
 ```
 
@@ -169,7 +180,7 @@ For each section:
    - Proactively suggest improvements for weak areas
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/architecture-v{N}.md`
+8. Write improved version to `sdlc/design/draft/architecture-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -202,18 +213,18 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/architecture-draft.md`
-- **Refine mode**: Write to `draft/architecture-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/design/draft/architecture-draft.md`
+- **Refine mode**: Write to `sdlc/design/draft/architecture-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Architecture {created/refined}!**
-> - Output: `draft/architecture-{version}.md`
+> - Output: `sdlc/design/draft/architecture-{version}.md`
 > - Readiness: {verdict}
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/design-arch-refine`
-> - When satisfied, copy to `design/final/architecture-final.md`
+> - When satisfied, copy to `sdlc/design/final/architecture-final.md`
 > - Then run `/design-db` and `/design-api` (can run in parallel)
 
 ---

@@ -7,7 +7,7 @@ description: >
   scored alternatives.
   ONLY activated by commands: `/design-stack` (create) or `/design-stack-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to scope-final.md or charter-final.md]"
+argument-hint: "[path to scope-final.md or charter-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -33,10 +33,10 @@ Generate a tech stack selection from init and req artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Scope (final) | Yes | `init/final/scope-final.md` or user-specified path |
-| Charter (final) | Yes | `init/final/charter-final.md` or user-specified path |
-| User stories (final) | No | `req/final/userstories-final.md` — technical ACs inform criteria |
-| Risk register (final) | No | `init/final/risk-register-final.md` — technical risks to mitigate |
+| Scope (final) | Yes | `sdlc/init/final/scope-final.md` or user-specified path |
+| Charter (final) | Yes | `sdlc/init/final/charter-final.md` or user-specified path |
+| User stories (final) | No | `sdlc/req/final/userstories-final.md` — technical ACs inform criteria |
+| Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — technical risks to mitigate |
 
 ### Mode 2: Refine (`/design-stack-refine`)
 
@@ -44,8 +44,8 @@ Improve existing tech stack based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing tech stack draft | Yes | `draft/tech-stack-draft.md` or `draft/tech-stack-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing tech stack draft | Yes | `sdlc/design/draft/tech-stack-draft.md` or `sdlc/design/draft/tech-stack-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/design/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -54,10 +54,10 @@ Improve existing tech stack based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `tech-stack-draft.md` | `draft/` |
-| Refine | `tech-stack-v{N}.md` | `draft/` (N = next version number) |
+| Create | `tech-stack-draft.md` | `sdlc/design/draft/` |
+| Refine | `tech-stack-v{N}.md` | `sdlc/design/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `design/final/tech-stack-final.md`.
+When user is satisfied -> they copy from `sdlc/design/draft/` to `sdlc/design/final/tech-stack-final.md`.
 
 ---
 
@@ -65,7 +65,7 @@ When user is satisfied -> they copy from `draft/` to `design/final/tech-stack-fi
 
 ### Step 1: Determine Mode
 
-- User runs `/design-stack-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/design-stack-refine` AND existing draft exists in `sdlc/design/draft/` -> **Mode 2 (Refine)**
 - User runs `/design-stack` -> **Mode 1 (Create)**
 - User runs `/design-stack` but draft already exists -> Ask: "A tech stack draft already exists. Create new (overwrite) or refine existing?"
 
@@ -84,31 +84,42 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/design/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/design/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/design/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/design/input/` → read the converted .md
+
+Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For scope input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?             -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?        -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/design/input/ -> DONE
+2. Exists in sdlc/design/input/scope-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?        -> YES -> read it, copy to sdlc/design/input/ -> DONE
 4. Not found? -> Ask: "No scope found. Please provide a path or run /init-scope first."
 
 For charter input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?           -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/design/input/ -> DONE
+2. Exists in sdlc/design/input/charter-final.md?           -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md?      -> YES -> read it, copy to sdlc/design/input/ -> DONE
 4. Not found? -> Ask: "No charter found. Please provide a path or run /init-charter first."
 
 For user stories (optional):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/userstories-final.md?       -> YES -> read it -> DONE
-3. Exists in req/final/userstories-final.md?   -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/design/input/ -> DONE
+2. Exists in sdlc/design/input/userstories-final.md?       -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/userstories-final.md?   -> YES -> read it, copy to sdlc/design/input/ -> DONE
 4. Not found? -> Proceed without user stories.
 
 For risk register (optional):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/risk-register-final.md?     -> YES -> read it -> DONE
-3. Exists in init/final/risk-register-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/design/input/ -> DONE
+2. Exists in sdlc/design/input/risk-register-final.md?     -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/risk-register-final.md? -> YES -> read it, copy to sdlc/design/input/ -> DONE
 4. Not found? -> Proceed without risk register.
 ```
 
@@ -116,15 +127,15 @@ For risk register (optional):
 
 ```
 For tech stack draft:
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                           -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/design/input/ -> DONE
+2. Exists in sdlc/design/input/?                           -> YES -> read it -> DONE
+3. Exists in sdlc/design/draft/ (latest version)?          -> YES -> read it, copy to sdlc/design/input/ -> DONE
 4. Not found? -> FAIL: "No existing tech stack found. Run /design-stack first."
 
 For review report:
-1. User provided feedback directly in message? -> Save to input/review-report.md
-2. User specified path?                        -> read it, copy to input/
-3. Exists in input/review-report.md?           -> read it
+1. User provided feedback directly in message? -> Save to sdlc/design/input/review-report.md
+2. User specified path?                        -> read it, copy to sdlc/design/input/
+3. Exists in sdlc/design/input/review-report.md?           -> read it
 4. Not found? -> Ask: "What feedback do you have on the current tech stack?"
 ```
 
@@ -202,7 +213,7 @@ For each section:
    - Update compatibility matrix if technologies changed
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/tech-stack-v{N}.md`
+8. Write improved version to `sdlc/design/draft/tech-stack-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -232,19 +243,19 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/tech-stack-draft.md`
-- **Refine mode**: Write to `draft/tech-stack-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/design/draft/tech-stack-draft.md`
+- **Refine mode**: Write to `sdlc/design/draft/tech-stack-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Tech stack {created/refined}!**
-> - Output: `draft/tech-stack-{version}.md`
+> - Output: `sdlc/design/draft/tech-stack-{version}.md`
 > - Readiness: {verdict}
 > - Technologies: {total} ({confirmed} confirmed, {assumed} assumed, {unclear} unclear)
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/design-stack-refine`
-> - When satisfied, copy to `design/final/tech-stack-final.md`
+> - When satisfied, copy to `sdlc/design/final/tech-stack-final.md`
 > - Then run `/design-arch` to define the system architecture
 
 ---

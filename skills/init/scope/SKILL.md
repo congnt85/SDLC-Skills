@@ -6,7 +6,7 @@ description: >
   system context, quality attributes, and scope change control.
   ONLY activated by commands: `/init-scope` (create) or `/init-scope-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to charter-final.md or project idea]"
+argument-hint: "[path to charter file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: init
@@ -32,7 +32,7 @@ Generate a new scope document from an approved charter.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Charter (final or draft) | Yes | `init/final/charter-final.md` or user-specified path |
+| Charter (final or draft) | Yes | `sdlc/init/final/charter-final.md` or user-specified path |
 | Additional context | No | User provides domain knowledge, constraints |
 
 ### Mode 2: Refine (`/init-scope-refine`)
@@ -41,8 +41,8 @@ Improve an existing scope document based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing scope draft | Yes | `draft/scope-draft.md` or `draft/scope-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing scope draft | Yes | `sdlc/init/draft/scope-draft.md` or `sdlc/init/draft/scope-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/init/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -51,10 +51,10 @@ Improve an existing scope document based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `scope-draft.md` | `draft/` |
-| Refine | `scope-v{N}.md` | `draft/` (N = next version number) |
+| Create | `scope-draft.md` | `sdlc/init/draft/` |
+| Refine | `scope-v{N}.md` | `sdlc/init/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `init/final/scope-final.md`.
+When user is satisfied -> they copy from `sdlc/init/draft/` to `sdlc/init/final/scope-final.md`.
 
 ---
 
@@ -62,7 +62,7 @@ When user is satisfied -> they copy from `draft/` to `init/final/scope-final.md`
 
 ### Step 1: Determine Mode
 
-- User runs `/init-scope-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/init-scope-refine` AND existing draft exists in `sdlc/init/draft/` -> **Mode 2 (Refine)**
 - User runs `/init-scope` -> **Mode 1 (Create)**
 - User runs `/init-scope` but draft already exists -> Ask: "A scope draft already exists. Create new (overwrite) or refine existing?"
 
@@ -82,13 +82,24 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/init/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/init/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/init/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/init/input/` → read the converted .md
+
+Converted files are saved to `sdlc/init/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For charter input:
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?           -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
+2. Exists in sdlc/init/input/charter-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md? -> YES -> read it, copy to sdlc/init/input/ -> DONE
 4. Not found? -> Ask: "No charter found. Please provide a charter path or run /init-charter first."
 
 If charter is a draft (not final):
@@ -100,15 +111,15 @@ If charter is a draft (not final):
 
 ```
 For scope draft:
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                           -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
+2. Exists in sdlc/init/input/?                 -> YES -> read it -> DONE
+3. Exists in sdlc/init/draft/ (latest version)? -> YES -> read it, copy to sdlc/init/input/ -> DONE
 4. Not found? -> FAIL: "No existing scope found. Run /init-scope first."
 
 For review report:
-1. User provided feedback directly in message? -> Save to input/review-report.md
-2. User specified path?                        -> read it, copy to input/
-3. Exists in input/review-report.md?           -> read it
+1. User provided feedback directly in message? -> Save to sdlc/init/input/review-report.md
+2. User specified path?                        -> read it, copy to sdlc/init/input/
+3. Exists in sdlc/init/input/review-report.md? -> read it
 4. Not found? -> Ask: "What feedback do you have on the current scope?"
 ```
 
@@ -170,7 +181,7 @@ For each section:
    - Strengthen persona scenarios
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/scope-v{N}.md`
+8. Write improved version to `sdlc/init/draft/scope-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -196,18 +207,18 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/scope-draft.md`
-- **Refine mode**: Write to `draft/scope-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/init/draft/scope-draft.md`
+- **Refine mode**: Write to `sdlc/init/draft/scope-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Scope {created/refined}!**
-> - Output: `draft/scope-{version}.md`
+> - Output: `sdlc/init/draft/scope-{version}.md`
 > - Readiness: {verdict}
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/init-scope-refine`
-> - When satisfied, copy to `init/final/scope-final.md`
+> - When satisfied, copy to `sdlc/init/final/scope-final.md`
 > - Then run `/init-risk` to create the risk register
 
 ---

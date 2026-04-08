@@ -6,7 +6,7 @@ description: >
   consequences. Can be run multiple times — each invocation creates one ADR.
   ONLY activated by commands: `/design-adr` (create) or `/design-adr-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[decision topic or path to existing ADR]"
+argument-hint: "[decision topic or path to existing ADR] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -19,14 +19,14 @@ next_phase: null
 ## Purpose
 
 Create individual ADR documents (`adr-{NNN}-{slug}-draft.md`) that record significant
-architectural decisions. Each invocation produces ONE ADR. Multiple ADRs accumulate in `draft/`
+architectural decisions. Each invocation produces ONE ADR. Multiple ADRs accumulate in `sdlc/design/draft/`
 over multiple invocations throughout the design phase.
 
 The ADR skill is different from other design skills:
 - It can run at **any point** during the design phase (not strictly sequential)
 - It produces **multiple files** over multiple invocations (`adr-001`, `adr-002`, etc.)
 - Each invocation creates exactly **one** ADR
-- The ADR number is **auto-incremented** based on existing ADRs in `draft/`
+- The ADR number is **auto-incremented** based on existing ADRs in `sdlc/design/draft/`
 
 ---
 
@@ -39,14 +39,14 @@ Create a new ADR for a specific architectural decision.
 | Input | Required | Source |
 |-------|----------|--------|
 | Decision topic | ✅ | User provides as argument or interactively |
-| tech-stack-final.md | No | `design/final/` — context for technology decisions |
-| architecture-final.md | No | `design/final/` — context for architecture decisions |
-| database-final.md | No | `design/final/` — context for data decisions |
-| api-final.md | No | `design/final/` — context for API decisions |
-| charter-final.md | No | `init/final/` — constraints, business context |
-| scope-final.md | No | `init/final/` — quality attributes, integrations |
-| risk-register-final.md | No | `init/final/` — risks this decision mitigates |
-| userstories-final.md | No | `req/final/` — stories driving the decision |
+| tech-stack-final.md | No | `sdlc/design/final/` — context for technology decisions |
+| architecture-final.md | No | `sdlc/design/final/` — context for architecture decisions |
+| database-final.md | No | `sdlc/design/final/` — context for data decisions |
+| api-final.md | No | `sdlc/design/final/` — context for API decisions |
+| charter-final.md | No | `sdlc/init/final/` — constraints, business context |
+| scope-final.md | No | `sdlc/init/final/` — quality attributes, integrations |
+| risk-register-final.md | No | `sdlc/init/final/` — risks this decision mitigates |
+| userstories-final.md | No | `sdlc/req/final/` — stories driving the decision |
 
 ### Mode 2: Refine (`/design-adr-refine`)
 
@@ -54,8 +54,8 @@ Improve or update an existing ADR based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing ADR | ✅ | `draft/adr-{NNN}-{slug}-draft.md` (by number or slug) |
-| Review report / feedback | ✅ | User provides directly or as `input/review-report.md` |
+| Existing ADR | ✅ | `sdlc/design/draft/adr-{NNN}-{slug}-draft.md` (by number or slug) |
+| Review report / feedback | ✅ | User provides directly or as `sdlc/design/input/review-report.md` |
 | Additional context | No | New information the user wants to incorporate |
 
 ---
@@ -64,10 +64,10 @@ Improve or update an existing ADR based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `adr-{NNN}-{slug}-draft.md` | `draft/` |
-| Refine | `adr-{NNN}-{slug}-draft.md` | `draft/` (updates in place, adds Change Log) |
+| Create | `adr-{NNN}-{slug}-draft.md` | `sdlc/design/draft/` |
+| Refine | `adr-{NNN}-{slug}-draft.md` | `sdlc/design/draft/` (updates in place, adds Change Log) |
 
-When user is satisfied → copy to `design/final/adr/adr-{NNN}-{slug}-final.md`.
+When user is satisfied → copy to `sdlc/design/final/adr/adr-{NNN}-{slug}-final.md`.
 
 ---
 
@@ -92,6 +92,17 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/design/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/design/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/design/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/design/input/` → read the converted .md
+
+Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
@@ -100,15 +111,15 @@ For decision topic (REQUIRED):
 2. No argument? → Ask: "What architectural decision do you want to document?"
 
 For ADR number:
-1. Scan draft/ for existing adr-{NNN}-*-draft.md files
+1. Scan sdlc/design/draft/ for existing adr-{NNN}-*-draft.md files
 2. Determine next number (NNN = max existing + 1, or 001 if none)
 
 For context (ALL OPTIONAL — read what exists):
-1. Check design/final/ for tech-stack-final.md, architecture-final.md,
+1. Check sdlc/design/final/ for tech-stack-final.md, architecture-final.md,
    database-final.md, api-final.md
-2. Check init/final/ for charter-final.md, scope-final.md, risk-register-final.md
-3. Check req/final/ for userstories-final.md, backlog-final.md
-4. If found → copy to input/ for traceability
+2. Check sdlc/init/final/ for charter-final.md, scope-final.md, risk-register-final.md
+3. Check sdlc/req/final/ for userstories-final.md, backlog-final.md
+4. If found → copy to sdlc/design/input/ for traceability
 5. If not found → proceed without, note missing context
 ```
 
@@ -116,16 +127,16 @@ For context (ALL OPTIONAL — read what exists):
 
 ```
 For existing ADR (REQUIRED):
-1. User specified ADR number or slug? → Find matching file in draft/
+1. User specified ADR number or slug? → Find matching file in sdlc/design/draft/
 2. User specified path? → Read it
-3. Only one ADR in draft/? → Use it
-4. Multiple ADRs in draft/ and no specifier? → List them, ask user to choose
+3. Only one ADR in sdlc/design/draft/? → Use it
+4. Multiple ADRs in sdlc/design/draft/ and no specifier? → List them, ask user to choose
 5. No ADRs found? → FAIL: "No ADR found. Run /design-adr first."
 
 For review report:
-1. User provided feedback directly in message? → Save to input/review-report.md
-2. User specified path? → Read it, copy to input/
-3. Exists in input/review-report.md? → Read it
+1. User provided feedback directly in message? → Save to sdlc/design/input/review-report.md
+2. User specified path? → Read it, copy to sdlc/design/input/
+3. Exists in sdlc/design/input/review-report.md? → Read it
 4. Not found? → Ask: "What feedback do you have on this ADR?"
 ```
 
@@ -163,7 +174,7 @@ Work through the ADR structure **section by section**:
 
 7. **Compliance** — How this decision affects security, performance, cost, and compliance/legal requirements.
 
-8. **Related Decisions** — Links to other ADRs that are related, depended upon, or superseded. Check existing ADRs in draft/ for relationships.
+8. **Related Decisions** — Links to other ADRs that are related, depended upon, or superseded. Check existing ADRs in sdlc/design/draft/ for relationships.
 
 9. **Q&A** — Capture open questions about this decision.
 
@@ -226,18 +237,18 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/adr-{NNN}-{slug}-draft.md`
-- **Refine mode**: Update `draft/adr-{NNN}-{slug}-draft.md` with Change Log
+- **Create mode**: Write to `sdlc/design/draft/adr-{NNN}-{slug}-draft.md`
+- **Refine mode**: Update `sdlc/design/draft/adr-{NNN}-{slug}-draft.md` with Change Log
 
 Tell the user:
 > **ADR {NNN} created!**
-> - Output: `draft/adr-{NNN}-{slug}-draft.md`
+> - Output: `sdlc/design/draft/adr-{NNN}-{slug}-draft.md`
 > - Status: Proposed
 > - Decision: {short summary}
 >
 > **Next steps:**
 > - Review and provide feedback via `/design-adr-refine`
-> - When approved, copy to `design/final/adr/adr-{NNN}-{slug}-final.md`
+> - When approved, copy to `sdlc/design/final/adr/adr-{NNN}-{slug}-final.md`
 > - Run `/design-adr` again for additional decisions
 
 ---

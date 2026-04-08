@@ -6,7 +6,7 @@ description: >
   work themes with feature assignments, personas, and success criteria.
   ONLY activated by commands: `/req-epic` (create) or `/req-epic-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to charter-final.md or scope-final.md]"
+argument-hint: "[path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -18,7 +18,7 @@ next_phase: req-userstory
 
 ## Purpose
 
-Create or refine an epic document (`epics-draft.md`) that maps charter objectives to deliverable work themes. Epics group related scope features into coherent themes that can be planned, tracked, and delivered as units.
+Create or refine an epic document (`sdlc/req/draft/epics-draft.md`) that maps charter objectives to deliverable work themes. Epics group related scope features into coherent themes that can be planned, tracked, and delivered as units.
 
 Epics bridge "what we want to achieve" (charter objectives) and "what we need to build as stories" (user stories).
 
@@ -32,9 +32,9 @@ Generate epics from charter objectives and scope features.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Charter (final) | Yes | `init/final/charter-final.md` or user-specified path |
-| Scope (final) | Yes | `init/final/scope-final.md` or user-specified path |
-| Risk register (final) | No | `init/final/risk-register-final.md` — high risks may warrant spike epics |
+| Charter (final) | Yes | `sdlc/init/final/charter-final.md` or user-specified path |
+| Scope (final) | Yes | `sdlc/init/final/scope-final.md` or user-specified path |
+| Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — high risks may warrant spike epics |
 
 ### Mode 2: Refine (`/req-epic-refine`)
 
@@ -42,8 +42,8 @@ Improve existing epics based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing epic draft | Yes | `draft/epics-draft.md` or `draft/epics-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing epic draft | Yes | `sdlc/req/draft/epics-draft.md` or `sdlc/req/draft/epics-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/req/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -52,10 +52,10 @@ Improve existing epics based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `epics-draft.md` | `draft/` |
-| Refine | `epics-v{N}.md` | `draft/` (N = next version number) |
+| Create | `epics-draft.md` | `sdlc/req/draft/` |
+| Refine | `epics-v{N}.md` | `sdlc/req/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `req/final/epics-final.md`.
+When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/epics-final.md`.
 
 ---
 
@@ -63,7 +63,7 @@ When user is satisfied -> they copy from `draft/` to `req/final/epics-final.md`.
 
 ### Step 1: Determine Mode
 
-- User runs `/req-epic-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/req-epic-refine` AND existing draft exists in `sdlc/req/draft/` -> **Mode 2 (Refine)**
 - User runs `/req-epic` -> **Mode 1 (Create)**
 - User runs `/req-epic` but draft already exists -> Ask: "An epic draft already exists. Create new (overwrite) or refine existing?"
 
@@ -82,25 +82,36 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/req/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/req/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/req/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/req/input/` → read the converted .md
+
+Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For charter input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/charter-final.md?           -> YES -> read it -> DONE
-3. Exists in init/final/charter-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/charter-final.md?  -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/charter-final.md?  -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Ask: "No charter found. Please provide a path or run /init-charter first."
 
 For scope input (required):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?             -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?        -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/scope-final.md?    -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Ask: "No scope found. Please provide a path or run /init-scope first."
 
 For risk register (optional):
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/risk-register-final.md?     -> YES -> read it -> DONE
-3. Exists in init/final/risk-register-final.md? -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/risk-register-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/risk-register-final.md? -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Proceed without risk register.
 ```
 
@@ -108,15 +119,15 @@ For risk register (optional):
 
 ```
 For epic draft:
-1. User specified path?                        -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                           -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
+2. Exists in sdlc/req/input/?                  -> YES -> read it -> DONE
+3. Exists in sdlc/req/draft/ (latest version)? -> YES -> read it, copy to sdlc/req/input/ -> DONE
 4. Not found? -> FAIL: "No existing epics found. Run /req-epic first."
 
 For review report:
-1. User provided feedback directly in message? -> Save to input/review-report.md
-2. User specified path?                        -> read it, copy to input/
-3. Exists in input/review-report.md?           -> read it
+1. User provided feedback directly in message? -> Save to sdlc/req/input/review-report.md
+2. User specified path?                        -> read it, copy to sdlc/req/input/
+3. Exists in sdlc/req/input/review-report.md?  -> read it
 4. Not found? -> Ask: "What feedback do you have on the current epics?"
 ```
 
@@ -168,7 +179,7 @@ For each section:
    - Rebalance feature assignments if needed
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/epics-v{N}.md`
+8. Write improved version to `sdlc/req/draft/epics-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -192,19 +203,19 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/epics-draft.md`
-- **Refine mode**: Write to `draft/epics-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/req/draft/epics-draft.md`
+- **Refine mode**: Write to `sdlc/req/draft/epics-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Epics {created/refined}!**
-> - Output: `draft/epics-{version}.md`
+> - Output: `sdlc/req/draft/epics-{version}.md`
 > - Readiness: {verdict}
 > - Epics: {total} (Must Have: {N}, Should Have: {N}, Could Have: {N})
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/req-epic-refine`
-> - When satisfied, copy to `req/final/epics-final.md`
+> - When satisfied, copy to `sdlc/req/final/epics-final.md`
 > - Then run `/req-userstory` to write user stories for each epic
 
 ---

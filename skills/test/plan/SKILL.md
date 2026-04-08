@@ -6,7 +6,7 @@ description: >
   testing activities. Maps test effort to sprints and releases.
   ONLY activated by commands: `/test-plan` (create) or `/test-plan-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to test-strategy-final.md or backlog-final.md]"
+argument-hint: "[path to test-strategy-final.md or backlog-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: test
@@ -32,13 +32,13 @@ Generate a test plan from test strategy and requirements/design artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Test strategy (final) | Yes | `test/final/test-strategy-final.md` or user-specified path |
-| Backlog (final) | Yes | `req/final/backlog-final.md` or user-specified path |
-| User stories (final) | No | `req/final/userstories-final.md` -- story count for effort estimation |
-| DoR/DoD (final) | No | `req/final/dor-dod-final.md` -- DoD criteria for exit criteria alignment |
-| Architecture (final) | No | `design/final/architecture-final.md` -- component boundaries for integration test phases |
-| Scope (final) | No | `init/final/scope-final.md` -- quality attributes for NFR test scheduling |
-| Risk register (final) | No | `init/final/risk-register-final.md` -- risk-based scheduling |
+| Test strategy (final) | Yes | `sdlc/test/final/test-strategy-final.md` or user-specified path |
+| Backlog (final) | Yes | `sdlc/req/final/backlog-final.md` or user-specified path |
+| User stories (final) | No | `sdlc/req/final/userstories-final.md` -- story count for effort estimation |
+| DoR/DoD (final) | No | `sdlc/req/final/dor-dod-final.md` -- DoD criteria for exit criteria alignment |
+| Architecture (final) | No | `sdlc/design/final/architecture-final.md` -- component boundaries for integration test phases |
+| Scope (final) | No | `sdlc/init/final/scope-final.md` -- quality attributes for NFR test scheduling |
+| Risk register (final) | No | `sdlc/init/final/risk-register-final.md` -- risk-based scheduling |
 
 ### Mode 2: Refine (`/test-plan-refine`)
 
@@ -46,8 +46,8 @@ Improve existing test plan based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing plan draft | Yes | `draft/test-plan-draft.md` or `draft/test-plan-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing plan draft | Yes | `sdlc/test/draft/test-plan-draft.md` or `sdlc/test/draft/test-plan-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/test/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -56,10 +56,10 @@ Improve existing test plan based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `test-plan-draft.md` | `draft/` |
-| Refine | `test-plan-v{N}.md` | `draft/` (N = next version number) |
+| Create | `test-plan-draft.md` | `sdlc/test/draft/` |
+| Refine | `test-plan-v{N}.md` | `sdlc/test/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `test/final/test-plan-final.md`.
+When user is satisfied -> they copy from `sdlc/test/draft/` to `sdlc/test/final/test-plan-final.md`.
 
 ---
 
@@ -67,9 +67,9 @@ When user is satisfied -> they copy from `draft/` to `test/final/test-plan-final
 
 ### Step 1: Determine Mode
 
-- User runs `/test-plan-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/test-plan-refine` AND existing draft exists in `sdlc/test/draft/` -> **Mode 2 (Refine)**
 - User runs `/test-plan` -> **Mode 1 (Create)**
-- User runs `/test-plan` but draft already exists -> Ask: "A test plan draft already exists. Create new (overwrite) or refine existing?"
+- User runs `/test-plan` but draft already exists in `sdlc/test/draft/` -> Ask: "A test plan draft already exists. Create new (overwrite) or refine existing?"
 
 ### Step 2: Read Knowledge and Rules
 
@@ -86,49 +86,60 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/test/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/test/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/test/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/test/input/` → read the converted .md
+
+Converted files are saved to `sdlc/test/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For test strategy input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/test-strategy-final.md?        -> YES -> read it -> DONE
-3. Exists in test/final/test-strategy-final.md?   -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/test-strategy-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/test/final/test-strategy-final.md?      -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
 
 For backlog input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/backlog-final.md?              -> YES -> read it -> DONE
-3. Exists in req/final/backlog-final.md?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/backlog-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/backlog-final.md?              -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Ask: "No backlog found. Please provide a path or run /req-backlog first."
 
 For user stories (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/userstories-final.md?          -> YES -> read it -> DONE
-3. Exists in req/final/userstories-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/userstories-final.md?         -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/userstories-final.md?          -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Proceed without user stories.
 
 For DoR/DoD (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/dor-dod-final.md?              -> YES -> read it -> DONE
-3. Exists in req/final/dor-dod-final.md?          -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/dor-dod-final.md?             -> YES -> read it -> DONE
+3. Exists in sdlc/req/final/dor-dod-final.md?              -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Proceed without DoR/DoD.
 
 For architecture (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?         -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md?  -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/architecture-final.md?        -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Proceed without architecture.
 
 For scope (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?                -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?           -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/scope-final.md?               -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Proceed without scope.
 
 For risk register (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/risk-register-final.md?        -> YES -> read it -> DONE
-3. Exists in init/final/risk-register-final.md?   -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/risk-register-final.md?       -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/risk-register-final.md?       -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> Proceed without risk register.
 ```
 
@@ -136,15 +147,15 @@ For risk register (optional):
 
 ```
 For plan draft:
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                              -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?             -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                                    -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. Exists in sdlc/test/input/?                             -> YES -> read it -> DONE
+3. Exists in sdlc/test/draft/ (latest version)?            -> YES -> read it, copy to sdlc/test/input/ -> DONE
 4. Not found? -> FAIL: "No existing plan found. Run /test-plan first."
 
 For review report:
-1. User provided feedback directly in message?    -> Save to input/review-report.md
-2. User specified path?                           -> read it, copy to input/
-3. Exists in input/review-report.md?              -> read it
+1. User provided feedback directly in message?     -> Save to sdlc/test/input/review-report.md
+2. User specified path?                            -> read it, copy to sdlc/test/input/
+3. Exists in sdlc/test/input/review-report.md?    -> read it
 4. Not found? -> Ask: "What feedback do you have on the current test plan?"
 ```
 
@@ -230,7 +241,7 @@ For each section:
    - Refine risk mitigations
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/test-plan-v{N}.md`
+8. Write improved version to `sdlc/test/draft/test-plan-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -266,12 +277,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/test-plan-draft.md`
-- **Refine mode**: Write to `draft/test-plan-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/test/draft/test-plan-draft.md`
+- **Refine mode**: Write to `sdlc/test/draft/test-plan-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Test Plan {created/refined}!**
-> - Output: `draft/test-plan-{version}.md`
+> - Output: `sdlc/test/draft/test-plan-{version}.md`
 > - Readiness: {verdict}
 > - Test phases: {N} defined
 > - Entry/exit criteria: {N} entry, {N} exit
@@ -281,7 +292,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/test-plan-refine`
-> - When satisfied, copy to `test/final/test-plan-final.md`
+> - When satisfied, copy to `sdlc/test/final/test-plan-final.md`
 > - Then run `/test-cases` to create detailed test cases for each test level
 
 ---

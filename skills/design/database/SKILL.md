@@ -6,7 +6,7 @@ description: >
   Every table traces to user stories and every column to acceptance criteria.
   ONLY activated by commands: `/design-db` (create) or `/design-db-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or userstories-final.md]"
+argument-hint: "[path to architecture-final.md or userstories-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -32,12 +32,12 @@ Generate a new database schema design from architecture and requirements artifac
 
 | Input | Required | Source |
 |-------|----------|--------|
-| architecture-final.md | ✅ | `design/final/` or user-specified path |
-| tech-stack-final.md | ✅ | `design/final/` or user-specified path |
-| userstories-final.md | ✅ | `req/final/` or user-specified path |
-| scope-final.md | No | `init/final/` — quality attributes for data design |
-| epics-final.md | No | `req/final/` — feature grouping for migration phasing |
-| backlog-final.md | No | `req/final/` — MVP boundary determines v1 schema |
+| architecture-final.md | ✅ | `sdlc/design/final/` or user-specified path |
+| tech-stack-final.md | ✅ | `sdlc/design/final/` or user-specified path |
+| userstories-final.md | ✅ | `sdlc/req/final/` or user-specified path |
+| scope-final.md | No | `sdlc/init/final/` — quality attributes for data design |
+| epics-final.md | No | `sdlc/req/final/` — feature grouping for migration phasing |
+| backlog-final.md | No | `sdlc/req/final/` — MVP boundary determines v1 schema |
 
 ### Mode 2: Refine (`/design-db-refine`)
 
@@ -45,8 +45,8 @@ Improve an existing database schema document based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing database draft | ✅ | `draft/database-draft.md` or `draft/database-v{N}.md` |
-| Review report / feedback | ✅ | User provides directly or as `input/review-report.md` |
+| Existing database draft | ✅ | `sdlc/design/draft/database-draft.md` or `sdlc/design/draft/database-v{N}.md` |
+| Review report / feedback | ✅ | User provides directly or as `sdlc/design/input/review-report.md` |
 | Additional context | No | New information the user wants to incorporate |
 
 ---
@@ -55,10 +55,10 @@ Improve an existing database schema document based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `database-draft.md` | `draft/` |
-| Refine | `database-v{N}.md` | `draft/` (N = next version number) |
+| Create | `database-draft.md` | `sdlc/design/draft/` |
+| Refine | `database-v{N}.md` | `sdlc/design/draft/` (N = next version number) |
 
-When user is satisfied → they copy from `draft/` to `design/final/database-final.md`.
+When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/final/database-final.md`.
 
 ---
 
@@ -66,7 +66,7 @@ When user is satisfied → they copy from `draft/` to `design/final/database-fin
 
 ### Step 1: Determine Mode
 
-- User runs `/design-db-refine` AND existing draft exists in `draft/` → **Mode 2 (Refine)**
+- User runs `/design-db-refine` AND existing draft exists in `sdlc/design/draft/` → **Mode 2 (Refine)**
 - User runs `/design-db` → **Mode 1 (Create)**
 - User runs `/design-db` but draft already exists → Ask: "A draft already exists. Create new (overwrite) or refine existing?"
 
@@ -85,31 +85,42 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/design/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/design/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/design/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/design/input/` → read the converted .md
+
+Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For architecture-final.md (REQUIRED):
-1. User specified path? → Read it, copy to input/
-2. Exists in input/architecture-final.md? → Read it
-3. Exists in design/final/architecture-final.md? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/architecture-final.md? → Read it
+3. Exists in sdlc/design/final/architecture-final.md? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No architecture document found. Run /design-arch first."
 
 For tech-stack-final.md (REQUIRED):
-1. User specified path? → Read it, copy to input/
-2. Exists in input/tech-stack-final.md? → Read it
-3. Exists in design/final/tech-stack-final.md? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/tech-stack-final.md? → Read it
+3. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No tech stack document found. Run /design-stack first."
 
 For userstories-final.md (REQUIRED):
-1. User specified path? → Read it, copy to input/
-2. Exists in input/userstories-final.md? → Read it
-3. Exists in req/final/userstories-final.md? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/userstories-final.md? → Read it
+3. Exists in sdlc/req/final/userstories-final.md? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No user stories document found. Run /req-userstory first."
 
 For optional inputs (scope, epics, backlog):
-1. Check input/ folder first
-2. Check respective final/ folders (init/final/, req/final/)
-3. If found → copy to input/ for traceability
+1. Check sdlc/design/input/ folder first
+2. Check respective final/ folders (sdlc/init/final/, sdlc/req/final/)
+3. If found → copy to sdlc/design/input/ for traceability
 4. If not found → proceed without, note missing context in Q&A
 ```
 
@@ -117,15 +128,15 @@ For optional inputs (scope, epics, backlog):
 
 ```
 For database draft:
-1. User specified path? → Read it, copy to input/
-2. Exists in input/? → Read it
-3. Exists in draft/ (latest version)? → Read it, copy to input/
+1. User specified path? → Read it, copy to sdlc/design/input/
+2. Exists in sdlc/design/input/? → Read it
+3. Exists in sdlc/design/draft/ (latest version)? → Read it, copy to sdlc/design/input/
 4. Not found? → FAIL: "No existing database document found. Run /design-db first."
 
 For review report:
-1. User provided feedback directly in message? → Save to input/review-report.md
-2. User specified path? → Read it, copy to input/
-3. Exists in input/review-report.md? → Read it
+1. User provided feedback directly in message? → Save to sdlc/design/input/review-report.md
+2. User specified path? → Read it, copy to sdlc/design/input/
+3. Exists in sdlc/design/input/review-report.md? → Read it
 4. Not found? → Ask: "What feedback do you have on the current database design?"
 ```
 
@@ -177,7 +188,7 @@ For each section:
    - Proactively suggest improvements for weak areas
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/database-v{N}.md`
+8. Write improved version to `sdlc/design/draft/database-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -211,19 +222,19 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/database-draft.md`
-- **Refine mode**: Write to `draft/database-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/design/draft/database-draft.md`
+- **Refine mode**: Write to `sdlc/design/draft/database-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Database schema {created/refined}!**
-> - Output: `draft/database-{version}.md`
+> - Output: `sdlc/design/draft/database-{version}.md`
 > - Tables: {N} (MVP: {M}, Future: {F})
 > - Readiness: {verdict}
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/design-db-refine`
-> - When satisfied, copy to `design/final/database-final.md`
+> - When satisfied, copy to `sdlc/design/final/database-final.md`
 > - Then run `/design-api` (if not done) or `/design-adr`
 
 ---

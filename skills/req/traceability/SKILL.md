@@ -6,7 +6,7 @@ description: >
   charter objectives through epics, features, stories, and acceptance criteria.
   ONLY activated by commands: `/req-trace` (create) or `/req-trace-refine` (refine).
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to backlog-final.md]"
+argument-hint: "[path to req artifacts (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -18,7 +18,7 @@ next_phase: design-stack
 
 ## Purpose
 
-Create or refine a requirements traceability matrix (`traceability-draft.md`) and Definition of Ready/Done (`dor-dod-draft.md`). The traceability matrix verifies that every charter objective is covered by epics, every scope feature has stories, and no requirements fall through the cracks.
+Create or refine a requirements traceability matrix (`sdlc/req/draft/traceability-draft.md`) and Definition of Ready/Done (`sdlc/req/draft/dor-dod-draft.md`). The traceability matrix verifies that every charter objective is covered by epics, every scope feature has stories, and no requirements fall through the cracks.
 
 This is the last skill in the requirements phase. It produces the quality gate artifacts needed before design begins.
 
@@ -32,12 +32,12 @@ Generate traceability matrix and DoR/DoD from all artifacts.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Epics (final) | Yes | `req/final/epics-final.md` |
-| User stories (final) | Yes | `req/final/userstories-final.md` |
-| Backlog (final) | Yes | `req/final/backlog-final.md` |
-| Charter (final) | Yes | `init/final/charter-final.md` |
-| Scope (final) | Yes | `init/final/scope-final.md` |
-| Risk register (final) | No | `init/final/risk-register-final.md` |
+| Epics (final) | Yes | `sdlc/req/final/epics-final.md` |
+| User stories (final) | Yes | `sdlc/req/final/userstories-final.md` |
+| Backlog (final) | Yes | `sdlc/req/final/backlog-final.md` |
+| Charter (final) | Yes | `sdlc/init/final/charter-final.md` |
+| Scope (final) | Yes | `sdlc/init/final/scope-final.md` |
+| Risk register (final) | No | `sdlc/init/final/risk-register-final.md` |
 
 ### Mode 2: Refine (`/req-trace-refine`)
 
@@ -45,9 +45,9 @@ Improve existing traceability and DoR/DoD based on feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing traceability draft | Yes | `draft/traceability-draft.md` or versioned |
-| Existing DoR/DoD draft | Yes | `draft/dor-dod-draft.md` or versioned |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing traceability draft | Yes | `sdlc/req/draft/traceability-draft.md` or versioned |
+| Existing DoR/DoD draft | Yes | `sdlc/req/draft/dor-dod-draft.md` or versioned |
+| Review report / feedback | Yes | User provides directly or as `sdlc/req/input/review-report.md` |
 
 ---
 
@@ -55,12 +55,12 @@ Improve existing traceability and DoR/DoD based on feedback.
 
 | Mode | Output Files | Location |
 |------|-------------|----------|
-| Create | `traceability-draft.md` + `dor-dod-draft.md` | `draft/` |
-| Refine | `traceability-v{N}.md` + `dor-dod-v{N}.md` | `draft/` |
+| Create | `traceability-draft.md` + `dor-dod-draft.md` | `sdlc/req/draft/` |
+| Refine | `traceability-v{N}.md` + `dor-dod-v{N}.md` | `sdlc/req/draft/` |
 
-When user is satisfied -> they copy both files to `req/final/`:
-- `req/final/traceability-final.md`
-- `req/final/dor-dod-final.md`
+When user is satisfied -> they copy both files to `sdlc/req/final/`:
+- `sdlc/req/final/traceability-final.md`
+- `sdlc/req/final/dor-dod-final.md`
 
 ---
 
@@ -85,16 +85,27 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/req/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/req/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/req/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/req/input/` → read the converted .md
+
+Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 This skill has the most inputs (5-6 files). Resolve each independently:
 
 ```
 For each required input:
-1. User specified path?     -> read, copy to input/ -> DONE
-2. Exists in own input/?    -> read -> DONE
-3. Exists in req/final/ or init/final/ (as appropriate)?
-                            -> read, copy to input/ -> DONE
+1. User specified path?     -> read, copy to sdlc/req/input/ -> DONE
+2. Exists in own sdlc/req/input/?    -> read -> DONE
+3. Exists in sdlc/req/final/ or sdlc/init/final/ (as appropriate)?
+                            -> read, copy to sdlc/req/input/ -> DONE
 4. Not found? -> Ask user to provide or run the prerequisite skill.
 
 If charter or scope is missing, FAIL — traceability requires source documents.
@@ -170,7 +181,7 @@ Validate both output files against rules. Generate readiness assessment for the 
 
 Tell the user:
 > **Traceability {created/refined}!**
-> - Outputs: `draft/traceability-{version}.md` + `draft/dor-dod-{version}.md`
+> - Outputs: `sdlc/req/draft/traceability-{version}.md` + `sdlc/req/draft/dor-dod-{version}.md`
 > - Readiness: {verdict}
 > - Coverage: {pct}% objectives, {pct}% features
 > - Gaps found: {N}
@@ -178,9 +189,9 @@ Tell the user:
 >
 > **Next steps:**
 > - Review both outputs and provide feedback via `/req-trace-refine`
-> - When satisfied, copy both to `req/final/`:
->   - `req/final/traceability-final.md`
->   - `req/final/dor-dod-final.md`
+> - When satisfied, copy both to `sdlc/req/final/`:
+>   - `sdlc/req/final/traceability-final.md`
+>   - `sdlc/req/final/dor-dod-final.md`
 > - Requirements phase complete! Run `/design-stack` to start design
 
 ---

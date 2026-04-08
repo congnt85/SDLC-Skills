@@ -5,7 +5,7 @@ description: >
   observability strategy — what to monitor, alert thresholds, dashboards, log
   aggregation, and distributed tracing. ONLY activated by commands: `/ops-monitor`
   (create) or `/ops-monitor-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to env-spec-final.md or architecture-final.md]"
+argument-hint: "[path to env-spec-final.md or architecture-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -31,11 +31,11 @@ Generate a monitoring plan from environment specification and architecture artif
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Environment spec (final) | Yes | `deploy/final/env-spec-final.md` or user-specified path |
-| Architecture (final) | Yes | `design/final/architecture-final.md` or user-specified path |
-| Tech stack (final) | No | `design/final/tech-stack-final.md` — monitoring tools (Datadog, Prometheus, etc.) |
-| Scope (final) | No | `init/final/scope-final.md` — quality attributes for SLO-based alert thresholds |
-| Risk register (final) | No | `init/final/risk-register-final.md` — failure scenarios to monitor |
+| Environment spec (final) | Yes | `sdlc/deploy/final/env-spec-final.md` or user-specified path |
+| Architecture (final) | Yes | `sdlc/design/final/architecture-final.md` or user-specified path |
+| Tech stack (final) | No | `sdlc/design/final/tech-stack-final.md` — monitoring tools (Datadog, Prometheus, etc.) |
+| Scope (final) | No | `sdlc/init/final/scope-final.md` — quality attributes for SLO-based alert thresholds |
+| Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — failure scenarios to monitor |
 
 ### Mode 2: Refine (`/ops-monitor-refine`)
 
@@ -43,8 +43,8 @@ Improve existing monitoring plan based on user feedback.
 
 | Input | Required | Source |
 |-------|----------|--------|
-| Existing monitoring plan draft | Yes | `draft/monitoring-plan-draft.md` or `draft/monitoring-plan-v{N}.md` |
-| Review report / feedback | Yes | User provides directly or as `input/review-report.md` |
+| Existing monitoring plan draft | Yes | `sdlc/ops/draft/monitoring-plan-draft.md` or `sdlc/ops/draft/monitoring-plan-v{N}.md` |
+| Review report / feedback | Yes | User provides directly or as `sdlc/ops/input/review-report.md` |
 | Additional details | No | New information the user wants to add |
 
 ---
@@ -53,10 +53,10 @@ Improve existing monitoring plan based on user feedback.
 
 | Mode | Output File | Location |
 |------|------------|----------|
-| Create | `monitoring-plan-draft.md` | `draft/` |
-| Refine | `monitoring-plan-v{N}.md` | `draft/` (N = next version number) |
+| Create | `monitoring-plan-draft.md` | `sdlc/ops/draft/` |
+| Refine | `monitoring-plan-v{N}.md` | `sdlc/ops/draft/` (N = next version number) |
 
-When user is satisfied -> they copy from `draft/` to `ops/final/monitoring-plan-final.md`.
+When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/monitoring-plan-final.md`.
 
 ---
 
@@ -64,7 +64,7 @@ When user is satisfied -> they copy from `draft/` to `ops/final/monitoring-plan-
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-monitor-refine` AND existing draft exists in `draft/` -> **Mode 2 (Refine)**
+- User runs `/ops-monitor-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
 - User runs `/ops-monitor` -> **Mode 1 (Create)**
 - User runs `/ops-monitor` but draft already exists -> Ask: "A monitoring plan draft already exists. Create new (overwrite) or refine existing?"
 
@@ -82,37 +82,48 @@ Read these files in order:
 
 ### Step 3: Resolve Input
 
+**File Type Conversion** (applies to all file inputs):
+
+Before reading any input file, check its extension:
+- `.md` → Read directly, no conversion needed
+- `.pdf` → Run `/read-pdf <path> sdlc/ops/input/` → read the converted .md
+- `.docx` / `.doc` → Run `/read-word <path> sdlc/ops/input/` → read the converted .md
+- `.xlsx` / `.xls` → Run `/read-excel <path> sdlc/ops/input/` → read the converted .md
+- `.pptx` / `.ppt` → Run `/read-ppt <path> sdlc/ops/input/` → read the converted .md
+
+Converted files are saved to `sdlc/ops/input/`. If a converted .md already exists and is newer than the source, skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For environment spec input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/env-spec-final.md?             -> YES -> read it -> DONE
-3. Exists in deploy/final/env-spec-final.md?      -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/env-spec-final.md?      -> YES -> read it -> DONE
+3. Exists in sdlc/deploy/final/env-spec-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Ask: "No environment specification found. Please provide a path or run /deploy-env first."
 
 For architecture input (required):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/architecture-final.md?         -> YES -> read it -> DONE
-3. Exists in design/final/architecture-final.md?  -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/architecture-final.md?  -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/architecture-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Ask: "No architecture document found. Please provide a path or run /design-arch first."
 
 For tech stack input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/tech-stack-final.md?           -> YES -> read it -> DONE
-3. Exists in design/final/tech-stack-final.md?    -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/tech-stack-final.md?    -> YES -> read it -> DONE
+3. Exists in sdlc/design/final/tech-stack-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without tech stack document.
 
 For scope input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/scope-final.md?                -> YES -> read it -> DONE
-3. Exists in init/final/scope-final.md?           -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/scope-final.md?         -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/scope-final.md?         -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without scope document.
 
 For risk register input (optional):
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/risk-register-final.md?        -> YES -> read it -> DONE
-3. Exists in init/final/risk-register-final.md?   -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/risk-register-final.md? -> YES -> read it -> DONE
+3. Exists in sdlc/init/final/risk-register-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> Proceed without risk register document.
 ```
 
@@ -120,15 +131,15 @@ For risk register input (optional):
 
 ```
 For monitoring plan draft:
-1. User specified path?                           -> YES -> read it, copy to input/ -> DONE
-2. Exists in input/?                              -> YES -> read it -> DONE
-3. Exists in draft/ (latest version)?             -> YES -> read it, copy to input/ -> DONE
+1. User specified path?                           -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+2. Exists in sdlc/ops/input/?                     -> YES -> read it -> DONE
+3. Exists in sdlc/ops/draft/ (latest version)?    -> YES -> read it, copy to sdlc/ops/input/ -> DONE
 4. Not found? -> FAIL: "No existing monitoring plan draft found. Run /ops-monitor first."
 
 For review report:
-1. User provided feedback directly in message?    -> Save to input/review-report.md
-2. User specified path?                           -> read it, copy to input/
-3. Exists in input/review-report.md?              -> read it
+1. User provided feedback directly in message?    -> Save to sdlc/ops/input/review-report.md
+2. User specified path?                           -> read it, copy to sdlc/ops/input/
+3. Exists in sdlc/ops/input/review-report.md?    -> read it
 4. Not found? -> Ask: "What feedback do you have on the current monitoring plan?"
 ```
 
@@ -208,7 +219,7 @@ For each section:
    - Update dashboards and on-call setup as needed
 6. Tag all changes: `[UPDATED]` for modified items, `[NEW]` for additions
 7. Preserve CONFIRMED items unless user explicitly contradicts them
-8. Write improved version to `draft/monitoring-plan-v{N}.md`
+8. Write improved version to `sdlc/ops/draft/monitoring-plan-v{N}.md`
 
 ### Step 5: Validate Output
 
@@ -238,12 +249,12 @@ Generate assessment per `skills/shared/templates/readiness-assessment.md`:
 
 ### Step 7: Output
 
-- **Create mode**: Write to `draft/monitoring-plan-draft.md`
-- **Refine mode**: Write to `draft/monitoring-plan-v{N}.md`, include Change Log and Diff Summary
+- **Create mode**: Write to `sdlc/ops/draft/monitoring-plan-draft.md`
+- **Refine mode**: Write to `sdlc/ops/draft/monitoring-plan-v{N}.md`, include Change Log and Diff Summary
 
 Tell the user:
 > **Monitoring Plan {created/refined}!**
-> - Output: `draft/monitoring-plan-{version}.md`
+> - Output: `sdlc/ops/draft/monitoring-plan-{version}.md`
 > - Readiness: {verdict}
 > - Alerts: {count} (Critical: {C}, Warning: {W}, Info: {I})
 > - Dashboards: {count}
@@ -253,7 +264,7 @@ Tell the user:
 >
 > **Next steps:**
 > - Review the output and provide feedback via `/ops-monitor-refine`
-> - When satisfied, copy to `ops/final/monitoring-plan-final.md`
+> - When satisfied, copy to `sdlc/ops/final/monitoring-plan-final.md`
 > - Then run `/ops-incident` to define incident response procedures
 
 ---
