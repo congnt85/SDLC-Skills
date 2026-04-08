@@ -6,7 +6,7 @@ description: >
   Mermaid notation. Maps quality attributes to architectural decisions.
   ONLY activated by command: `/design-arch`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to tech-stack-final.md or scope-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: design
@@ -98,26 +98,29 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For tech-stack-final.md (REQUIRED):
-1. User specified path? → Read it, copy to sdlc/design/input/
-2. Exists in sdlc/design/input/tech-stack-final.md? → Read it
-3. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
+1. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
+2. User specified a different path? → Read it, convert if needed
+3. Exists in sdlc/design/input/tech-stack-final.md? → Read it
 4. Not found? → FAIL: "No tech stack document found. Run /design-stack first."
 
 For scope-final.md (REQUIRED):
-1. User specified path? → Read it, copy to sdlc/design/input/
-2. Exists in sdlc/design/input/scope-final.md? → Read it
-3. Exists in sdlc/init/final/scope-final.md? → Read it, copy to sdlc/design/input/
+1. Exists in sdlc/init/final/scope-final.md? → Read it, copy to sdlc/design/input/
+2. User specified a different path? → Read it, convert if needed
+3. Exists in sdlc/design/input/scope-final.md? → Read it
 4. Not found? → FAIL: "No scope document found. Run /init-scope first."
 
 For optional inputs (charter, epics, userstories, backlog, risk-register):
-1. Check sdlc/design/input/ folder first
-2. Check respective final/ folders (sdlc/init/final/, sdlc/req/final/)
-3. If found → copy to sdlc/design/input/ for traceability
-4. If not found → proceed without, note missing context in Q&A
+1. Check respective final/ folders first (sdlc/init/final/, sdlc/req/final/)
+2. User specified a different path? → Read it, convert if needed
+3. Check sdlc/design/input/ folder
+4. If found → copy to sdlc/design/input/ for traceability
+5. If not found → proceed without, note missing context in Q&A
 ```
 
 **Mode 2 (Refine):**

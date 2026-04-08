@@ -5,7 +5,7 @@ description: >
   roles, escalation matrix, communication plan, and post-incident review
   process. ONLY activated by command: `/ops-incident`. Use `--create` or
   `--refine` to set mode. NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to monitoring-plan-final.md or env-spec-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -95,43 +95,45 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/ops/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For monitoring plan input (required):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/monitoring-plan-final.md?   -> YES -> read it -> DONE
-3. Exists in sdlc/ops/final/monitoring-plan-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/ops/final/monitoring-plan-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/monitoring-plan-final.md?      -> YES -> read it -> DONE
 4. Not found? -> Ask: "No monitoring plan found. Please provide a path or run /ops-monitor first."
 
 For environment spec input (required):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/env-spec-final.md?          -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/env-spec-final.md?       -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/deploy/final/env-spec-final.md?         -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/env-spec-final.md?             -> YES -> read it -> DONE
 4. Not found? -> Ask: "No environment spec found. Please provide a path or run /deploy-env first."
 
 For architecture input (optional):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/architecture-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/architecture-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/design/final/architecture-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/architecture-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Proceed without architecture document.
 
 For scope input (optional):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/scope-final.md?             -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/scope-final.md?             -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/scope-final.md?                -> YES -> read it -> DONE
 4. Not found? -> Proceed without scope document.
 
 For charter input (optional):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/charter-final.md?           -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/charter-final.md?           -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/charter-final.md?              -> YES -> read it -> DONE
 4. Not found? -> Proceed without charter document.
 
 For release plan input (optional):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/release-plan-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/release-plan-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/deploy/final/release-plan-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/release-plan-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Proceed without release plan document.
 ```
 

@@ -7,7 +7,7 @@ description: >
   and NFR test cases.
   ONLY activated by command: `/test-cases`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to userstories-final.md or api-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: test
@@ -99,10 +99,65 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/test/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
-**Input resolution priority** (for each input file):
-1. User-specified path (from command argument)
-2. Own `sdlc/test/input/` directory
-3. Previous skill's final directory (sdlc/req/final/, sdlc/design/final/, sdlc/test/final/, sdlc/init/final/)
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
+**Mode 1 (Create) — Input resolution priority** (for each input file):
+
+```
+For userstories input (required):
+1. Exists in sdlc/req/final/userstories-final.md?          -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/userstories-final.md?          -> YES -> read it -> DONE
+4. Not found? -> STOP: "No user stories found. Please provide a path or run /req-userstory first."
+
+For api input (required):
+1. Exists in sdlc/design/final/api-final.md?               -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/api-final.md?                  -> YES -> read it -> DONE
+4. Not found? -> STOP: "No API design found. Please provide a path or run /design-api first."
+
+For test-strategy (optional):
+1. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/test-strategy-final.md?        -> YES -> read it -> DONE
+4. Not found? -> Proceed without test strategy.
+
+For test-plan (optional):
+1. Exists in sdlc/test/final/test-plan-final.md?           -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/test-plan-final.md?            -> YES -> read it -> DONE
+4. Not found? -> Proceed without test plan.
+
+For database (optional):
+1. Exists in sdlc/design/final/database-final.md?          -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/database-final.md?             -> YES -> read it -> DONE
+4. Not found? -> Proceed without database design.
+
+For architecture (optional):
+1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/architecture-final.md?         -> YES -> read it -> DONE
+4. Not found? -> Proceed without architecture.
+
+For scope (optional):
+1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/scope-final.md?                -> YES -> read it -> DONE
+4. Not found? -> Proceed without scope.
+
+For backlog (optional):
+1. Exists in sdlc/req/final/backlog-final.md?              -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/backlog-final.md?              -> YES -> read it -> DONE
+4. Not found? -> Proceed without backlog.
+
+For risk register (optional):
+1. Exists in sdlc/init/final/risk-register-final.md?       -> YES -> read it, copy to sdlc/test/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/test/input/ -> DONE
+3. Exists in sdlc/test/input/risk-register-final.md?        -> YES -> read it -> DONE
+4. Not found? -> Proceed without risk register.
+```
 
 **Actions**:
 - Locate each input file using priority order above

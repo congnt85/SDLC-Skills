@@ -7,7 +7,7 @@ description: >
   Produces a structured project charter document.
   ONLY activated by command: `/init-charter`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [project idea or path to input file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine [project idea or input file]"
 version: "1.0"
 category: sdlc
 phase: init
@@ -98,6 +98,8 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/init/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
@@ -110,9 +112,9 @@ Converted files are saved to `sdlc/init/input/`. If a converted .md already exis
 
 ```
 For charter draft:
-1. User specified path? → Read it, copy to sdlc/init/input/
-2. Exists in sdlc/init/input/? → Read it
-3. Exists in sdlc/init/draft/ (latest version)? → Read it, copy to sdlc/init/input/
+1. Exists in sdlc/init/draft/ (latest version)? → Read it → DONE
+2. User specified a different path?              → Read it, copy to sdlc/init/input/ → DONE
+3. Exists in sdlc/init/input/?                   → Read it → DONE
 4. Not found? → FAIL: "No existing charter found. Run /init-charter first."
 
 For review report:

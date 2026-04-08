@@ -7,7 +7,7 @@ description: >
   development practices.
   ONLY activated by command: `/impl-workflow`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to tech-stack-final.md or test-strategy-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -98,43 +98,45 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For tech-stack input (required):
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/tech-stack-final.md?          -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/tech-stack-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/design/final/tech-stack-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/tech-stack-final.md?           -> YES -> read it -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For test-strategy input (required):
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/test-strategy-final.md?       -> YES -> read it -> DONE
-3. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/test/final/test-strategy-final.md?       -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/test-strategy-final.md?        -> YES -> read it -> DONE
 4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
 
 For architecture input (optional):
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/architecture-final.md?        -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/architecture-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Proceed without architecture.
 
 For DoR/DoD input (optional):
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/dor-dod-final.md?             -> YES -> read it -> DONE
-3. Exists in sdlc/impl/final/dor-dod-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/impl/final/dor-dod-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/dor-dod-final.md?              -> YES -> read it -> DONE
 4. Not found? -> Proceed without DoR/DoD.
 
 For charter input (optional):
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/charter-final.md?             -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/charter-final.md?              -> YES -> read it -> DONE
 4. Not found? -> Proceed without charter.
 
 For codegen plan input (optional):
-1. User specified path?                                    -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/codegen-plan-final.md?        -> YES -> read it -> DONE
-3. Exists in sdlc/impl/final/codegen-plan-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/impl/final/codegen-plan-final.md?        -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/codegen-plan-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Proceed without codegen plan.
 ```
 

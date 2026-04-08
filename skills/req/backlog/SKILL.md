@@ -6,7 +6,7 @@ description: >
   and velocity-based capacity validation. Marks the MVP boundary.
   ONLY activated by command: `/req-backlog`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to userstories file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: req
@@ -95,21 +95,34 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For userstories input (required):
-1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
-2. Exists in sdlc/req/input/userstories-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/req/final/userstories-final.md? -> YES -> read it, copy to sdlc/req/input/ -> DONE
-4. Not found? -> Ask: "No user stories found. Run /req-userstory first."
+1. Exists in sdlc/req/final/userstories-final.md? -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/userstories-final.md?  -> YES -> read it -> DONE
+4. Not found? -> Ask: "No user stories found. Run /req-userstory first or provide a path."
 
 For epics input (required):
-1-3. Standard resolution from sdlc/req/final/
-4. Not found? -> Ask: "No epics found. Run /req-epic first."
+1. Exists in sdlc/req/final/epics-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/epics-final.md?      -> YES -> read it -> DONE
+4. Not found? -> Ask: "No epics found. Run /req-epic first or provide a path."
 
-For scope and charter (optional):
-Standard resolution from sdlc/init/final/. Proceed without if not found.
+For scope input (optional):
+1. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/scope-final.md?      -> YES -> read it -> DONE
+4. Not found? -> Proceed without scope validation.
+
+For charter input (optional):
+1. Exists in sdlc/init/final/charter-final.md?  -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/charter-final.md?    -> YES -> read it -> DONE
+4. Not found? -> Proceed without charter constraints.
 ```
 
 **Mode 2 (Refine):** Standard refine input resolution.

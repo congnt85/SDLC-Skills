@@ -6,7 +6,7 @@ description: >
   scoring, risk categorization, heat maps, and monitoring plans.
   ONLY activated by command: `/init-risk`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: init
@@ -95,19 +95,21 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/init/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For charter input (required):
-1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
-2. Exists in sdlc/init/input/charter-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/charter-final.md? -> YES -> read it, copy to sdlc/init/input/ -> DONE
-4. Not found? -> Ask: "No charter found. Please provide a charter path or run /init-charter first."
+1. Exists in sdlc/init/final/charter-final.md?  -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/init/input/charter-final.md?   -> YES -> read it -> DONE
+4. Not found? -> Ask: "No charter found. Please provide a path or run /init-charter first."
 
 For scope input (optional but recommended):
-1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
-2. Exists in sdlc/init/input/scope-final.md?   -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/scope-final.md?   -> YES -> read it, copy to sdlc/init/input/ -> DONE
+1. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/init/input/scope-final.md?     -> YES -> read it -> DONE
 4. Not found? -> Warn: "No scope document found. Risk register will be based on charter only. Run /init-scope for a more comprehensive risk analysis."
    Proceed without scope.
 ```
@@ -116,9 +118,9 @@ For scope input (optional but recommended):
 
 ```
 For risk register draft:
-1. User specified path?                        -> YES -> read it, copy to sdlc/init/input/ -> DONE
-2. Exists in sdlc/init/input/?                 -> YES -> read it -> DONE
-3. Exists in sdlc/init/draft/ (latest version)? -> YES -> read it, copy to sdlc/init/input/ -> DONE
+1. Exists in sdlc/init/draft/ (latest version)? -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, copy to sdlc/init/input/ -> DONE
+3. Exists in sdlc/init/input/?                   -> YES -> read it -> DONE
 4. Not found? -> FAIL: "No existing risk register found. Run /init-risk first."
 
 For review report:

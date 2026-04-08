@@ -6,7 +6,7 @@ description: >
   charter objectives through epics, features, stories, and acceptance criteria.
   ONLY activated by command: `/req-trace`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to req artifacts (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: req
@@ -99,20 +99,48 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 This skill has the most inputs (5-6 files). Resolve each independently:
 
 ```
-For each required input:
-1. User specified path?     -> read, copy to sdlc/req/input/ -> DONE
-2. Exists in own sdlc/req/input/?    -> read -> DONE
-3. Exists in sdlc/req/final/ or sdlc/init/final/ (as appropriate)?
-                            -> read, copy to sdlc/req/input/ -> DONE
-4. Not found? -> Ask user to provide or run the prerequisite skill.
+For epics input (required):
+1. Exists in sdlc/req/final/epics-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/epics-final.md?      -> YES -> read it -> DONE
+4. Not found? -> Ask: "No epics found. Run /req-epic first or provide a path."
 
-If charter or scope is missing, FAIL — traceability requires source documents.
-If risk register is missing, proceed without risk-to-story tracing.
+For userstories input (required):
+1. Exists in sdlc/req/final/userstories-final.md? -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/userstories-final.md?  -> YES -> read it -> DONE
+4. Not found? -> Ask: "No user stories found. Run /req-userstory first or provide a path."
+
+For backlog input (required):
+1. Exists in sdlc/req/final/backlog-final.md?  -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/backlog-final.md?    -> YES -> read it -> DONE
+4. Not found? -> Ask: "No backlog found. Run /req-backlog first or provide a path."
+
+For charter input (required):
+1. Exists in sdlc/init/final/charter-final.md?  -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/charter-final.md?    -> YES -> read it -> DONE
+4. Not found? -> FAIL: "No charter found. Run /init-charter first or provide a path."
+
+For scope input (required):
+1. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/scope-final.md?      -> YES -> read it -> DONE
+4. Not found? -> FAIL: "No scope found. Run /init-scope first or provide a path."
+
+For risk register (optional):
+1. Exists in sdlc/init/final/risk-register-final.md? -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/risk-register-final.md?  -> YES -> read it -> DONE
+4. Not found? -> Proceed without risk-to-story tracing.
 ```
 
 **Mode 2 (Refine):** Resolve both draft files (traceability + DoR/DoD) plus review report.

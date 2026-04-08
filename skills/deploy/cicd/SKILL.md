@@ -6,7 +6,7 @@ description: >
   deployment strategies, security scanning, and build configuration.
   ONLY activated by command: `/deploy-cicd`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to dev-workflow-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -96,43 +96,45 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/deploy/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For dev workflow input (required):
-1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/dev-workflow-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/impl/final/dev-workflow-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/impl/final/dev-workflow-final.md?        -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/dev-workflow-final.md?      -> YES -> read it -> DONE
 4. Not found? -> Ask: "No dev workflow found. Please provide a path or run /impl-workflow first."
 
 For test strategy input (required):
-1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/test-strategy-final.md?     -> YES -> read it -> DONE
-3. Exists in sdlc/test/final/test-strategy-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/test/final/test-strategy-final.md?      -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/test-strategy-final.md?     -> YES -> read it -> DONE
 4. Not found? -> Ask: "No test strategy found. Please provide a path or run /test-strategy first."
 
 For tech stack input (required):
-1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/tech-stack-final.md?        -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/tech-stack-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/design/final/tech-stack-final.md?       -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/tech-stack-final.md?        -> YES -> read it -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For architecture input (optional):
-1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/architecture-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/architecture-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/design/final/architecture-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/architecture-final.md?      -> YES -> read it -> DONE
 4. Not found? -> Proceed without architecture document.
 
 For codegen plan input (optional):
-1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/codegen-plan-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/impl/final/codegen-plan-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/impl/final/codegen-plan-final.md?       -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/codegen-plan-final.md?      -> YES -> read it -> DONE
 4. Not found? -> Proceed without codegen plan.
 
 For DoR/DoD input (optional):
-1. User specified path?                             -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/dor-dod-final.md?           -> YES -> read it -> DONE
-3. Exists in sdlc/impl/final/dor-dod-final.md?      -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/impl/final/dor-dod-final.md?            -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/dor-dod-final.md?           -> YES -> read it -> DONE
 4. Not found? -> Proceed without DoR/DoD.
 ```
 

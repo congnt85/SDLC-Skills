@@ -6,7 +6,7 @@ description: >
   and release calendar. Maps releases to backlog milestones (MVP, R2, R3).
   ONLY activated by command: `/deploy-release`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -96,23 +96,46 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/deploy/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For cicd-pipeline input (required):
-1. User specified path?                              -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/cicd-pipeline-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/deploy/final/cicd-pipeline-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/cicd-pipeline-final.md?     -> YES -> read it -> DONE
 4. Not found? -> Ask: "No CI/CD pipeline found. Run /deploy-cicd first."
 
 For backlog input (required):
-1. User specified path?                              -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/backlog-final.md?     -> YES -> read it -> DONE
-3. Exists in sdlc/req/final/backlog-final.md?        -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/req/final/backlog-final.md?              -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/backlog-final.md?           -> YES -> read it -> DONE
 4. Not found? -> Ask: "No backlog found. Run /req-backlog first."
 
-For dev-workflow, charter, dor-dod, scope (optional):
-Standard resolution from respective sdlc/<phase>/final/ directories. Proceed without if not found.
+For dev-workflow (optional):
+1. Exists in sdlc/impl/final/dev-workflow-final.md?        -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/dev-workflow-final.md?      -> YES -> read it -> DONE
+4. Not found? -> Proceed without dev-workflow.
+
+For charter (optional):
+1. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/charter-final.md?           -> YES -> read it -> DONE
+4. Not found? -> Proceed without charter.
+
+For dor-dod (optional):
+1. Exists in sdlc/req/final/dor-dod-final.md?              -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/dor-dod-final.md?           -> YES -> read it -> DONE
+4. Not found? -> Proceed without DoR/DoD.
+
+For scope (optional):
+1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/scope-final.md?             -> YES -> read it -> DONE
+4. Not found? -> Proceed without scope.
 ```
 
 **Mode 2 (Refine):** Standard refine input resolution (drafts in `sdlc/deploy/draft/`, input in `sdlc/deploy/input/`).

@@ -5,7 +5,7 @@ description: >
   observability strategy — what to monitor, alert thresholds, dashboards, log
   aggregation, and distributed tracing. ONLY activated by command: `/ops-monitor`.
   Use `--create` or `--refine` to set mode. NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to env-spec-final.md or architecture-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -94,37 +94,39 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/ops/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For environment spec input (required):
-1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/env-spec-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/env-spec-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/deploy/final/env-spec-final.md?         -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/env-spec-final.md?             -> YES -> read it -> DONE
 4. Not found? -> Ask: "No environment specification found. Please provide a path or run /deploy-env first."
 
 For architecture input (required):
-1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/architecture-final.md?  -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/architecture-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/design/final/architecture-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/architecture-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Ask: "No architecture document found. Please provide a path or run /design-arch first."
 
-For tech stack input (optional):
-1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/tech-stack-final.md?    -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/tech-stack-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-4. Not found? -> Proceed without tech stack document.
-
-For scope input (optional):
-1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/scope-final.md?         -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/scope-final.md?         -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+For scope input (optional — quality attributes for SLO-based alert thresholds):
+1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/scope-final.md?                -> YES -> read it -> DONE
 4. Not found? -> Proceed without scope document.
 
+For tech stack input (optional):
+1. Exists in sdlc/design/final/tech-stack-final.md?       -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/tech-stack-final.md?           -> YES -> read it -> DONE
+4. Not found? -> Proceed without tech stack document.
+
 For risk register input (optional):
-1. User specified path?                              -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/risk-register-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/risk-register-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/init/final/risk-register-final.md?      -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/risk-register-final.md?        -> YES -> read it -> DONE
 4. Not found? -> Proceed without risk register document.
 ```
 

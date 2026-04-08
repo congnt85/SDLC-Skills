@@ -6,7 +6,7 @@ description: >
   implementable stories for each persona, including NFR and spike stories.
   ONLY activated by command: `/req-userstory`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to epics file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: req
@@ -96,23 +96,27 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/req/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For epics input (required):
-1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
-2. Exists in sdlc/req/input/epics-final.md?    -> YES -> read it -> DONE
-3. Exists in sdlc/req/final/epics-final.md?    -> YES -> read it, copy to sdlc/req/input/ -> DONE
-4. Not found? -> Ask: "No epics found. Please provide a path or run /req-epic first."
+1. Exists in sdlc/req/final/epics-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/epics-final.md?      -> YES -> read it -> DONE
+4. Not found? -> Ask: "No epics found. Run /req-epic first or provide a path."
 
 For scope input (required):
-1. User specified path?                        -> YES -> read it, copy to sdlc/req/input/ -> DONE
-2. Exists in sdlc/req/input/scope-final.md?    -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it, copy to sdlc/req/input/ -> DONE
-4. Not found? -> Ask: "No scope found. Please provide a path or run /init-scope first."
+1. Exists in sdlc/init/final/scope-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/scope-final.md?      -> YES -> read it -> DONE
+4. Not found? -> Ask: "No scope found. Run /init-scope first or provide a path."
 
 For risk register (optional):
-1-3. Standard resolution from sdlc/init/final/
+1. Exists in sdlc/init/final/risk-register-final.md? -> YES -> read it -> DONE
+2. User specified a different path?              -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/req/input/risk-register-final.md?  -> YES -> read it -> DONE
 4. Not found? -> Proceed without spike stories.
 ```
 

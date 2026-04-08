@@ -6,7 +6,7 @@ description: >
   networking, security, scaling policies, backup/DR, and cost estimation for all
   environments. ONLY activated by command: `/deploy-env`. Use `--create` or
   `--refine` to set mode. NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -97,49 +97,51 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/deploy/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For architecture input (required):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/architecture-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/architecture-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/design/final/architecture-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/architecture-final.md?      -> YES -> read it -> DONE
 4. Not found? -> Ask: "No architecture document found. Please provide a path or run /design-arch first."
 
 For tech stack input (required):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/tech-stack-final.md?   -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/tech-stack-final.md?   -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/design/final/tech-stack-final.md?       -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/tech-stack-final.md?        -> YES -> read it -> DONE
 4. Not found? -> Ask: "No tech stack found. Please provide a path or run /design-stack first."
 
 For CI/CD pipeline input (required):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/cicd-pipeline-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/deploy/final/cicd-pipeline-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/cicd-pipeline-final.md?     -> YES -> read it -> DONE
 4. Not found? -> Ask: "No CI/CD pipeline found. Please provide a path or run /deploy-cicd first."
 
 For scope input (optional):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/scope-final.md?        -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/scope-final.md?           -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/init/final/scope-final.md?               -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/scope-final.md?             -> YES -> read it -> DONE
 4. Not found? -> Proceed without scope document.
 
 For charter input (optional):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/charter-final.md?      -> YES -> read it -> DONE
-3. Exists in sdlc/init/final/charter-final.md?         -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/charter-final.md?           -> YES -> read it -> DONE
 4. Not found? -> Proceed without charter document.
 
 For database design input (optional):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/database-final.md?     -> YES -> read it -> DONE
-3. Exists in sdlc/design/final/database-final.md?     -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/design/final/database-final.md?         -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/database-final.md?          -> YES -> read it -> DONE
 4. Not found? -> Proceed without database document.
 
 For test plan input (optional):
-1. User specified path?                                -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
-2. Exists in sdlc/deploy/input/test-plan-final.md?    -> YES -> read it -> DONE
-3. Exists in sdlc/test/final/test-plan-final.md?       -> YES -> read it, copy to sdlc/deploy/input/ -> DONE
+1. Exists in sdlc/test/final/test-plan-final.md?           -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/deploy/input/test-plan-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Proceed without test plan document.
 ```
 

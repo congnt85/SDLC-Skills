@@ -5,7 +5,7 @@ description: >
   are requested, reviewed, approved, executed, and tracked. ONLY activated by
   command: `/ops-change`. Use `--create` or `--refine` to set mode. NEVER
   auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to release-plan-final.md or cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -95,43 +95,45 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/ops/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For release plan input (required):
-1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/release-plan-final.md?     -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/release-plan-final.md?  -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/deploy/final/release-plan-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/release-plan-final.md?         -> YES -> read it -> DONE
 4. Not found? -> Ask: "No release plan found. Please provide a path or run /deploy-release first."
 
 For CI/CD pipeline input (required):
-1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/cicd-pipeline-final.md?    -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/cicd-pipeline-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/deploy/final/cicd-pipeline-final.md?    -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/cicd-pipeline-final.md?        -> YES -> read it -> DONE
 4. Not found? -> Ask: "No CI/CD pipeline document found. Please provide a path or run /deploy-cicd first."
 
 For incident response input (optional):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/incident-response-final.md? -> YES -> read it -> DONE
-3. Exists in sdlc/ops/final/incident-response-final.md? -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/ops/final/incident-response-final.md?   -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/incident-response-final.md?    -> YES -> read it -> DONE
 4. Not found? -> Proceed without incident response document.
 
 For monitoring plan input (optional):
-1. User specified path?                                 -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/monitoring-plan-final.md?   -> YES -> read it -> DONE
-3. Exists in sdlc/ops/final/monitoring-plan-final.md?   -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/ops/final/monitoring-plan-final.md?     -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/monitoring-plan-final.md?      -> YES -> read it -> DONE
 4. Not found? -> Proceed without monitoring plan document.
 
 For environment spec input (optional):
-1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/env-spec-final.md?         -> YES -> read it -> DONE
-3. Exists in sdlc/deploy/final/env-spec-final.md?      -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/deploy/final/env-spec-final.md?         -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/env-spec-final.md?             -> YES -> read it -> DONE
 4. Not found? -> Proceed without environment spec document.
 
 For SLA spec input (optional):
-1. User specified path?                                -> YES -> read it, copy to sdlc/ops/input/ -> DONE
-2. Exists in sdlc/ops/input/sla-spec-final.md?         -> YES -> read it -> DONE
-3. Exists in sdlc/ops/final/sla-spec-final.md?         -> YES -> read it, copy to sdlc/ops/input/ -> DONE
+1. Exists in sdlc/ops/final/sla-spec-final.md?            -> YES -> read it -> DONE
+2. User specified a different path?                        -> YES -> read it, convert if needed -> DONE
+3. Exists in sdlc/ops/input/sla-spec-final.md?             -> YES -> read it -> DONE
 4. Not found? -> Proceed without SLA spec document.
 ```
 

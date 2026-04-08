@@ -6,7 +6,7 @@ description: >
   stories against Definition of Ready and tasks against team velocity.
   ONLY activated by command: `/impl-sprint`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to backlog-final.md or sprint number to plan] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -99,31 +99,64 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/impl/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For backlog input (required):
-1. User specified path?                              -> YES -> read it, copy to sdlc/impl/input/ -> DONE
-2. Exists in sdlc/impl/input/backlog-final.md?       -> YES -> read it -> DONE
-3. Exists in sdlc/req/final/backlog-final.md?         -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+1. Exists in sdlc/req/final/backlog-final.md?              -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/backlog-final.md?              -> YES -> read it -> DONE
 4. Not found? -> Ask: "No backlog found. Run /req-backlog first."
 
 For userstories input (required):
-1-3. Standard resolution from sdlc/req/final/
+1. Exists in sdlc/req/final/userstories-final.md?          -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/userstories-final.md?          -> YES -> read it -> DONE
 4. Not found? -> Ask: "No user stories found. Run /req-userstory first."
 
 For dor-dod input (required):
-1-3. Standard resolution from sdlc/req/final/
+1. Exists in sdlc/req/final/dor-dod-final.md?              -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/dor-dod-final.md?              -> YES -> read it -> DONE
 4. Not found? -> Ask: "No DoR/DoD found. Run /req-trace first."
 
-For design artifacts (optional):
-Standard resolution from sdlc/design/final/. Proceed without if not found.
+For architecture (optional):
+1. Exists in sdlc/design/final/architecture-final.md?      -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/architecture-final.md?         -> YES -> read it -> DONE
+4. Not found? -> Proceed without architecture.
+
+For API (optional):
+1. Exists in sdlc/design/final/api-final.md?               -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/api-final.md?                  -> YES -> read it -> DONE
+4. Not found? -> Proceed without API design.
+
+For database (optional):
+1. Exists in sdlc/design/final/database-final.md?          -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/database-final.md?             -> YES -> read it -> DONE
+4. Not found? -> Proceed without database design.
 
 For test cases (optional):
-Standard resolution from sdlc/test/final/. Proceed without if not found.
+1. Exists in sdlc/test/final/test-cases-final.md?          -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/test-cases-final.md?           -> YES -> read it -> DONE
+4. Not found? -> Proceed without test cases.
 
-For charter and epics (optional):
-Standard resolution from sdlc/init/final/ and sdlc/req/final/. Proceed without if not found.
+For charter (optional):
+1. Exists in sdlc/init/final/charter-final.md?             -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/charter-final.md?              -> YES -> read it -> DONE
+4. Not found? -> Proceed without charter.
+
+For epics (optional):
+1. Exists in sdlc/req/final/epics-final.md?                -> YES -> read it, copy to sdlc/impl/input/ -> DONE
+2. User specified a different path?                         -> YES -> read it, convert if needed, copy to sdlc/impl/input/ -> DONE
+3. Exists in sdlc/impl/input/epics-final.md?                -> YES -> read it -> DONE
+4. Not found? -> Proceed without epics.
 ```
 
 **Mode 2 (Refine):** Standard refine input resolution.

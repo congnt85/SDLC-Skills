@@ -6,7 +6,7 @@ description: >
   consequences. Can be run multiple times — each invocation creates one ADR.
   ONLY activated by command: `/design-adr`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [decision topic or path to existing ADR] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: design
@@ -105,6 +105,8 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
@@ -121,8 +123,10 @@ For context (ALL OPTIONAL — read what exists):
    database-final.md, api-final.md
 2. Check sdlc/init/final/ for charter-final.md, scope-final.md, risk-register-final.md
 3. Check sdlc/req/final/ for userstories-final.md, backlog-final.md
-4. If found → copy to sdlc/design/input/ for traceability
-5. If not found → proceed without, note missing context
+4. User specified a different path? → Read it, convert if needed
+5. Check sdlc/design/input/ for any previously copied artifacts
+6. If found → copy to sdlc/design/input/ for traceability
+7. If not found → proceed without, note missing context
 ```
 
 **Mode 2 (Refine):**

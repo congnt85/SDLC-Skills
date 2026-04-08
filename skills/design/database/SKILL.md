@@ -6,7 +6,7 @@ description: >
   Every table traces to user stories and every column to acceptance criteria.
   ONLY activated by command: `/design-db`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "--create|--refine [path to architecture-final.md or userstories-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine"
 version: "1.0"
 category: sdlc
 phase: design
@@ -97,32 +97,35 @@ Before reading any input file, check its extension:
 
 Converted files are saved to `sdlc/design/input/`. If a converted .md already exists and is newer than the source, skip conversion.
 
+Note: Files auto-resolved from `sdlc/` pipeline are always .md and skip conversion.
+
 **Mode 1 (Create):**
 
 ```
 For architecture-final.md (REQUIRED):
-1. User specified path? → Read it, copy to sdlc/design/input/
-2. Exists in sdlc/design/input/architecture-final.md? → Read it
-3. Exists in sdlc/design/final/architecture-final.md? → Read it, copy to sdlc/design/input/
+1. Exists in sdlc/design/final/architecture-final.md? → Read it, copy to sdlc/design/input/
+2. User specified a different path? → Read it, convert if needed
+3. Exists in sdlc/design/input/architecture-final.md? → Read it
 4. Not found? → FAIL: "No architecture document found. Run /design-arch first."
 
 For tech-stack-final.md (REQUIRED):
-1. User specified path? → Read it, copy to sdlc/design/input/
-2. Exists in sdlc/design/input/tech-stack-final.md? → Read it
-3. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
+1. Exists in sdlc/design/final/tech-stack-final.md? → Read it, copy to sdlc/design/input/
+2. User specified a different path? → Read it, convert if needed
+3. Exists in sdlc/design/input/tech-stack-final.md? → Read it
 4. Not found? → FAIL: "No tech stack document found. Run /design-stack first."
 
 For userstories-final.md (REQUIRED):
-1. User specified path? → Read it, copy to sdlc/design/input/
-2. Exists in sdlc/design/input/userstories-final.md? → Read it
-3. Exists in sdlc/req/final/userstories-final.md? → Read it, copy to sdlc/design/input/
+1. Exists in sdlc/req/final/userstories-final.md? → Read it, copy to sdlc/design/input/
+2. User specified a different path? → Read it, convert if needed
+3. Exists in sdlc/design/input/userstories-final.md? → Read it
 4. Not found? → FAIL: "No user stories document found. Run /req-userstory first."
 
 For optional inputs (scope, epics, backlog):
-1. Check sdlc/design/input/ folder first
-2. Check respective final/ folders (sdlc/init/final/, sdlc/req/final/)
-3. If found → copy to sdlc/design/input/ for traceability
-4. If not found → proceed without, note missing context in Q&A
+1. Check respective final/ folders first (sdlc/init/final/, sdlc/req/final/)
+2. User specified a different path? → Read it, convert if needed
+3. Check sdlc/design/input/ folder
+4. If found → copy to sdlc/design/input/ for traceability
+5. If not found → proceed without, note missing context in Q&A
 ```
 
 **Mode 2 (Refine):**
