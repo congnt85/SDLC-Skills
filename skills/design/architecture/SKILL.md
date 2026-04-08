@@ -4,9 +4,9 @@ description: >
   Create or refine a system architecture document using C4 model diagrams.
   Defines system context, containers, components, and key workflows using
   Mermaid notation. Maps quality attributes to architectural decisions.
-  ONLY activated by commands: `/design-arch` (create) or `/design-arch-refine` (refine).
+  ONLY activated by command: `/design-arch`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to tech-stack-final.md or scope-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to tech-stack-final.md or scope-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -26,7 +26,7 @@ from scope to concrete architectural patterns and decisions.
 
 ## Two Modes
 
-### Mode 1: Create (`/design-arch`)
+### Mode 1: Create (`--create`)
 
 Generate a new architecture document from tech stack and scope artifacts.
 
@@ -40,7 +40,7 @@ Generate a new architecture document from tech stack and scope artifacts.
 | backlog-final.md | No | `sdlc/req/final/` — MVP boundary for v1 architecture scope |
 | risk-register-final.md | No | `sdlc/init/final/` — technical/integration risks |
 
-### Mode 2: Refine (`/design-arch-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve an existing architecture document based on user feedback.
 
@@ -67,9 +67,10 @@ When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/f
 
 ### Step 1: Determine Mode
 
-- User runs `/design-arch-refine` AND existing draft exists in `sdlc/design/draft/` → **Mode 2 (Refine)**
-- User runs `/design-arch` → **Mode 1 (Create)**
-- User runs `/design-arch` but draft already exists → Ask: "A draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/design/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -223,7 +224,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/design-arch-refine`
+> - Review the output and provide feedback via `/design-arch --refine`
 > - When satisfied, copy to `sdlc/design/final/architecture-final.md`
 > - Then run `/design-db` and `/design-api` (can run in parallel)
 

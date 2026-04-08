@@ -4,9 +4,9 @@ description: >
   Create or refine a test strategy document. Defines the testing approach including
   test levels (unit, integration, API, E2E), tool selection, environment requirements,
   coverage targets, NFR testing, and risk-based test prioritization.
-  ONLY activated by commands: `/test-strategy` (create) or `/test-strategy-refine` (refine).
+  ONLY activated by command: `/test-strategy`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to tech-stack-final.md or architecture-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to tech-stack-final.md or architecture-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: test
@@ -26,7 +26,7 @@ The test strategy bridges "what we built" (architecture, tech stack, APIs) and "
 
 ## Two Modes
 
-### Mode 1: Create (`/test-strategy`)
+### Mode 1: Create (`--create`)
 
 Generate a test strategy from design and requirements artifacts.
 
@@ -42,7 +42,7 @@ Generate a test strategy from design and requirements artifacts.
 | API spec (final) | No | `sdlc/design/final/api-final.md` — API test approach |
 | Database design (final) | No | `sdlc/design/final/database-final.md` — data integrity test approach |
 
-### Mode 2: Refine (`/test-strategy-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing test strategy based on user feedback.
 
@@ -69,9 +69,10 @@ When user is satisfied -> they copy from `sdlc/test/draft/` to `sdlc/test/final/
 
 ### Step 1: Determine Mode
 
-- User runs `/test-strategy-refine` AND existing draft exists in `sdlc/test/draft/` -> **Mode 2 (Refine)**
-- User runs `/test-strategy` -> **Mode 1 (Create)**
-- User runs `/test-strategy` but draft already exists in `sdlc/test/draft/` -> Ask: "A test strategy draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/test/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -301,7 +302,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/test-strategy-refine`
+> - Review the output and provide feedback via `/test-strategy --refine`
 > - When satisfied, copy to `sdlc/test/final/test-strategy-final.md`
 > - Then run `/test-plan` to create detailed test plans for each test level
 

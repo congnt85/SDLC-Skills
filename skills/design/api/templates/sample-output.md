@@ -1720,7 +1720,7 @@ The API design covers all 9 identified resources with endpoint specifications, a
 - CI builds resource marked [FUTURE] and needs clarification on MVP inclusion
 - Database entity name consistency (DES-06) cannot be fully validated without database-final.md
 
-Recommended: Run `/design-api-refine` after architecture and database reviews to upgrade assumed endpoints to confirmed.
+Recommended: Run `/design-api --refine` after architecture and database reviews to upgrade assumed endpoints to confirmed.
 
 ---
 

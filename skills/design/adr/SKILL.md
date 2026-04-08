@@ -4,9 +4,9 @@ description: >
   Create or refine Architecture Decision Records (ADRs). Documents significant
   technical decisions with context, alternatives considered, rationale, and
   consequences. Can be run multiple times — each invocation creates one ADR.
-  ONLY activated by commands: `/design-adr` (create) or `/design-adr-refine` (refine).
+  ONLY activated by command: `/design-adr`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[decision topic or path to existing ADR] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [decision topic or path to existing ADR] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -32,7 +32,7 @@ The ADR skill is different from other design skills:
 
 ## Two Modes
 
-### Mode 1: Create (`/design-adr`)
+### Mode 1: Create (`--create`)
 
 Create a new ADR for a specific architectural decision.
 
@@ -48,7 +48,7 @@ Create a new ADR for a specific architectural decision.
 | risk-register-final.md | No | `sdlc/init/final/` — risks this decision mitigates |
 | userstories-final.md | No | `sdlc/req/final/` — stories driving the decision |
 
-### Mode 2: Refine (`/design-adr-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve or update an existing ADR based on user feedback.
 
@@ -75,8 +75,10 @@ When user is satisfied → copy to `sdlc/design/final/adr/adr-{NNN}-{slug}-final
 
 ### Step 1: Determine Mode
 
-- User runs `/design-adr-refine` AND specifies or can identify an existing ADR → **Mode 2 (Refine)**
-- User runs `/design-adr` → **Mode 1 (Create)**
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/design/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -247,7 +249,7 @@ Tell the user:
 > - Decision: {short summary}
 >
 > **Next steps:**
-> - Review and provide feedback via `/design-adr-refine`
+> - Review and provide feedback via `/design-adr --refine`
 > - When approved, copy to `sdlc/design/final/adr/adr-{NNN}-{slug}-final.md`
 > - Run `/design-adr` again for additional decisions
 

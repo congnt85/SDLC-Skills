@@ -4,9 +4,9 @@ description: >
   Create or refine a detailed test plan. Defines test phases, schedule, resource
   allocation, entry/exit criteria, environment setup, and risk mitigation for
   testing activities. Maps test effort to sprints and releases.
-  ONLY activated by commands: `/test-plan` (create) or `/test-plan-refine` (refine).
+  ONLY activated by command: `/test-plan`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to test-strategy-final.md or backlog-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to test-strategy-final.md or backlog-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: test
@@ -26,7 +26,7 @@ The test plan bridges "how we test" (test strategy) and "what we test" (test cas
 
 ## Two Modes
 
-### Mode 1: Create (`/test-plan`)
+### Mode 1: Create (`--create`)
 
 Generate a test plan from test strategy and requirements/design artifacts.
 
@@ -40,7 +40,7 @@ Generate a test plan from test strategy and requirements/design artifacts.
 | Scope (final) | No | `sdlc/init/final/scope-final.md` -- quality attributes for NFR test scheduling |
 | Risk register (final) | No | `sdlc/init/final/risk-register-final.md` -- risk-based scheduling |
 
-### Mode 2: Refine (`/test-plan-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing test plan based on user feedback.
 
@@ -67,9 +67,10 @@ When user is satisfied -> they copy from `sdlc/test/draft/` to `sdlc/test/final/
 
 ### Step 1: Determine Mode
 
-- User runs `/test-plan-refine` AND existing draft exists in `sdlc/test/draft/` -> **Mode 2 (Refine)**
-- User runs `/test-plan` -> **Mode 1 (Create)**
-- User runs `/test-plan` but draft already exists in `sdlc/test/draft/` -> Ask: "A test plan draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/test/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -291,7 +292,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/test-plan-refine`
+> - Review the output and provide feedback via `/test-plan --refine`
 > - When satisfied, copy to `sdlc/test/final/test-plan-final.md`
 > - Then run `/test-cases` to create detailed test cases for each test level
 

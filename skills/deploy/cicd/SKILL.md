@@ -4,9 +4,9 @@ description: >
   Create or refine a CI/CD pipeline definition from dev-workflow, test-strategy,
   and tech-stack artifacts. Defines pipeline stages, triggers, quality gates,
   deployment strategies, security scanning, and build configuration.
-  ONLY activated by commands: `/deploy-cicd` (create) or `/deploy-cicd-refine` (refine).
+  ONLY activated by command: `/deploy-cicd`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to dev-workflow-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to dev-workflow-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -26,7 +26,7 @@ The CI/CD pipeline bridges "how we develop" (dev-workflow) and "how we ship" (de
 
 ## Two Modes
 
-### Mode 1: Create (`/deploy-cicd`)
+### Mode 1: Create (`--create`)
 
 Generate a CI/CD pipeline definition from development workflow, test strategy, and technology stack.
 
@@ -39,7 +39,7 @@ Generate a CI/CD pipeline definition from development workflow, test strategy, a
 | Codegen plan (final) | No | `sdlc/impl/final/codegen-plan-final.md` — project structure, build commands |
 | DoR/DoD (final) | No | `sdlc/impl/final/dor-dod-final.md` — DoD for deployment gates |
 
-### Mode 2: Refine (`/deploy-cicd-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing CI/CD pipeline definition based on user feedback.
 
@@ -66,9 +66,10 @@ When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/fi
 
 ### Step 1: Determine Mode
 
-- User runs `/deploy-cicd-refine` AND existing draft exists in `sdlc/deploy/draft/` -> **Mode 2 (Refine)**
-- User runs `/deploy-cicd` -> **Mode 1 (Create)**
-- User runs `/deploy-cicd` but draft already exists -> Ask: "A CI/CD pipeline draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/deploy/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -260,7 +261,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/deploy-cicd-refine`
+> - Review the output and provide feedback via `/deploy-cicd --refine`
 > - When satisfied, copy to `sdlc/deploy/final/cicd-pipeline-final.md`
 > - Then run `/deploy-release` to define the release process
 

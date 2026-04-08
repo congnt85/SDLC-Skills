@@ -4,9 +4,9 @@ description: >
   Create or refine epics (theme-level requirement groupings) from charter
   objectives and scope features. Maps business objectives to deliverable
   work themes with feature assignments, personas, and success criteria.
-  ONLY activated by commands: `/req-epic` (create) or `/req-epic-refine` (refine).
+  ONLY activated by command: `/req-epic`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine [path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -26,7 +26,7 @@ Epics bridge "what we want to achieve" (charter objectives) and "what we need to
 
 ## Two Modes
 
-### Mode 1: Create (`/req-epic`)
+### Mode 1: Create (`--create`)
 
 Generate epics from charter objectives and scope features.
 
@@ -36,7 +36,7 @@ Generate epics from charter objectives and scope features.
 | Scope (final) | Yes | `sdlc/init/final/scope-final.md` or user-specified path |
 | Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — high risks may warrant spike epics |
 
-### Mode 2: Refine (`/req-epic-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing epics based on user feedback.
 
@@ -63,9 +63,10 @@ When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/ep
 
 ### Step 1: Determine Mode
 
-- User runs `/req-epic-refine` AND existing draft exists in `sdlc/req/draft/` -> **Mode 2 (Refine)**
-- User runs `/req-epic` -> **Mode 1 (Create)**
-- User runs `/req-epic` but draft already exists -> Ask: "An epic draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/req/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -214,7 +215,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/req-epic-refine`
+> - Review the output and provide feedback via `/req-epic --refine`
 > - When satisfied, copy to `sdlc/req/final/epics-final.md`
 > - Then run `/req-userstory` to write user stories for each epic
 

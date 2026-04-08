@@ -3,9 +3,9 @@ name: ops-sla
 description: >
   Create or refine an SLA specification defining SLAs, SLOs, SLIs, and error
   budgets — translating quality attributes into measurable, trackable service
-  level targets. ONLY activated by commands: `/ops-sla` (create) or
-  `/ops-sla-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to scope-final.md or monitoring-plan-final.md] (md/pdf/docx/xlsx/pptx)"
+  level targets. ONLY activated by command: `/ops-sla`. Use `--create` or
+  `--refine` to set mode. NEVER auto-trigger based on keywords.
+argument-hint: "--create|--refine [path to scope-final.md or monitoring-plan-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -25,7 +25,7 @@ The SLA specification bridges "what we monitor" (monitoring plan) and "how we re
 
 ## Two Modes
 
-### Mode 1: Create (`/ops-sla`)
+### Mode 1: Create (`--create`)
 
 Generate an SLA specification from scope quality attributes and monitoring plan.
 
@@ -37,7 +37,7 @@ Generate an SLA specification from scope quality attributes and monitoring plan.
 | Architecture (final) | No | `sdlc/design/final/architecture-final.md` — service boundaries for per-service SLOs |
 | Incident response (final) | No | `sdlc/ops/final/incident-response-final.md` — severity calibration for SLO breaches |
 
-### Mode 2: Refine (`/ops-sla-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing SLA specification based on user feedback.
 
@@ -64,9 +64,10 @@ When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/sl
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-sla-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
-- User runs `/ops-sla` -> **Mode 1 (Create)**
-- User runs `/ops-sla` but draft already exists -> Ask: "An SLA spec draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/ops/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -251,7 +252,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/ops-sla-refine`
+> - Review the output and provide feedback via `/ops-sla --refine`
 > - When satisfied, copy to `sdlc/ops/final/sla-spec-final.md`
 > - Then run `/ops-runbook` to define operational runbooks
 

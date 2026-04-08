@@ -1072,7 +1072,7 @@ Coverage targets are met, but 47% of test cases are marked ASSUMED — meaning n
 2. **Review ASSUMED test cases** — schedule 30-minute walkthrough with product owner to confirm or correct assumptions
 3. **Add missing GET /projects/:id happy path** — currently only 404 test exists, need happy-path TC
 4. **Finalize test data seed script** — create `seed-taskflow-world.sql` before implementation begins
-5. **Run `/test-cases-refine`** after Q&A resolution to update confidence markers
+5. **Run `/test-cases --refine`** after Q&A resolution to update confidence markers
 
 ---
 

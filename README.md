@@ -291,7 +291,7 @@ Every skill supports iterative refinement. The refine command improves an existi
 ### How to Refine
 
 ```
-/init-charter-refine
+/init-charter --refine
 ```
 
 Then provide your feedback in one of three ways:
@@ -316,9 +316,9 @@ Then provide your feedback in one of three ways:
 ### Refine Cycle
 
 ```
-/init-charter              → sdlc/init/draft/charter-draft.md     (v1, 30% Ready)
-/init-charter-refine       → sdlc/init/draft/charter-v2.md        (v2, 55% Ready)
-/init-charter-refine       → sdlc/init/draft/charter-v3.md        (v3, 85% Ready)
+/init-charter --create     → sdlc/init/draft/charter-draft.md     (v1, 30% Ready)
+/init-charter --refine     → sdlc/init/draft/charter-v2.md        (v2, 55% Ready)
+/init-charter --refine     → sdlc/init/draft/charter-v3.md        (v3, 85% Ready)
   └── Satisfied? Copy to sdlc/init/final/charter-final.md
 ```
 

@@ -3,9 +3,9 @@ name: ops-monitor
 description: >
   Create or refine a monitoring plan defining the monitoring, alerting, and
   observability strategy — what to monitor, alert thresholds, dashboards, log
-  aggregation, and distributed tracing. ONLY activated by commands: `/ops-monitor`
-  (create) or `/ops-monitor-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to env-spec-final.md or architecture-final.md] (md/pdf/docx/xlsx/pptx)"
+  aggregation, and distributed tracing. ONLY activated by command: `/ops-monitor`.
+  Use `--create` or `--refine` to set mode. NEVER auto-trigger based on keywords.
+argument-hint: "--create|--refine [path to env-spec-final.md or architecture-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -25,7 +25,7 @@ The monitoring plan bridges "where we run" (environment specification) and "how 
 
 ## Two Modes
 
-### Mode 1: Create (`/ops-monitor`)
+### Mode 1: Create (`--create`)
 
 Generate a monitoring plan from environment specification and architecture artifacts.
 
@@ -37,7 +37,7 @@ Generate a monitoring plan from environment specification and architecture artif
 | Scope (final) | No | `sdlc/init/final/scope-final.md` — quality attributes for SLO-based alert thresholds |
 | Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — failure scenarios to monitor |
 
-### Mode 2: Refine (`/ops-monitor-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing monitoring plan based on user feedback.
 
@@ -64,9 +64,10 @@ When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/mo
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-monitor-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
-- User runs `/ops-monitor` -> **Mode 1 (Create)**
-- User runs `/ops-monitor` but draft already exists -> Ask: "A monitoring plan draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/ops/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -263,7 +264,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/ops-monitor-refine`
+> - Review the output and provide feedback via `/ops-monitor --refine`
 > - When satisfied, copy to `sdlc/ops/final/monitoring-plan-final.md`
 > - Then run `/ops-incident` to define incident response procedures
 

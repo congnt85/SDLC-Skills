@@ -4,9 +4,9 @@ description: >
   Create or refine a project risk register from charter and/or scope documents.
   Identifies, assesses, and plans responses for project risks using probability-impact
   scoring, risk categorization, heat maps, and monitoring plans.
-  ONLY activated by commands: `/init-risk` (create) or `/init-risk-refine` (refine).
+  ONLY activated by command: `/init-risk`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine [path to charter or scope file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: init
@@ -26,7 +26,7 @@ The risk register is a living document — it captures what could go wrong, how 
 
 ## Two Modes
 
-### Mode 1: Create (`/init-risk`)
+### Mode 1: Create (`--create`)
 
 Generate a new risk register from charter and/or scope documents.
 
@@ -36,7 +36,7 @@ Generate a new risk register from charter and/or scope documents.
 | Scope (final or draft) | No | `sdlc/init/final/scope-final.md` or user-specified path |
 | Additional context | No | User provides known risks, concerns |
 
-### Mode 2: Refine (`/init-risk-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve an existing risk register based on user feedback.
 
@@ -63,9 +63,10 @@ When user is satisfied -> they copy from `sdlc/init/draft/` to `sdlc/init/final/
 
 ### Step 1: Determine Mode
 
-- User runs `/init-risk-refine` AND existing draft exists in `sdlc/init/draft/` -> **Mode 2 (Refine)**
-- User runs `/init-risk` -> **Mode 1 (Create)**
-- User runs `/init-risk` but draft already exists -> Ask: "A risk register draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument -> **Mode 2 (Refine)**
+- User passes `--create` argument -> **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/init/draft/` -> Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists -> **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -226,7 +227,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/init-risk-refine`
+> - Review the output and provide feedback via `/init-risk --refine`
 > - When satisfied, copy to `sdlc/init/final/risk-register-final.md`
 > - Initiation phase complete! Run `/req-epic` to start requirements
 

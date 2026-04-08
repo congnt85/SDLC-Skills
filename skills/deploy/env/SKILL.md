@@ -4,9 +4,9 @@ description: >
   Create or refine an environment specification from architecture, tech-stack,
   and CI/CD pipeline artifacts. Defines infrastructure topology, service sizing,
   networking, security, scaling policies, backup/DR, and cost estimation for all
-  environments. ONLY activated by commands: `/deploy-env` (create) or
-  `/deploy-env-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
+  environments. ONLY activated by command: `/deploy-env`. Use `--create` or
+  `--refine` to set mode. NEVER auto-trigger based on keywords.
+argument-hint: "--create|--refine [path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -26,7 +26,7 @@ The environment specification bridges "how we deploy" (CI/CD pipeline, release p
 
 ## Two Modes
 
-### Mode 1: Create (`/deploy-env`)
+### Mode 1: Create (`--create`)
 
 Generate an environment specification from architecture, tech-stack, and CI/CD pipeline artifacts.
 
@@ -40,7 +40,7 @@ Generate an environment specification from architecture, tech-stack, and CI/CD p
 | Database design (final) | No | `sdlc/design/final/database-final.md` — database sizing, backup requirements |
 | Test plan (final) | No | `sdlc/test/final/test-plan-final.md` — test environment requirements |
 
-### Mode 2: Refine (`/deploy-env-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing environment specification based on user feedback.
 
@@ -67,9 +67,10 @@ When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/fi
 
 ### Step 1: Determine Mode
 
-- User runs `/deploy-env-refine` AND existing draft exists in `sdlc/deploy/draft/` -> **Mode 2 (Refine)**
-- User runs `/deploy-env` -> **Mode 1 (Create)**
-- User runs `/deploy-env` but draft already exists -> Ask: "An environment spec draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/deploy/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -287,7 +288,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/deploy-env-refine`
+> - Review the output and provide feedback via `/deploy-env --refine`
 > - When satisfied, copy to `sdlc/deploy/final/env-spec-final.md`
 > - Then run `/ops-monitor` to define monitoring and alerting
 

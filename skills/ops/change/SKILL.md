@@ -3,9 +3,9 @@ name: ops-change
 description: >
   Create or refine a change management document defining how production changes
   are requested, reviewed, approved, executed, and tracked. ONLY activated by
-  commands: `/ops-change` (create) or `/ops-change-refine` (refine). NEVER
+  command: `/ops-change`. Use `--create` or `--refine` to set mode. NEVER
   auto-trigger based on keywords.
-argument-hint: "[path to release-plan-final.md or cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to release-plan-final.md or cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -25,7 +25,7 @@ The change management skill is the final skill in the entire SDLC system. It clo
 
 ## Two Modes
 
-### Mode 1: Create (`/ops-change`)
+### Mode 1: Create (`--create`)
 
 Generate a change management process from release and deployment artifacts.
 
@@ -38,7 +38,7 @@ Generate a change management process from release and deployment artifacts.
 | Environment spec (final) | No | `sdlc/deploy/final/env-spec-final.md` — environments affected by changes |
 | SLA spec (final) | No | `sdlc/ops/final/sla-spec-final.md` — SLO impact assessment for changes |
 
-### Mode 2: Refine (`/ops-change-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing change management document based on user feedback.
 
@@ -65,9 +65,10 @@ When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/ch
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-change-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
-- User runs `/ops-change` -> **Mode 1 (Create)**
-- User runs `/ops-change` but draft already exists -> Ask: "A change management draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/ops/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -265,7 +266,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/ops-change-refine`
+> - Review the output and provide feedback via `/ops-change --refine`
 > - When satisfied, copy to `sdlc/ops/final/change-mgmt-final.md`
 > - This is the final skill in the SDLC pipeline -- your operational documentation is complete!
 

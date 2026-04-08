@@ -5,9 +5,9 @@ description: >
   pull request process, code review standards, CI/CD pipeline integration,
   coding conventions, and hotfix procedures. Establishes the team's day-to-day
   development practices.
-  ONLY activated by commands: `/impl-workflow` (create) or `/impl-workflow-refine` (refine).
+  ONLY activated by command: `/impl-workflow`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to tech-stack-final.md or test-strategy-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to tech-stack-final.md or test-strategy-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -27,7 +27,7 @@ This skill establishes the team's day-to-day development practices — the repea
 
 ## Two Modes
 
-### Mode 1: Create (`/impl-workflow`)
+### Mode 1: Create (`--create`)
 
 Generate a development workflow from tech stack and test strategy artifacts.
 
@@ -40,7 +40,7 @@ Generate a development workflow from tech stack and test strategy artifacts.
 | Charter (final) | No | `sdlc/init/final/charter-final.md` -- team size for review requirements |
 | Codegen Plan (final) | No | `sdlc/impl/final/codegen-plan-final.md` -- project structure for CI config |
 
-### Mode 2: Refine (`/impl-workflow-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing workflow document based on user feedback.
 
@@ -67,9 +67,10 @@ When user is satisfied -> they copy from `sdlc/impl/draft/` to `sdlc/impl/final/
 
 ### Step 1: Determine Mode
 
-- User runs `/impl-workflow-refine` AND existing draft exists in `sdlc/impl/draft/` -> **Mode 2 (Refine)**
-- User runs `/impl-workflow` -> **Mode 1 (Create)**
-- User runs `/impl-workflow` but draft already exists in `sdlc/impl/draft/` -> Ask: "A workflow draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/impl/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -291,7 +292,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/impl-workflow-refine`
+> - Review the output and provide feedback via `/impl-workflow --refine`
 > - When satisfied, copy to `sdlc/impl/final/dev-workflow-final.md`
 > - Then run `/deploy-cicd` to define the CI/CD deployment pipeline
 

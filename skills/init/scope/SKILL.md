@@ -4,9 +4,9 @@ description: >
   Create or refine a detailed project scope document from an approved charter.
   Expands charter's high-level scope into feature inventory, personas,
   system context, quality attributes, and scope change control.
-  ONLY activated by commands: `/init-scope` (create) or `/init-scope-refine` (refine).
+  ONLY activated by command: `/init-scope`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to charter file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine [path to charter file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: init
@@ -26,7 +26,7 @@ The scope document bridges the gap between "what we want to achieve" (charter) a
 
 ## Two Modes
 
-### Mode 1: Create (`/init-scope`)
+### Mode 1: Create (`--create`)
 
 Generate a new scope document from an approved charter.
 
@@ -35,7 +35,7 @@ Generate a new scope document from an approved charter.
 | Charter (final or draft) | Yes | `sdlc/init/final/charter-final.md` or user-specified path |
 | Additional context | No | User provides domain knowledge, constraints |
 
-### Mode 2: Refine (`/init-scope-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve an existing scope document based on user feedback.
 
@@ -62,9 +62,10 @@ When user is satisfied -> they copy from `sdlc/init/draft/` to `sdlc/init/final/
 
 ### Step 1: Determine Mode
 
-- User runs `/init-scope-refine` AND existing draft exists in `sdlc/init/draft/` -> **Mode 2 (Refine)**
-- User runs `/init-scope` -> **Mode 1 (Create)**
-- User runs `/init-scope` but draft already exists -> Ask: "A scope draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument -> **Mode 2 (Refine)**
+- User passes `--create` argument -> **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/init/draft/` -> Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists -> **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -217,7 +218,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/init-scope-refine`
+> - Review the output and provide feedback via `/init-scope --refine`
 > - When satisfied, copy to `sdlc/init/final/scope-final.md`
 > - Then run `/init-risk` to create the risk register
 

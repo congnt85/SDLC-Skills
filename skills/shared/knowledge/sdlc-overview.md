@@ -20,76 +20,76 @@ init/ → req/ → design/ → test/ + impl/ → deploy/ → ops/
 
 Establishes the project foundation. Takes a vague idea and produces structured artifacts.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| charter | `/init-charter`, `/init-charter-refine` | Vague idea, constraints | `charter-final.md` |
-| scope | `/init-scope`, `/init-scope-refine` | Charter | `scope-final.md` |
-| risk | `/init-risk`, `/init-risk-refine` | Charter, scope | `risk-register-final.md` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| charter | `/init-charter` | `--create`, `--refine` | Vague idea, constraints | `charter-final.md` |
+| scope | `/init-scope` | `--create`, `--refine` | Charter | `scope-final.md` |
+| risk | `/init-risk` | `--create`, `--refine` | Charter, scope | `risk-register-final.md` |
 
 ### Phase 2: Requirements (`req/`)
 
 Translates project vision into actionable, prioritized work items.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| epic | `/req-epic`, `/req-epic-refine` | Charter, scope | `epics-final.md` |
-| userstory | `/req-userstory`, `/req-userstory-refine` | Epics, scope | `backlog-final.md` |
-| backlog | `/req-backlog`, `/req-backlog-refine` | User stories | `backlog-final.md` |
-| traceability | `/req-trace`, `/req-trace-refine` | All req artifacts | `traceability-final.md` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| epic | `/req-epic` | `--create`, `--refine` | Charter, scope | `epics-final.md` |
+| userstory | `/req-userstory` | `--create`, `--refine` | Epics, scope | `backlog-final.md` |
+| backlog | `/req-backlog` | `--create`, `--refine` | User stories | `backlog-final.md` |
+| traceability | `/req-trace` | `--create`, `--refine` | All req artifacts | `traceability-final.md` |
 
 ### Phase 3: Design (`design/`)
 
 Makes key architectural and technical decisions.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| tech-stack | `/design-stack`, `/design-stack-refine` | Charter, backlog | `tech-stack-final.md` |
-| architecture | `/design-arch`, `/design-arch-refine` | Tech stack, epics | `architecture-final.md` |
-| database | `/design-db`, `/design-db-refine` | Architecture, backlog | `database-final.md` |
-| api | `/design-api`, `/design-api-refine` | Architecture, backlog | `api-final.md` |
-| adr | `/design-adr`, `/design-adr-refine` | All design artifacts | `adr/adr-NNN-final.md` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| tech-stack | `/design-stack` | `--create`, `--refine` | Charter, backlog | `tech-stack-final.md` |
+| architecture | `/design-arch` | `--create`, `--refine` | Tech stack, epics | `architecture-final.md` |
+| database | `/design-db` | `--create`, `--refine` | Architecture, backlog | `database-final.md` |
+| api | `/design-api` | `--create`, `--refine` | Architecture, backlog | `api-final.md` |
+| adr | `/design-adr` | `--create`, `--refine` | All design artifacts | `adr/adr-NNN-final.md` |
 
 ### Phase 4: Testing (`test/`)
 
 Defines how the system will be verified.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| strategy | `/test-strategy`, `/test-strategy-refine` | Design, backlog | `test-strategy-final.md` |
-| plan | `/test-plan`, `/test-plan-refine` | Strategy, sprint plan | `test-plans/` |
-| cases | `/test-cases`, `/test-cases-refine` | User stories, API design | `test-cases/` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| strategy | `/test-strategy` | `--create`, `--refine` | Design, backlog | `test-strategy-final.md` |
+| plan | `/test-plan` | `--create`, `--refine` | Strategy, sprint plan | `test-plans/` |
+| cases | `/test-cases` | `--create`, `--refine` | User stories, API design | `test-cases/` |
 
 ### Phase 5: Implementation (`impl/`)
 
 Executes development work in sprints.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| sprint | `/impl-sprint`, `/impl-sprint-refine` | Backlog, velocity | `sprint-plans/` |
-| codegen | `/impl-codegen`, `/impl-codegen-refine` | Design, test cases | Code files |
-| workflow | `/impl-workflow`, `/impl-workflow-refine` | Team structure | `git-workflow-final.md` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| sprint | `/impl-sprint` | `--create`, `--refine` | Backlog, velocity | `sprint-plans/` |
+| codegen | `/impl-codegen` | `--create`, `--refine` | Design, test cases | Code files |
+| workflow | `/impl-workflow` | `--create`, `--refine` | Team structure | `git-workflow-final.md` |
 
 ### Phase 6: Deployment (`deploy/`)
 
 Delivers working software to environments.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| cicd | `/deploy-cicd`, `/deploy-cicd-refine` | Tech stack, test strategy | `cicd-final.yml` |
-| release | `/deploy-release`, `/deploy-release-refine` | Sprint plan | `release-plan-final.md` |
-| env | `/deploy-env`, `/deploy-env-refine` | Architecture | `env-config-final.md` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| cicd | `/deploy-cicd` | `--create`, `--refine` | Tech stack, test strategy | `cicd-final.yml` |
+| release | `/deploy-release` | `--create`, `--refine` | Sprint plan | `release-plan-final.md` |
+| env | `/deploy-env` | `--create`, `--refine` | Architecture | `env-config-final.md` |
 
 ### Phase 7: Operations (`ops/`)
 
 Maintains and monitors the running system.
 
-| Skill | Commands | Input | Output |
-|-------|----------|-------|--------|
-| monitoring | `/ops-monitor`, `/ops-monitor-refine` | Architecture, SLAs | `monitoring-final.md` |
-| incident | `/ops-incident`, `/ops-incident-refine` | Monitoring, team | `incident-response-final.md` |
-| sla | `/ops-sla`, `/ops-sla-refine` | Charter, architecture | `sla-slo-final.md` |
-| runbook | `/ops-runbook`, `/ops-runbook-refine` | All ops artifacts | `runbooks/` |
-| change | `/ops-change`, `/ops-change-refine` | All ops artifacts | `change-mgmt-final.md` |
+| Skill | Command | Modes | Input | Output |
+|-------|---------|-------|-------|--------|
+| monitoring | `/ops-monitor` | `--create`, `--refine` | Architecture, SLAs | `monitoring-final.md` |
+| incident | `/ops-incident` | `--create`, `--refine` | Monitoring, team | `incident-response-final.md` |
+| sla | `/ops-sla` | `--create`, `--refine` | Charter, architecture | `sla-slo-final.md` |
+| runbook | `/ops-runbook` | `--create`, `--refine` | All ops artifacts | `runbooks/` |
+| change | `/ops-change` | `--create`, `--refine` | All ops artifacts | `change-mgmt-final.md` |
 
 ---
 

@@ -4,9 +4,9 @@ description: >
   Create or refine operational runbooks from monitoring plan, environment spec,
   and incident response artifacts. Defines step-by-step procedures for alert
   response, routine operations, deployment, and disaster recovery. ONLY
-  activated by commands: `/ops-runbook` (create) or `/ops-runbook-refine`
-  (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to monitoring-plan-final.md or env-spec-final.md] (md/pdf/docx/xlsx/pptx)"
+  activated by command: `/ops-runbook`. Use `--create` or `--refine` to set
+  mode. NEVER auto-trigger based on keywords.
+argument-hint: "--create|--refine [path to monitoring-plan-final.md or env-spec-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -26,7 +26,7 @@ Runbooks bridge monitoring (what to watch) and incident response (how to escalat
 
 ## Two Modes
 
-### Mode 1: Create (`/ops-runbook`)
+### Mode 1: Create (`--create`)
 
 Generate operational runbooks from monitoring plan, environment specification, and supporting artifacts.
 
@@ -39,7 +39,7 @@ Generate operational runbooks from monitoring plan, environment specification, a
 | Database design (final) | No | `sdlc/design/final/database-final.md` — database operations procedures |
 | CI/CD pipeline (final) | No | `sdlc/deploy/final/cicd-pipeline-final.md` — deployment/rollback procedures |
 
-### Mode 2: Refine (`/ops-runbook-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing runbooks based on user feedback, fire drill results, or incident learnings.
 
@@ -66,9 +66,10 @@ When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/ru
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-runbook-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
-- User runs `/ops-runbook` -> **Mode 1 (Create)**
-- User runs `/ops-runbook` but draft already exists -> Ask: "A runbooks draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/ops/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -262,7 +263,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/ops-runbook-refine`
+> - Review the output and provide feedback via `/ops-runbook --refine`
 > - When satisfied, copy to `sdlc/ops/final/runbooks-final.md`
 > - Then run `/ops-change` to define change management procedures
 

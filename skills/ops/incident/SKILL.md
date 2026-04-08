@@ -3,9 +3,9 @@ name: ops-incident
 description: >
   Create or refine an incident response document defining severity levels,
   roles, escalation matrix, communication plan, and post-incident review
-  process. ONLY activated by commands: `/ops-incident` (create) or
-  `/ops-incident-refine` (refine). NEVER auto-trigger based on keywords.
-argument-hint: "[path to monitoring-plan-final.md or env-spec-final.md] (md/pdf/docx/xlsx/pptx)"
+  process. ONLY activated by command: `/ops-incident`. Use `--create` or
+  `--refine` to set mode. NEVER auto-trigger based on keywords.
+argument-hint: "--create|--refine [path to monitoring-plan-final.md or env-spec-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: ops
@@ -25,7 +25,7 @@ The incident response document bridges "how we detect problems" (monitoring and 
 
 ## Two Modes
 
-### Mode 1: Create (`/ops-incident`)
+### Mode 1: Create (`--create`)
 
 Generate an incident response document from monitoring plan and infrastructure artifacts.
 
@@ -38,7 +38,7 @@ Generate an incident response document from monitoring plan and infrastructure a
 | Charter (final) | No | `sdlc/init/final/charter-final.md` -- team structure for on-call assignments |
 | Release plan (final) | No | `sdlc/deploy/final/release-plan-final.md` -- rollback procedures |
 
-### Mode 2: Refine (`/ops-incident-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing incident response document based on user feedback.
 
@@ -65,9 +65,10 @@ When user is satisfied -> they copy from `sdlc/ops/draft/` to `sdlc/ops/final/in
 
 ### Step 1: Determine Mode
 
-- User runs `/ops-incident-refine` AND existing draft exists in `sdlc/ops/draft/` -> **Mode 2 (Refine)**
-- User runs `/ops-incident` -> **Mode 1 (Create)**
-- User runs `/ops-incident` but draft already exists -> Ask: "An incident response draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/ops/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -271,7 +272,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/ops-incident-refine`
+> - Review the output and provide feedback via `/ops-incident --refine`
 > - When satisfied, copy to `sdlc/ops/final/incident-response-final.md`
 > - Then run `/ops-sla` to define SLA targets and error budgets
 

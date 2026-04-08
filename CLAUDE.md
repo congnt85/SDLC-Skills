@@ -8,36 +8,40 @@ This repo builds Claude Code skills covering the full Software Development Lifec
 
 ## Build Status
 
-All 7 phases are complete (23 skills, 46 commands). The project migrated from a monolithic structure (`sdlc-initiation`, `sdlc-requirements`, etc.) to a split architecture with isolated, focused skills. Old monolithic skills in `skills/sdlc-*` are being replaced.
+All 7 phases are complete (26 skills + 4 utilities). Each skill accepts `--create` or `--refine` as mode argument. The project migrated from a monolithic structure to a split architecture with isolated, focused skills.
 
 | Phase | Skill | Command | Status |
 |-------|-------|---------|--------|
-| **init** | charter | `/init-charter`, `/init-charter-refine` | **Done** |
-| **init** | scope | `/init-scope`, `/init-scope-refine` | **Done** |
-| **init** | risk | `/init-risk`, `/init-risk-refine` | **Done** |
-| **req** | epic | `/req-epic`, `/req-epic-refine` | **Done** |
-| **req** | userstory | `/req-userstory`, `/req-userstory-refine` | **Done** |
-| **req** | backlog | `/req-backlog`, `/req-backlog-refine` | **Done** |
-| **req** | traceability | `/req-trace`, `/req-trace-refine` | **Done** |
-| **design** | tech-stack | `/design-stack`, `/design-stack-refine` | **Done** |
-| **design** | architecture | `/design-arch`, `/design-arch-refine` | **Done** |
-| **design** | database | `/design-db`, `/design-db-refine` | **Done** |
-| **design** | api | `/design-api`, `/design-api-refine` | **Done** |
-| **design** | adr | `/design-adr`, `/design-adr-refine` | **Done** |
-| **test** | strategy | `/test-strategy`, `/test-strategy-refine` | **Done** |
-| **test** | plan | `/test-plan`, `/test-plan-refine` | **Done** |
-| **test** | cases | `/test-cases`, `/test-cases-refine` | **Done** |
-| **impl** | sprint | `/impl-sprint`, `/impl-sprint-refine` | **Done** |
-| **impl** | codegen | `/impl-codegen`, `/impl-codegen-refine` | **Done** |
-| **impl** | workflow | `/impl-workflow`, `/impl-workflow-refine` | **Done** |
-| **deploy** | cicd | `/deploy-cicd`, `/deploy-cicd-refine` | **Done** |
-| **deploy** | release | `/deploy-release`, `/deploy-release-refine` | **Done** |
-| **deploy** | env | `/deploy-env`, `/deploy-env-refine` | **Done** |
-| **ops** | monitoring | `/ops-monitor`, `/ops-monitor-refine` | **Done** |
-| **ops** | incident | `/ops-incident`, `/ops-incident-refine` | **Done** |
-| **ops** | sla | `/ops-sla`, `/ops-sla-refine` | **Done** |
-| **ops** | runbook | `/ops-runbook`, `/ops-runbook-refine` | **Done** |
-| **ops** | change | `/ops-change`, `/ops-change-refine` | **Done** |
+| **init** | charter | `/init-charter` | **Done** |
+| **init** | scope | `/init-scope` | **Done** |
+| **init** | risk | `/init-risk` | **Done** |
+| **req** | epic | `/req-epic` | **Done** |
+| **req** | userstory | `/req-userstory` | **Done** |
+| **req** | backlog | `/req-backlog` | **Done** |
+| **req** | traceability | `/req-trace` | **Done** |
+| **design** | tech-stack | `/design-stack` | **Done** |
+| **design** | architecture | `/design-arch` | **Done** |
+| **design** | database | `/design-db` | **Done** |
+| **design** | api | `/design-api` | **Done** |
+| **design** | adr | `/design-adr` | **Done** |
+| **test** | strategy | `/test-strategy` | **Done** |
+| **test** | plan | `/test-plan` | **Done** |
+| **test** | cases | `/test-cases` | **Done** |
+| **impl** | sprint | `/impl-sprint` | **Done** |
+| **impl** | codegen | `/impl-codegen` | **Done** |
+| **impl** | workflow | `/impl-workflow` | **Done** |
+| **deploy** | cicd | `/deploy-cicd` | **Done** |
+| **deploy** | release | `/deploy-release` | **Done** |
+| **deploy** | env | `/deploy-env` | **Done** |
+| **ops** | monitoring | `/ops-monitor` | **Done** |
+| **ops** | incident | `/ops-incident` | **Done** |
+| **ops** | sla | `/ops-sla` | **Done** |
+| **ops** | runbook | `/ops-runbook` | **Done** |
+| **ops** | change | `/ops-change` | **Done** |
+| **utils** | read-pdf | `/read-pdf` | **Done** |
+| **utils** | read-word | `/read-word` | **Done** |
+| **utils** | read-excel | `/read-excel` | **Done** |
+| **utils** | read-ppt | `/read-ppt` | **Done** |
 
 ## Repository Structure
 

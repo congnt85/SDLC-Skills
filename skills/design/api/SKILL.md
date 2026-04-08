@@ -4,9 +4,9 @@ description: >
   Create or refine an API design document. Defines REST API endpoints, request/response
   schemas, authentication, error handling, and pagination. Every endpoint traces to
   user stories and acceptance criteria.
-  ONLY activated by commands: `/design-api` (create) or `/design-api-refine` (refine).
+  ONLY activated by command: `/design-api`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or userstories-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to architecture-final.md or userstories-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -26,7 +26,7 @@ Every endpoint traces to user stories and architecture components.
 
 ## Two Modes
 
-### Mode 1: Create (`/design-api`)
+### Mode 1: Create (`--create`)
 
 Generate a new API design document from architecture, user stories, and tech stack artifacts.
 
@@ -39,7 +39,7 @@ Generate a new API design document from architecture, user stories, and tech sta
 | scope-final.md | No | `sdlc/init/final/` — quality attributes for rate limiting, performance |
 | backlog-final.md | No | `sdlc/req/final/` — MVP boundary for v1 API scope |
 
-### Mode 2: Refine (`/design-api-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve an existing API design document based on user feedback.
 
@@ -66,9 +66,10 @@ When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/f
 
 ### Step 1: Determine Mode
 
-- User runs `/design-api-refine` AND existing draft exists in `sdlc/design/draft/` → **Mode 2 (Refine)**
-- User runs `/design-api` → **Mode 1 (Create)**
-- User runs `/design-api` but draft already exists → Ask: "A draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/design/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -235,7 +236,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/design-api-refine`
+> - Review the output and provide feedback via `/design-api --refine`
 > - When satisfied, copy to `sdlc/design/final/api-final.md`
 > - Then run `/design-adr` to capture key API decisions as ADRs
 

@@ -4,9 +4,9 @@ description: >
   Create or refine a requirements traceability matrix and Definition of Ready/Done
   from all requirements and initiation artifacts. Verifies complete coverage from
   charter objectives through epics, features, stories, and acceptance criteria.
-  ONLY activated by commands: `/req-trace` (create) or `/req-trace-refine` (refine).
+  ONLY activated by command: `/req-trace`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to req artifacts (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine [path to req artifacts (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -26,7 +26,7 @@ This is the last skill in the requirements phase. It produces the quality gate a
 
 ## Two Modes
 
-### Mode 1: Create (`/req-trace`)
+### Mode 1: Create (`--create`)
 
 Generate traceability matrix and DoR/DoD from all artifacts.
 
@@ -39,7 +39,7 @@ Generate traceability matrix and DoR/DoD from all artifacts.
 | Scope (final) | Yes | `sdlc/init/final/scope-final.md` |
 | Risk register (final) | No | `sdlc/init/final/risk-register-final.md` |
 
-### Mode 2: Refine (`/req-trace-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing traceability and DoR/DoD based on feedback.
 
@@ -68,7 +68,10 @@ When user is satisfied -> they copy both files to `sdlc/req/final/`:
 
 ### Step 1: Determine Mode
 
-Standard mode detection.
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/req/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -188,7 +191,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review both outputs and provide feedback via `/req-trace-refine`
+> - Review both outputs and provide feedback via `/req-trace --refine`
 > - When satisfied, copy both to `sdlc/req/final/`:
 >   - `sdlc/req/final/traceability-final.md`
 >   - `sdlc/req/final/dor-dod-final.md`

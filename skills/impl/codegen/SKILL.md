@@ -4,9 +4,9 @@ description: >
   Create or refine a code generation plan. Defines project directory structure,
   module specifications, configuration files, ORM models, API route scaffolding,
   and test infrastructure. Plans what code to generate, not the code itself.
-  ONLY activated by commands: `/impl-codegen` (create) or `/impl-codegen-refine` (refine).
+  ONLY activated by command: `/impl-codegen`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to architecture-final.md or tech-stack-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: impl
@@ -26,7 +26,7 @@ This skill bridges "what to build" (design artifacts) and "how to build it" (act
 
 ## Two Modes
 
-### Mode 1: Create (`/impl-codegen`)
+### Mode 1: Create (`--create`)
 
 Generate a code generation plan from design artifacts.
 
@@ -39,7 +39,7 @@ Generate a code generation plan from design artifacts.
 | Test Strategy (final) | No | `sdlc/test/final/test-strategy-final.md` — test tools and structure |
 | DoR/DoD (final) | No | `sdlc/impl/final/dor-dod-final.md` — code quality standards |
 
-### Mode 2: Refine (`/impl-codegen-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing codegen plan based on user feedback.
 
@@ -66,9 +66,10 @@ When user is satisfied -> they copy from `sdlc/impl/draft/` to `sdlc/impl/final/
 
 ### Step 1: Determine Mode
 
-- User runs `/impl-codegen-refine` AND existing draft exists in `sdlc/impl/draft/` -> **Mode 2 (Refine)**
-- User runs `/impl-codegen` -> **Mode 1 (Create)**
-- User runs `/impl-codegen` but draft already exists in `sdlc/impl/draft/` -> Ask: "A codegen plan draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/impl/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -283,7 +284,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/impl-codegen-refine`
+> - Review the output and provide feedback via `/impl-codegen --refine`
 > - When satisfied, copy to `sdlc/impl/final/codegen-plan-final.md`
 > - Then run `/impl-workflow` to define the implementation workflow
 

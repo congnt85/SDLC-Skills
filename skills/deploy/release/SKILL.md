@@ -4,9 +4,9 @@ description: >
   Create or refine a release management plan covering versioning strategy,
   release types, changelog automation, approval workflow, rollback procedures,
   and release calendar. Maps releases to backlog milestones (MVP, R2, R3).
-  ONLY activated by commands: `/deploy-release` (create) or `/deploy-release-refine` (refine).
+  ONLY activated by command: `/deploy-release`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to cicd-pipeline-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: deploy
@@ -26,7 +26,7 @@ The release plan ensures every deployment is planned, traceable, reversible, and
 
 ## Two Modes
 
-### Mode 1: Create (`/deploy-release`)
+### Mode 1: Create (`--create`)
 
 Generate a release management plan from CI/CD pipeline definition and backlog.
 
@@ -39,7 +39,7 @@ Generate a release management plan from CI/CD pipeline definition and backlog.
 | DoR/DoD (final) | No | `sdlc/req/final/dor-dod-final.md` — DoD for release quality gates |
 | Scope (final) | No | `sdlc/init/final/scope-final.md` — quality attributes for release criteria |
 
-### Mode 2: Refine (`/deploy-release-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing release plan based on user feedback.
 
@@ -65,7 +65,10 @@ When user is satisfied -> they copy from `sdlc/deploy/draft/` to `sdlc/deploy/fi
 
 ### Step 1: Determine Mode
 
-Standard mode detection (create vs refine).
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/deploy/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -193,7 +196,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/deploy-release-refine`
+> - Review the output and provide feedback via `/deploy-release --refine`
 > - When satisfied, copy to `sdlc/deploy/final/release-plan-final.md`
 > - Then run `/deploy-env` to define environment management
 

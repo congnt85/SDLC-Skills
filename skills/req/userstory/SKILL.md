@@ -4,9 +4,9 @@ description: >
   Create or refine user stories with INVEST criteria and Gherkin acceptance
   criteria from epics and scope features. Decomposes each epic into
   implementable stories for each persona, including NFR and spike stories.
-  ONLY activated by commands: `/req-userstory` (create) or `/req-userstory-refine` (refine).
+  ONLY activated by command: `/req-userstory`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to epics file (md/pdf/docx/xlsx/pptx)]"
+argument-hint: "--create|--refine [path to epics file (md/pdf/docx/xlsx/pptx)]"
 version: "1.0"
 category: sdlc
 phase: req
@@ -24,7 +24,7 @@ Create or refine a user stories document (`sdlc/req/draft/userstories-draft.md`)
 
 ## Two Modes
 
-### Mode 1: Create (`/req-userstory`)
+### Mode 1: Create (`--create`)
 
 Generate user stories from epics and scope features.
 
@@ -34,7 +34,7 @@ Generate user stories from epics and scope features.
 | Scope (final) | Yes | `sdlc/init/final/scope-final.md` or user-specified path |
 | Risk register (final) | No | `sdlc/init/final/risk-register-final.md` — high risks become spike stories |
 
-### Mode 2: Refine (`/req-userstory-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve existing stories based on user feedback.
 
@@ -61,9 +61,10 @@ When user is satisfied -> they copy from `sdlc/req/draft/` to `sdlc/req/final/us
 
 ### Step 1: Determine Mode
 
-- User runs `/req-userstory-refine` AND existing draft exists in `sdlc/req/draft/` -> **Mode 2 (Refine)**
-- User runs `/req-userstory` -> **Mode 1 (Create)**
-- User runs `/req-userstory` but draft already exists -> Ask: "A stories draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/req/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -212,7 +213,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/req-userstory-refine`
+> - Review the output and provide feedback via `/req-userstory --refine`
 > - When satisfied, copy to `sdlc/req/final/userstories-final.md`
 > - Then run `/req-backlog` to prioritize and order the product backlog
 

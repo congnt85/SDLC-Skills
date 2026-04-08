@@ -5,9 +5,9 @@ description: >
   executable test scenarios with steps, test data, expected results, and
   traceability to acceptance criteria. Covers functional, API, integration,
   and NFR test cases.
-  ONLY activated by commands: `/test-cases` (create) or `/test-cases-refine` (refine).
+  ONLY activated by command: `/test-cases`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to userstories-final.md or api-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to userstories-final.md or api-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: test
@@ -27,8 +27,8 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 
 | Mode | Command | Input | Output |
 |------|---------|-------|--------|
-| **Create** | `/test-cases` | Requirements + design artifacts | New test-cases-draft.md |
-| **Refine** | `/test-cases-refine` | Existing draft + user feedback | Updated test-cases-draft.md |
+| **Create** | `/test-cases --create` | Requirements + design artifacts | New test-cases-draft.md |
+| **Refine** | `/test-cases --refine` | Existing draft + user feedback | Updated test-cases-draft.md |
 
 ---
 
@@ -68,9 +68,10 @@ Create **test-cases-draft.md** with specific, executable test cases organized in
 
 ### Step 1 — Detect Mode
 
-- If `/test-cases` → **Create mode** (Step 2)
-- If `/test-cases-refine` → **Refine mode** (Step 4-Refine)
-- If neither → STOP. Tell user to use `/test-cases` or `/test-cases-refine`.
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/test/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2 — Read Knowledge and Rules
 

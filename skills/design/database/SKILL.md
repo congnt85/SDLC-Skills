@@ -4,9 +4,9 @@ description: >
   Create or refine a database schema design document. Produces ERD diagrams,
   table specifications, indexes, relationships, and migration strategy.
   Every table traces to user stories and every column to acceptance criteria.
-  ONLY activated by commands: `/design-db` (create) or `/design-db-refine` (refine).
+  ONLY activated by command: `/design-db`. Use `--create` or `--refine` to set mode.
   NEVER auto-trigger based on keywords.
-argument-hint: "[path to architecture-final.md or userstories-final.md] (md/pdf/docx/xlsx/pptx)"
+argument-hint: "--create|--refine [path to architecture-final.md or userstories-final.md] (md/pdf/docx/xlsx/pptx)"
 version: "1.0"
 category: sdlc
 phase: design
@@ -26,7 +26,7 @@ Every table traces to user stories and every column to acceptance criteria.
 
 ## Two Modes
 
-### Mode 1: Create (`/design-db`)
+### Mode 1: Create (`--create`)
 
 Generate a new database schema design from architecture and requirements artifacts.
 
@@ -39,7 +39,7 @@ Generate a new database schema design from architecture and requirements artifac
 | epics-final.md | No | `sdlc/req/final/` — feature grouping for migration phasing |
 | backlog-final.md | No | `sdlc/req/final/` — MVP boundary determines v1 schema |
 
-### Mode 2: Refine (`/design-db-refine`)
+### Mode 2: Refine (`--refine`)
 
 Improve an existing database schema document based on user feedback.
 
@@ -66,9 +66,10 @@ When user is satisfied → they copy from `sdlc/design/draft/` to `sdlc/design/f
 
 ### Step 1: Determine Mode
 
-- User runs `/design-db-refine` AND existing draft exists in `sdlc/design/draft/` → **Mode 2 (Refine)**
-- User runs `/design-db` → **Mode 1 (Create)**
-- User runs `/design-db` but draft already exists → Ask: "A draft already exists. Create new (overwrite) or refine existing?"
+- User passes `--refine` argument → **Mode 2 (Refine)**
+- User passes `--create` argument → **Mode 1 (Create)**
+- No argument specified AND existing draft exists in `sdlc/design/draft/` → Ask: "A draft already exists. Use `--create` to start fresh or `--refine` to improve it."
+- No argument specified AND no draft exists → **Mode 1 (Create)**
 
 ### Step 2: Read Knowledge and Rules
 
@@ -233,7 +234,7 @@ Tell the user:
 > - Q&A pending: {N} (HIGH: {H})
 >
 > **Next steps:**
-> - Review the output and provide feedback via `/design-db-refine`
+> - Review the output and provide feedback via `/design-db --refine`
 > - When satisfied, copy to `sdlc/design/final/database-final.md`
 > - Then run `/design-api` (if not done) or `/design-adr`
 
